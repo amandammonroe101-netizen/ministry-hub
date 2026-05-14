@@ -276,26 +276,135 @@ export const playCountIn = (bpm, beats = 4) => {
 };
 
 /* ── Microphone recorder ─────────────────────────────────────── */
-export const startMicRecording = async () => {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+/** Raw, un-processed mic constraints — we don't want the browser
+ *  gain-riding or gating a musical performance. */
+const MIC_CONSTRAINTS = {
+  audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+};
+
+/**
+ * Opens the mic, starts a MediaRecorder, and exposes:
+ *   - recStartCtxTime : AudioContext time captured the instant recording began
+ *   - getLevel()      : current input peak (0..~1) for live metering
+ *   - setMonitor(on)  : route the mic to the speakers (input monitoring)
+ *   - stop()          : stop + resolve to a base64 data URL of the take
+ */
+export const startMicRecording = async ({ monitor = false } = {}) => {
+  const stream = await navigator.mediaDevices.getUserMedia(MIC_CONSTRAINTS);
+  const ctx = getCtx();
+  const srcNode = ctx.createMediaStreamSource(stream);
+
+  // live input metering tap
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  srcNode.connect(analyser);
+
+  // optional input monitoring (mic → speakers)
+  const monitorGain = ctx.createGain();
+  monitorGain.gain.value = monitor ? 1 : 0;
+  srcNode.connect(monitorGain).connect(ctx.destination);
+
   const mr = new MediaRecorder(stream);
   const chunks = [];
   mr.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
   mr.start();
+  const recStartCtxTime = ctx.currentTime;
+
   return {
+    recStartCtxTime,
+    getLevel: () => readLevel(analyser),
+    setMonitor(on) { monitorGain.gain.value = on ? 1 : 0; },
     stop() {
       return new Promise((resolve) => {
         mr.onstop = () => {
           const blob = new Blob(chunks, { type: 'audio/webm' });
           stream.getTracks().forEach(t => t.stop());
+          try { srcNode.disconnect(); monitorGain.disconnect(); } catch {}
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result);
           reader.readAsDataURL(blob);
         };
-        mr.stop();
+        try { mr.stop(); } catch { resolve(null); }
       });
     },
   };
+};
+
+/**
+ * Round-trip latency calibration. Plays a series of clicks through the
+ * speakers while recording the mic, then measures how late each click
+ * lands in the recording. Returns the median offset in milliseconds.
+ *
+ * Requires the mic to actually hear the speakers — use the built-in
+ * speakers + mic (not headphones) and a reasonable volume.
+ */
+export const calibrateLatency = async ({ clicks = 6, gap = 0.45 } = {}) => {
+  const stream = await navigator.mediaDevices.getUserMedia(MIC_CONSTRAINTS);
+  const ctx = getCtx();
+  const mr = new MediaRecorder(stream);
+  const chunks = [];
+  mr.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+  mr.start();
+  const recStart = ctx.currentTime;
+
+  // schedule a row of short, bright clicks
+  const firstClick = recStart + 0.4;
+  const clickTimes = [];
+  for (let i = 0; i < clicks; i++) {
+    const t = firstClick + i * gap;
+    clickTimes.push(t);
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 2000;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.6, t + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.05);
+  }
+
+  // wait until well past the last click
+  const waitMs = (clickTimes[clickTimes.length - 1] - ctx.currentTime + 0.5) * 1000;
+  await new Promise(r => setTimeout(r, Math.max(0, waitMs)));
+
+  // stop + decode the recording
+  const dataUrl = await new Promise((resolve) => {
+    mr.onstop = () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      stream.getTracks().forEach(t => t.stop());
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    };
+    try { mr.stop(); } catch { resolve(null); }
+  });
+  if (!dataUrl) throw new Error('Calibration recording failed.');
+  const res = await fetch(dataUrl);
+  const buf = await ctx.decodeAudioData(await res.arrayBuffer());
+  const data = buf.getChannelData(0);
+  const rate = buf.sampleRate;
+
+  // for each click, find the loudest sample in a window after its expected time
+  const offsets = [];
+  for (let i = 0; i < clickTimes.length; i++) {
+    const expected = clickTimes[i] - recStart;          // seconds into the recording
+    const from = Math.max(0, Math.floor((expected - 0.03) * rate));
+    const to   = Math.min(data.length, Math.floor((expected + 0.30) * rate));
+    let peakIdx = -1, peakVal = 0;
+    for (let s = from; s < to; s++) {
+      const v = Math.abs(data[s]);
+      if (v > peakVal) { peakVal = v; peakIdx = s; }
+    }
+    if (peakIdx >= 0 && peakVal > 0.04) offsets.push(peakIdx / rate - expected);
+  }
+  if (offsets.length < 2) {
+    throw new Error('No clicks detected. Use your built-in speakers + mic and turn the volume up.');
+  }
+  offsets.sort((a, b) => a - b);
+  const median = offsets[Math.floor(offsets.length / 2)];
+  return Math.round(Math.min(0.5, Math.max(0, median)) * 1000);
 };
 
 /* ── Mixdown → AudioBuffer (OfflineAudioContext) ─────────────── */

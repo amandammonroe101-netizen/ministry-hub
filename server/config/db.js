@@ -260,6 +260,8 @@ const initDb = async () => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     tempo INTEGER DEFAULT 100,
+    master_volume REAL DEFAULT 1,
+    record_latency_ms INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT (datetime('now')),
     updated_at DATETIME DEFAULT (datetime('now'))
   );`);
@@ -282,9 +284,10 @@ const initDb = async () => {
     FOREIGN KEY (project_id) REFERENCES studio_projects(id)
   );`);
 
-  // Additive migration — channel-strip effects + master volume
+  // Additive migration — channel-strip effects + master volume + record latency
   try { db.run("ALTER TABLE studio_tracks ADD COLUMN effects TEXT DEFAULT '{}'"); } catch(e){}
   try { db.run("ALTER TABLE studio_projects ADD COLUMN master_volume REAL DEFAULT 1"); } catch(e){}
+  try { db.run("ALTER TABLE studio_projects ADD COLUMN record_latency_ms INTEGER DEFAULT 0"); } catch(e){}
 
   saveDb();
   console.log('✅ Database initialized');

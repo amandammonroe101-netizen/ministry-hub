@@ -57,13 +57,14 @@ const update = (req, res) => {
   try {
     const existing = q1('SELECT * FROM studio_projects WHERE id = ?', [req.params.id]);
     if (!existing) return res.status(404).json({ success: false, message: 'Not found' });
-    const { name, tempo, master_volume } = req.body;
+    const { name, tempo, master_volume, record_latency_ms } = req.body;
     getDb().run(
-      `UPDATE studio_projects SET name=?, tempo=?, master_volume=?, updated_at=datetime('now') WHERE id=?`,
+      `UPDATE studio_projects SET name=?, tempo=?, master_volume=?, record_latency_ms=?, updated_at=datetime('now') WHERE id=?`,
       [
         name ?? existing.name,
         tempo ?? existing.tempo,
         master_volume !== undefined ? master_volume : (existing.master_volume ?? 1),
+        record_latency_ms !== undefined ? record_latency_ms : (existing.record_latency_ms ?? 0),
         req.params.id,
       ]
     );
@@ -85,14 +86,15 @@ const remove = (req, res) => {
 /* ── Tracks ──────────────────────────────────────────────────── */
 const addTrack = (req, res) => {
   try {
-    const { name, audio_data, clip_offset } = req.body;
+    const { name, audio_data, clip_offset, trim_start, trim_end } = req.body;
     if (!audio_data) return res.status(400).json({ success: false, message: 'audio_data required' });
     const max = q1('SELECT COALESCE(MAX(sort_order), -1) AS m FROM studio_tracks WHERE project_id = ?', [req.params.id]);
     const db = getDb();
     db.run(
-      `INSERT INTO studio_tracks (project_id, name, audio_data, clip_offset, sort_order, effects)
-       VALUES (?,?,?,?,?,?)`,
-      [req.params.id, name || `Track ${(max?.m ?? -1) + 2}`, audio_data, clip_offset || 0, (max?.m ?? -1) + 1, '{}']
+      `INSERT INTO studio_tracks (project_id, name, audio_data, clip_offset, trim_start, trim_end, sort_order, effects)
+       VALUES (?,?,?,?,?,?,?,?)`,
+      [req.params.id, name || `Track ${(max?.m ?? -1) + 2}`, audio_data, clip_offset || 0,
+       trim_start || 0, trim_end || 0, (max?.m ?? -1) + 1, '{}']
     );
     db.run("UPDATE studio_projects SET updated_at=datetime('now') WHERE id=?", [req.params.id]);
     persistDb();

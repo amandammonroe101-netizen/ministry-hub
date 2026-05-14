@@ -5,7 +5,7 @@ import { songService } from '../../services/songService';
 import {
   MultitrackPlayer, decodeTrack, dropFromCache, computePeaks,
   clipDuration, projectDuration, playCountIn, startMicRecording,
-  mixdown, encodeWav, blobToDataUrl, DEFAULT_FX,
+  calibrateLatency, mixdown, encodeWav, blobToDataUrl, DEFAULT_FX, getCtx,
 } from './engine';
 import './Multitrack.css';
 
@@ -43,6 +43,9 @@ export default function Multitrack() {
   const [countIn, setCountIn]     = useState(true);
   const [showMixer, setShowMixer] = useState(false);
   const [levels, setLevels]       = useState({});
+  const [monitorInput, setMonitorInput]   = useState(false);
+  const [recSettingsOpen, setRecSettingsOpen] = useState(false);
+  const [calibStatus, setCalibStatus]      = useState(null); // null | 'running' | {ms} | {error}
 
   const [showNewProject, setShowNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -53,11 +56,15 @@ export default function Multitrack() {
   const rafRef       = useRef(null);
   const recorderRef  = useRef(null);
   const recStartRef  = useRef(0);
+  const recLeadInRef = useRef(0);     // seconds recorded before playback began (count-in + pre-roll)
+  const countInTimerRef = useRef(null);
+  const inputRafRef  = useRef(null);  // input-meter RAF while arming (pre-playback)
   const fileInputRef = useRef(null);
   const scrollRef    = useRef(null);
   const dragRef        = useRef(null);
   const saveTimers     = useRef({});
   const masterSaveTimer = useRef(null);
+  const latencySaveTimer = useRef(null);
 
   /* ── load ────────────────────────────────────────────────── */
   useEffect(() => { fetchProjects(); }, []);
@@ -190,11 +197,25 @@ export default function Multitrack() {
     setPlaying(true);
     const tick = () => {
       setPlayhead(player.now());
-      setLevels(player.getLevels());
+      const lv = player.getLevels();
+      if (recorderRef.current?.getLevel) lv.input = recorderRef.current.getLevel();
+      setLevels(lv);
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
   };
+
+  /* input-only meter loop — runs while arming, before playback's RAF starts */
+  const startInputMeter = () => {
+    cancelAnimationFrame(inputRafRef.current);
+    const loop = () => {
+      const lvl = recorderRef.current?.getLevel?.() ?? 0;
+      setLevels(prev => ({ ...prev, input: lvl }));
+      inputRafRef.current = requestAnimationFrame(loop);
+    };
+    inputRafRef.current = requestAnimationFrame(loop);
+  };
+  const stopInputMeter = () => cancelAnimationFrame(inputRafRef.current);
 
   const stopPlayback = () => {
     playerRef.current?.stop();
@@ -206,7 +227,12 @@ export default function Multitrack() {
 
   const stopAll = () => {
     stopPlayback();
-    if (recorderRef.current) { recorderRef.current = null; }
+    stopInputMeter();
+    if (countInTimerRef.current) { clearTimeout(countInTimerRef.current); countInTimerRef.current = null; }
+    if (recorderRef.current) {
+      try { recorderRef.current.stop(); } catch {}   // releases the mic stream
+      recorderRef.current = null;
+    }
     setRecording(null);
   };
 
@@ -219,21 +245,29 @@ export default function Multitrack() {
     if (recording) return stopRecording();
     if (!selected) return;
     setRecording('arming');
-    const begin = async () => {
-      try {
-        const rec = await startMicRecording();
-        recorderRef.current = rec;
-        recStartRef.current = playhead;
-        startPlayback(playhead);   // overdub: existing tracks play while we record
-        setRecording('recording');
-      } catch {
-        setError('Microphone unavailable or permission denied.');
-        setRecording(null);
-      }
+    // Open the mic up front so the input meter is live during the count-in.
+    let rec;
+    try {
+      rec = await startMicRecording({ monitor: monitorInput });
+    } catch {
+      setError('Microphone unavailable or permission denied.');
+      setRecording(null);
+      return;
+    }
+    recorderRef.current = rec;
+    startInputMeter();
+    const begin = () => {
+      countInTimerRef.current = null;
+      recStartRef.current = playhead;
+      // how much audio was captured before playback actually started
+      recLeadInRef.current = getCtx().currentTime - rec.recStartCtxTime;
+      stopInputMeter();          // playback's RAF takes over input metering
+      startPlayback(playhead);   // overdub: existing tracks play while we record
+      setRecording('recording');
     };
     if (countIn) {
       const dur = playCountIn(selected.tempo || 100, 4);
-      setTimeout(begin, dur * 1000);
+      countInTimerRef.current = setTimeout(begin, dur * 1000);
     } else {
       begin();
     }
@@ -242,19 +276,57 @@ export default function Multitrack() {
   const stopRecording = async () => {
     const rec = recorderRef.current;
     recorderRef.current = null;
+    if (countInTimerRef.current) { clearTimeout(countInTimerRef.current); countInTimerRef.current = null; }
+    stopInputMeter();
+    const wasRecording = recording === 'recording';
     stopPlayback();
     setRecording('arming');   // "saving…"
     if (!rec) { setRecording(null); return; }
     try {
       const dataUrl = await rec.stop();
+      if (!wasRecording || !dataUrl) { setRecording(null); return; }  // stopped during count-in
+      // Trim off the count-in / pre-roll, plus latency compensation, from the take's head.
+      const latencySec = (selected.record_latency_ms || 0) / 1000;
+      const trimStart  = Math.max(0, recLeadInRef.current + latencySec);
       await studioProjectService.addTrack(selected.id, {
         name: `Track ${selected.tracks.length + 1}`,
         audio_data: dataUrl,
         clip_offset: recStartRef.current,
+        trim_start: trimStart,
       });
       await loadProject(selected.id);
     } catch { setError('Failed to save recording.'); }
     setRecording(null);
+  };
+
+  /* ── recording settings: monitoring + latency calibration ───── */
+  const toggleMonitor = () => {
+    setMonitorInput(on => {
+      const next = !on;
+      recorderRef.current?.setMonitor?.(next);
+      return next;
+    });
+  };
+
+  const updateRecLatency = (ms) => {
+    const v = Math.max(0, Math.min(500, Math.round(ms) || 0));
+    setSelected(s => s ? { ...s, record_latency_ms: v } : s);
+    clearTimeout(latencySaveTimer.current);
+    latencySaveTimer.current = setTimeout(() => {
+      studioProjectService.update(selected.id, { record_latency_ms: v }).catch(() => {});
+    }, 400);
+  };
+
+  const runCalibration = async () => {
+    if (!selected) return;
+    setCalibStatus('running');
+    try {
+      const ms = await calibrateLatency();
+      updateRecLatency(ms);
+      setCalibStatus({ ms });
+    } catch (err) {
+      setCalibStatus({ error: err.message || 'Calibration failed.' });
+    }
   };
 
   const handleAddFile = async (e) => {
@@ -277,7 +349,13 @@ export default function Multitrack() {
   };
 
   // cleanup
-  useEffect(() => () => { stopPlayback(); }, []);
+  useEffect(() => () => {
+    cancelAnimationFrame(rafRef.current);
+    cancelAnimationFrame(inputRafRef.current);
+    if (countInTimerRef.current) clearTimeout(countInTimerRef.current);
+    playerRef.current?.stop();
+    if (recorderRef.current) { try { recorderRef.current.stop(); } catch {} }
+  }, []);
 
   /* ── mixdown ─────────────────────────────────────────────── */
   const handleMixdown = async () => {
@@ -547,11 +625,22 @@ export default function Multitrack() {
                 >
                   {recording === 'arming' ? '…' : recording === 'recording' ? '⏹' : '⏺'}
                 </button>
+                <button
+                  className={`mt-tp-btn mt-tp-gear ${recSettingsOpen ? 'on' : ''}`}
+                  onClick={() => setRecSettingsOpen(v => !v)}
+                  title="Recording settings"
+                >⚙</button>
                 <div className="mt-tp-time">{fmtPrecise(playhead)}</div>
                 <label className="mt-countin">
                   <input type="checkbox" checked={countIn} onChange={e => setCountIn(e.target.checked)} />
                   Count-in
                 </label>
+                {recording && (
+                  <div className="mt-tp-input-meter">
+                    <span className="mt-tp-input-lbl">🎤 INPUT</span>
+                    <Meter level={levels.input || 0} horizontal />
+                  </div>
+                )}
                 {recording === 'recording' && (
                   <span className="mt-rec-live"><span className="mt-rec-dot" /> Recording — overdubbing</span>
                 )}
@@ -562,6 +651,63 @@ export default function Multitrack() {
                   <span className="mt-tp-master-lbl">MASTER</span>
                   <Meter level={levels.master || 0} horizontal />
                 </div>
+
+                {recSettingsOpen && (
+                  <div className="mt-rec-settings">
+                    <div className="mt-rec-settings-title">Recording settings</div>
+
+                    <label className="mt-rec-opt">
+                      <input
+                        type="checkbox"
+                        checked={monitorInput}
+                        onChange={toggleMonitor}
+                      />
+                      <span>
+                        Input monitoring
+                        <small>Hear yourself through the app — use headphones to avoid feedback.</small>
+                      </span>
+                    </label>
+
+                    <div className="mt-rec-opt-block">
+                      <div className="mt-rec-opt-row">
+                        <span>Recording latency</span>
+                        <span className="mt-rec-latency-input">
+                          <input
+                            type="number" min="0" max="500" step="1"
+                            value={selected.record_latency_ms ?? 0}
+                            onChange={e => updateRecLatency(parseInt(e.target.value, 10))}
+                          />
+                          <em>ms</em>
+                        </span>
+                      </div>
+                      <small className="mt-rec-hint">
+                        New takes are nudged earlier by this much so they line up with the
+                        tracks you're hearing.
+                      </small>
+                      <button
+                        className="app-btn ghost mt-calib-btn"
+                        onClick={runCalibration}
+                        disabled={calibStatus === 'running' || recording !== null}
+                      >
+                        {calibStatus === 'running' ? 'Calibrating… (listen for clicks)' : '🎯 Auto-calibrate'}
+                      </button>
+                      {calibStatus && calibStatus !== 'running' && calibStatus.ms !== undefined && (
+                        <small className="mt-calib-ok">✓ Measured {calibStatus.ms} ms round-trip.</small>
+                      )}
+                      {calibStatus && calibStatus.error && (
+                        <small className="mt-calib-err">{calibStatus.error}</small>
+                      )}
+                      <small className="mt-rec-hint">
+                        Calibration plays clicks through your speakers and listens with the
+                        mic — use built-in speakers + mic, not headphones, for this step.
+                      </small>
+                    </div>
+
+                    <button className="mt-rec-settings-close" onClick={() => setRecSettingsOpen(false)}>
+                      Done
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Workspace: fixed heads column + scrollable timeline */}

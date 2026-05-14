@@ -8,6 +8,9 @@ const friendsRoutes  = require('./routes/friends');
 const calendarRoutes        = require('./routes/calendar');
 const habitRoutes           = require('./routes/habit');
 const journalReminderRoutes = require('./routes/journalReminder');
+const songRoutes            = require('./routes/song');
+const setlistRoutes         = require('./routes/setlist');
+const studioProjectRoutes   = require('./routes/studioProject');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +31,9 @@ app.use('/api/friends',  friendsRoutes);
 app.use('/api/calendar',          calendarRoutes);
 app.use('/api/habits',            habitRoutes);
 app.use('/api/journal-reminders', journalReminderRoutes);
+app.use('/api/songs',             songRoutes);
+app.use('/api/setlists',          setlistRoutes);
+app.use('/api/studio-projects',   studioProjectRoutes);
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 if (!isDev) {

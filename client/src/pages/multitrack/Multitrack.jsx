@@ -1,0 +1,848 @@
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import NavRail from '../../components/layout/NavRail';
+import { studioProjectService } from '../../services/studioProjectService';
+import { songService } from '../../services/songService';
+import {
+  MultitrackPlayer, decodeTrack, dropFromCache, computePeaks,
+  clipDuration, projectDuration, playCountIn, startMicRecording,
+  mixdown, encodeWav, blobToDataUrl, DEFAULT_FX,
+} from './engine';
+import './Multitrack.css';
+
+const TRACK_COLORS = ['#34d399', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa', '#fb7185', '#22d3ee', '#fb923c'];
+const RULER_H = 28;
+const TRACK_H = 92;
+
+const fmt = (s) => {
+  if (!isFinite(s) || s < 0) s = 0;
+  const m = Math.floor(s / 60);
+  const r = Math.floor(s % 60);
+  return `${m}:${String(r).padStart(2, '0')}`;
+};
+const fmtPrecise = (s) => {
+  if (!isFinite(s) || s < 0) s = 0;
+  const m = Math.floor(s / 60);
+  const r = (s % 60).toFixed(1);
+  return `${m}:${r.padStart(4, '0')}`;
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Component
+   ───────────────────────────────────────────────────────────── */
+export default function Multitrack() {
+  const [projects, setProjects]   = useState([]);
+  const [selected, setSelected]   = useState(null);   // full project with .tracks (db shape)
+  const [buffers, setBuffers]     = useState({});      // trackId → { buffer, peaks }
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
+
+  const [playing, setPlaying]     = useState(false);
+  const [recording, setRecording] = useState(null);   // null | 'arming' | 'recording'
+  const [playhead, setPlayhead]   = useState(0);
+  const [pxPerSec, setPxPerSec]   = useState(80);
+  const [countIn, setCountIn]     = useState(true);
+  const [showMixer, setShowMixer] = useState(false);
+
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [mixdownState, setMixdownState]     = useState(null); // null | 'rendering' | { blob, dataUrl }
+  const [songs, setSongs]                   = useState([]);
+
+  const playerRef    = useRef(null);
+  const rafRef       = useRef(null);
+  const recorderRef  = useRef(null);
+  const recStartRef  = useRef(0);
+  const fileInputRef = useRef(null);
+  const scrollRef    = useRef(null);
+  const dragRef        = useRef(null);
+  const saveTimers     = useRef({});
+  const masterSaveTimer = useRef(null);
+
+  /* ── load ────────────────────────────────────────────────── */
+  useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => {
+    songService.getAll().then(r => setSongs(r.data.data)).catch(() => {});
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const res = await studioProjectService.getAll();
+      setProjects(res.data.data);
+    } catch { setError('Could not load projects.'); }
+    finally { setLoading(false); }
+  };
+
+  const loadProject = async (id) => {
+    try {
+      stopAll();
+      const res = await studioProjectService.getOne(id);
+      const proj = res.data.data;
+      setSelected(proj);
+      setPlayhead(0);
+      // decode every track
+      const next = {};
+      for (const t of proj.tracks) {
+        try {
+          const buffer = await decodeTrack(t.id, t.audio_data);
+          next[t.id] = { buffer, peaks: computePeaks(buffer, 2000) };
+        } catch { /* skip undecodable */ }
+      }
+      setBuffers(next);
+    } catch { setError('Could not open project.'); }
+  };
+
+  /* ── project mutations ───────────────────────────────────── */
+  const createProject = async () => {
+    if (!newProjectName.trim()) return;
+    try {
+      const res = await studioProjectService.create({ name: newProjectName.trim() });
+      setNewProjectName('');
+      setShowNewProject(false);
+      await fetchProjects();
+      loadProject(res.data.data.id);
+    } catch { setError('Failed to create project.'); }
+  };
+
+  const deleteProject = async (id) => {
+    if (!confirm('Delete this project and all its tracks?')) return;
+    try {
+      await studioProjectService.delete(id);
+      if (selected?.id === id) setSelected(null);
+      await fetchProjects();
+    } catch { setError('Failed to delete project.'); }
+  };
+
+  /* ── track persistence (debounced) ───────────────────────── */
+  const patchTrackLocal = (trackId, patch) => {
+    setSelected(s => s ? {
+      ...s,
+      tracks: s.tracks.map(t => t.id === trackId ? { ...t, ...patch } : t),
+    } : s);
+  };
+  const saveTrack = (trackId, patch) => {
+    clearTimeout(saveTimers.current[trackId]);
+    saveTimers.current[trackId] = setTimeout(() => {
+      studioProjectService.updateTrack(selected.id, trackId, patch).catch(() => {});
+    }, 400);
+  };
+  const updateTrack = (trackId, patch) => {
+    patchTrackLocal(trackId, patch);
+    saveTrack(trackId, patch);
+    if (patch.volume !== undefined || patch.pan !== undefined) {
+      playerRef.current?.updateTrackMix(trackId, patch);
+    }
+  };
+
+  const updateTrackFx = (trackId, fxPatch) => {
+    const track = selected.tracks.find(t => t.id === trackId);
+    const nextFx = { ...DEFAULT_FX, ...(track?.effects || {}), ...fxPatch };
+    patchTrackLocal(trackId, { effects: nextFx });
+    saveTrack(trackId, { effects: nextFx });
+    playerRef.current?.updateTrackFx(trackId, nextFx);
+  };
+
+  const updateMasterVolume = (v) => {
+    setSelected(s => s ? { ...s, master_volume: v } : s);
+    playerRef.current?.setMasterVolume(v);
+    clearTimeout(masterSaveTimer.current);
+    masterSaveTimer.current = setTimeout(() => {
+      studioProjectService.update(selected.id, { master_volume: v }).catch(() => {});
+    }, 400);
+  };
+
+  const removeTrack = async (trackId) => {
+    if (!confirm('Delete this track?')) return;
+    try {
+      await studioProjectService.removeTrack(selected.id, trackId);
+      dropFromCache(trackId);
+      setSelected(s => ({ ...s, tracks: s.tracks.filter(t => t.id !== trackId) }));
+      setBuffers(b => { const n = { ...b }; delete n[trackId]; return n; });
+    } catch { setError('Failed to delete track.'); }
+  };
+
+  /* ── engine track builder ────────────────────────────────── */
+  const engineTracks = useCallback(() => {
+    if (!selected) return [];
+    return selected.tracks.map(t => ({
+      id: t.id,
+      buffer: buffers[t.id]?.buffer || null,
+      volume: t.volume,
+      pan: t.pan,
+      muted: !!t.is_muted,
+      solo: !!t.is_solo,
+      clipOffset: t.clip_offset,
+      trimStart: t.trim_start,
+      trimEnd: t.trim_end,
+      effects: t.effects || {},
+    }));
+  }, [selected, buffers]);
+
+  /* ── transport ───────────────────────────────────────────── */
+  const startPlayback = (from) => {
+    const player = new MultitrackPlayer(selected?.master_volume ?? 1);
+    playerRef.current = player;
+    player.play(engineTracks(), from, () => {
+      setPlaying(false);
+      cancelAnimationFrame(rafRef.current);
+    });
+    setPlaying(true);
+    const tick = () => {
+      setPlayhead(player.now());
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  };
+
+  const stopPlayback = () => {
+    playerRef.current?.stop();
+    playerRef.current = null;
+    cancelAnimationFrame(rafRef.current);
+    setPlaying(false);
+  };
+
+  const stopAll = () => {
+    stopPlayback();
+    if (recorderRef.current) { recorderRef.current = null; }
+    setRecording(null);
+  };
+
+  const handlePlayStop = () => {
+    if (playing) stopPlayback();
+    else if (selected && selected.tracks.length) startPlayback(playhead);
+  };
+
+  const handleRecord = async () => {
+    if (recording) return stopRecording();
+    if (!selected) return;
+    setRecording('arming');
+    const begin = async () => {
+      try {
+        const rec = await startMicRecording();
+        recorderRef.current = rec;
+        recStartRef.current = playhead;
+        startPlayback(playhead);   // overdub: existing tracks play while we record
+        setRecording('recording');
+      } catch {
+        setError('Microphone unavailable or permission denied.');
+        setRecording(null);
+      }
+    };
+    if (countIn) {
+      const dur = playCountIn(selected.tempo || 100, 4);
+      setTimeout(begin, dur * 1000);
+    } else {
+      begin();
+    }
+  };
+
+  const stopRecording = async () => {
+    const rec = recorderRef.current;
+    recorderRef.current = null;
+    stopPlayback();
+    setRecording('arming');   // "saving…"
+    if (!rec) { setRecording(null); return; }
+    try {
+      const dataUrl = await rec.stop();
+      await studioProjectService.addTrack(selected.id, {
+        name: `Track ${selected.tracks.length + 1}`,
+        audio_data: dataUrl,
+        clip_offset: recStartRef.current,
+      });
+      await loadProject(selected.id);
+    } catch { setError('Failed to save recording.'); }
+    setRecording(null);
+  };
+
+  const handleAddFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !selected) return;
+    try {
+      const dataUrl = await new Promise((res) => {
+        const r = new FileReader();
+        r.onloadend = () => res(r.result);
+        r.readAsDataURL(file);
+      });
+      await studioProjectService.addTrack(selected.id, {
+        name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Imported',
+        audio_data: dataUrl,
+        clip_offset: playhead,
+      });
+      await loadProject(selected.id);
+    } catch { setError('Could not import that file.'); }
+  };
+
+  // cleanup
+  useEffect(() => () => { stopPlayback(); }, []);
+
+  /* ── mixdown ─────────────────────────────────────────────── */
+  const handleMixdown = async () => {
+    if (!selected || selected.tracks.length === 0) return;
+    setMixdownState('rendering');
+    try {
+      const rendered = await mixdown(engineTracks(), selected?.master_volume ?? 1);
+      if (!rendered) { setMixdownState(null); return; }
+      const blob = encodeWav(rendered);
+      const dataUrl = await blobToDataUrl(blob);
+      setMixdownState({ blob, dataUrl });
+    } catch { setError('Mixdown failed.'); setMixdownState(null); }
+  };
+  const downloadMix = () => {
+    const url = URL.createObjectURL(mixdownState.blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(selected.name || 'mix').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.wav`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  const saveMixToSong = async (songId) => {
+    try {
+      await songService.addRecording(songId, {
+        label: `${selected.name} (mixdown)`,
+        audio_data: mixdownState.dataUrl,
+        duration: projectDuration(engineTracks()),
+      });
+      setMixdownState(null);
+      setError(null);
+      alert('Mixdown saved to song.');
+    } catch { setError('Failed to save to song.'); }
+  };
+
+  /* ── timeline geometry ───────────────────────────────────── */
+  const totalDur = useMemo(() => {
+    const d = projectDuration(engineTracks());
+    return Math.max(d, 20);   // minimum 20s of canvas
+  }, [engineTracks]);
+  const timelineW = totalDur * pxPerSec;
+
+  const rulerTicks = useMemo(() => {
+    const step = pxPerSec >= 120 ? 1 : pxPerSec >= 50 ? 2 : 5;
+    const ticks = [];
+    for (let t = 0; t <= totalDur; t += step) ticks.push(t);
+    return ticks;
+  }, [totalDur, pxPerSec]);
+
+  const seekFromEvent = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left + (scrollRef.current?.scrollLeft || 0);
+    const t = Math.max(0, x / pxPerSec);
+    if (playing) { stopPlayback(); }
+    setPlayhead(t);
+  };
+
+  /* ── clip drag (offset) + trim handles ───────────────────── */
+  const beginClipDrag = (e, track, mode) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const base = {
+      offset: track.clip_offset,
+      trimStart: track.trim_start,
+      trimEnd: track.trim_end,
+    };
+    dragRef.current = { trackId: track.id, mode, startX, base };
+    window.addEventListener('mousemove', onClipDrag);
+    window.addEventListener('mouseup', endClipDrag);
+  };
+  const onClipDrag = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = (e.clientX - d.startX) / pxPerSec;
+    const track = selected.tracks.find(t => t.id === d.trackId);
+    const buf = buffers[d.trackId]?.buffer;
+    if (!track || !buf) return;
+    if (d.mode === 'move') {
+      patchTrackLocal(d.trackId, { clip_offset: Math.max(0, d.base.offset + dx) });
+    } else if (d.mode === 'trim-start') {
+      const max = buf.duration - d.base.trimEnd - 0.05;
+      const ts = Math.min(Math.max(0, d.base.trimStart + dx), max);
+      // keep the clip's left visual edge anchored to audio: also shift offset
+      patchTrackLocal(d.trackId, {
+        trim_start: ts,
+        clip_offset: Math.max(0, d.base.offset + (ts - d.base.trimStart)),
+      });
+    } else if (d.mode === 'trim-end') {
+      const max = buf.duration - d.base.trimStart - 0.05;
+      const te = Math.min(Math.max(0, d.base.trimEnd - dx), max);
+      patchTrackLocal(d.trackId, { trim_end: te });
+    }
+  };
+  const endClipDrag = () => {
+    const d = dragRef.current;
+    window.removeEventListener('mousemove', onClipDrag);
+    window.removeEventListener('mouseup', endClipDrag);
+    dragRef.current = null;
+    if (!d) return;
+    const track = selected.tracks.find(t => t.id === d.trackId);
+    if (track) {
+      saveTrack(d.trackId, {
+        clip_offset: track.clip_offset,
+        trim_start: track.trim_start,
+        trim_end: track.trim_end,
+      });
+    }
+  };
+
+  const nudge = (track, amount) => {
+    updateTrack(track.id, { clip_offset: Math.max(0, track.clip_offset + amount) });
+  };
+
+  /* ── render ──────────────────────────────────────────────── */
+  return (
+    <div className="mt-root">
+      <div className="app-bg" aria-hidden="true">
+        <div className="orb o1"/><div className="orb o2"/>
+        <div className="orb o3"/><div className="orb o4"/><div className="orb o5"/>
+      </div>
+
+      <div className="app-topbar">
+        <div className="app-logo">
+          <div className="app-logo-gem">✝</div>
+          <span className="app-logo-name">Elite Journal Hub</span>
+          <span className="app-logo-sep">·</span>
+          <span className="app-tab-tag multitrack">Multitrack</span>
+        </div>
+        <div className="app-tb-actions">
+          <span className="mt-tb-hint">Record layers · overdub · edit · mix down</span>
+        </div>
+      </div>
+
+      <div className="mt-body">
+        <NavRail />
+
+        {/* ── Project sidebar ── */}
+        <aside className="mt-sidebar">
+          <div className="app-panel-header">
+            <span className="app-panel-title">Projects</span>
+          </div>
+          {error && (
+            <div className="mt-error">{error}<button onClick={() => setError(null)}>✕</button></div>
+          )}
+          <div className="mt-project-list">
+            {loading ? (
+              <div className="mt-muted">Loading…</div>
+            ) : projects.length === 0 ? (
+              <div className="mt-muted">No projects yet.</div>
+            ) : projects.map(p => (
+              <button
+                key={p.id}
+                className={`mt-project ${selected?.id === p.id ? 'sel' : ''}`}
+                onClick={() => loadProject(p.id)}
+              >
+                <div className="mt-project-name">🎚 {p.name}</div>
+                <div className="mt-project-meta">{p.trackCount} track{p.trackCount === 1 ? '' : 's'}</div>
+              </button>
+            ))}
+            {showNewProject ? (
+              <div className="mt-new-project">
+                <input
+                  className="mt-inp"
+                  placeholder="Project name…"
+                  value={newProjectName}
+                  onChange={e => setNewProjectName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && createProject()}
+                  autoFocus
+                />
+                <div className="mt-new-project-btns">
+                  <button className="app-btn ghost" onClick={() => setShowNewProject(false)}>Cancel</button>
+                  <button className="app-btn primary" onClick={createProject} disabled={!newProjectName.trim()}>Create</button>
+                </div>
+              </div>
+            ) : (
+              <button className="mt-project mt-project-add" onClick={() => setShowNewProject(true)}>
+                <div className="mt-project-name">+ New project</div>
+              </button>
+            )}
+          </div>
+        </aside>
+
+        {/* ── Main workspace ── */}
+        <main className="mt-main">
+          {!selected ? (
+            <div className="app-empty mt-empty">
+              <div className="app-empty-icon">🎚</div>
+              <div className="app-empty-title">Multitrack recording studio</div>
+              <div className="app-empty-sub">
+                Record layer after layer — each new take plays the previous tracks back so you
+                can build a full arrangement. Trim, nudge, mix, and export.
+              </div>
+              <div className="mt-start-steps">
+                <div className="mt-start-title">First time? Try this:</div>
+                <ol className="mt-start-list">
+                  <li><b>Create a project</b> in the sidebar.</li>
+                  <li><b>Hit Record</b> — sing or play your first layer (count-in optional).</li>
+                  <li><b>Record again</b> — track 1 plays back while you add track 2.</li>
+                  <li><b>Trim &amp; nudge</b> the clips to line up, then <b>Mix Down</b> to a WAV.</li>
+                </ol>
+              </div>
+              <button className="app-btn primary" onClick={() => setShowNewProject(true)}>
+                ✦ Create your first project
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Toolbar */}
+              <div className="mt-toolbar">
+                <input
+                  className="mt-project-title"
+                  value={selected.name}
+                  onChange={e => {
+                    setSelected(s => ({ ...s, name: e.target.value }));
+                  }}
+                  onBlur={e => studioProjectService.update(selected.id, { name: e.target.value }).then(fetchProjects)}
+                />
+                <label className="mt-tempo">
+                  <input
+                    type="number" min="40" max="240"
+                    value={selected.tempo}
+                    onChange={e => {
+                      const tempo = parseInt(e.target.value, 10) || 100;
+                      setSelected(s => ({ ...s, tempo }));
+                    }}
+                    onBlur={e => studioProjectService.update(selected.id, { tempo: parseInt(e.target.value, 10) || 100 })}
+                  />
+                  <span>BPM</span>
+                </label>
+                <div className="mt-toolbar-spacer" />
+                <button className="app-btn ghost" onClick={() => fileInputRef.current?.click()}>
+                  ⬆ Add track from file
+                </button>
+                <input ref={fileInputRef} type="file" accept="audio/*" hidden onChange={handleAddFile} />
+                <button
+                  className={`app-btn ${showMixer ? 'primary' : 'ghost'}`}
+                  onClick={() => setShowMixer(v => !v)}
+                  title="Toggle mixing console"
+                >🎛 Mixer</button>
+                <button
+                  className="app-btn primary"
+                  onClick={handleMixdown}
+                  disabled={selected.tracks.length === 0 || mixdownState === 'rendering'}
+                >
+                  {mixdownState === 'rendering' ? 'Rendering…' : '⬇ Mix Down'}
+                </button>
+                <div className="mt-zoom">
+                  <button className="mt-zoom-btn" onClick={() => setPxPerSec(p => Math.max(20, p - 20))}>−</button>
+                  <span className="mt-zoom-lbl">zoom</span>
+                  <button className="mt-zoom-btn" onClick={() => setPxPerSec(p => Math.min(240, p + 20))}>+</button>
+                </div>
+              </div>
+
+              {/* Transport */}
+              <div className="mt-transport">
+                <button className="mt-tp-btn" onClick={() => { stopPlayback(); setPlayhead(0); }} title="Return to start">⏮</button>
+                <button
+                  className={`mt-tp-btn ${playing ? 'on' : ''}`}
+                  onClick={handlePlayStop}
+                  disabled={recording !== null}
+                  title="Play / Stop"
+                >{playing ? '⏹' : '▶'}</button>
+                <button
+                  className={`mt-tp-btn mt-tp-rec ${recording ? 'on' : ''}`}
+                  onClick={handleRecord}
+                  title="Record (overdub)"
+                >
+                  {recording === 'arming' ? '…' : recording === 'recording' ? '⏹' : '⏺'}
+                </button>
+                <div className="mt-tp-time">{fmtPrecise(playhead)}</div>
+                <label className="mt-countin">
+                  <input type="checkbox" checked={countIn} onChange={e => setCountIn(e.target.checked)} />
+                  Count-in
+                </label>
+                {recording === 'recording' && (
+                  <span className="mt-rec-live"><span className="mt-rec-dot" /> Recording — overdubbing</span>
+                )}
+                {recording === 'arming' && (
+                  <span className="mt-rec-arming">Get ready…</span>
+                )}
+              </div>
+
+              {/* Workspace: fixed heads column + scrollable timeline */}
+              <div className="mt-workspace">
+                <div className="mt-track-heads">
+                  <div className="mt-heads-spacer" style={{ height: RULER_H }} />
+                  {selected.tracks.map((t, i) => (
+                    <div className="mt-track-head" key={t.id} style={{ height: TRACK_H }}>
+                      <input
+                        className="mt-track-name"
+                        value={t.name}
+                        onChange={e => updateTrack(t.id, { name: e.target.value })}
+                      />
+                      <div className="mt-track-controls">
+                        <button
+                          className={`mt-ms ${t.is_muted ? 'on-m' : ''}`}
+                          onClick={() => updateTrack(t.id, { is_muted: t.is_muted ? 0 : 1 })}
+                          title="Mute"
+                        >M</button>
+                        <button
+                          className={`mt-ms ${t.is_solo ? 'on-s' : ''}`}
+                          onClick={() => updateTrack(t.id, { is_solo: t.is_solo ? 0 : 1 })}
+                          title="Solo"
+                        >S</button>
+                        <input
+                          className="mt-vol"
+                          type="range" min="0" max="1.5" step="0.02"
+                          value={t.volume}
+                          onChange={e => updateTrack(t.id, { volume: parseFloat(e.target.value) })}
+                          title="Volume"
+                        />
+                        <input
+                          className="mt-pan"
+                          type="range" min="-1" max="1" step="0.05"
+                          value={t.pan}
+                          onChange={e => updateTrack(t.id, { pan: parseFloat(e.target.value) })}
+                          title="Pan"
+                        />
+                        <button className="mt-track-del" onClick={() => removeTrack(t.id)} title="Delete track">🗑</button>
+                      </div>
+                      <div className="mt-track-nudge">
+                        <button onClick={() => nudge(t, -0.05)} title="Nudge left">‹</button>
+                        <span>{(t.clip_offset).toFixed(2)}s</span>
+                        <button onClick={() => nudge(t, 0.05)} title="Nudge right">›</button>
+                      </div>
+                    </div>
+                  ))}
+                  {selected.tracks.length === 0 && (
+                    <div className="mt-no-tracks">
+                      No tracks yet — hit ⏺ Record or import a file.
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-timeline-scroll" ref={scrollRef}>
+                  <div className="mt-timeline" style={{ width: timelineW }}>
+                    {/* Ruler */}
+                    <div className="mt-ruler" style={{ height: RULER_H }} onClick={seekFromEvent}>
+                      {rulerTicks.map(t => (
+                        <div key={t} className="mt-tick" style={{ left: t * pxPerSec }}>
+                          <span className="mt-tick-lbl">{fmt(t)}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Lanes */}
+                    {selected.tracks.map((t, i) => {
+                      const buf = buffers[t.id]?.buffer;
+                      const peaks = buffers[t.id]?.peaks;
+                      const color = TRACK_COLORS[i % TRACK_COLORS.length];
+                      const dur = buf ? clipDuration({ buffer: buf, trimStart: t.trim_start, trimEnd: t.trim_end }) : 0;
+                      const fullDur = buf ? buf.duration : 0;
+                      return (
+                        <div className="mt-lane" key={t.id} style={{ height: TRACK_H }} onClick={seekFromEvent}>
+                          {buf && (
+                            <div
+                              className="mt-clip"
+                              style={{
+                                left: t.clip_offset * pxPerSec,
+                                width: Math.max(8, dur * pxPerSec),
+                                borderColor: color,
+                                background: `${color}1e`,
+                              }}
+                              onMouseDown={e => beginClipDrag(e, t, 'move')}
+                            >
+                              <ClipWaveform
+                                peaks={peaks}
+                                fullDur={fullDur}
+                                trimStart={t.trim_start}
+                                trimEnd={t.trim_end}
+                                width={Math.max(8, dur * pxPerSec)}
+                                height={TRACK_H - 8}
+                                color={color}
+                              />
+                              <div
+                                className="mt-trim mt-trim-l"
+                                onMouseDown={e => beginClipDrag(e, t, 'trim-start')}
+                                title="Trim start"
+                              />
+                              <div
+                                className="mt-trim mt-trim-r"
+                                onMouseDown={e => beginClipDrag(e, t, 'trim-end')}
+                                title="Trim end"
+                              />
+                              <span className="mt-clip-name">{t.name}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Playhead */}
+                    <div
+                      className="mt-playhead"
+                      style={{
+                        left: playhead * pxPerSec,
+                        height: RULER_H + selected.tracks.length * TRACK_H,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mixing console drawer */}
+              {showMixer && (
+                <div className="mt-mixer">
+                  <div className="mt-mixer-strips">
+                    {selected.tracks.length === 0 ? (
+                      <div className="mt-mixer-empty">Record or import a track to see its channel strip.</div>
+                    ) : selected.tracks.map((t, i) => (
+                      <ChannelStrip
+                        key={t.id}
+                        track={t}
+                        color={TRACK_COLORS[i % TRACK_COLORS.length]}
+                        onFx={(patch) => updateTrackFx(t.id, patch)}
+                      />
+                    ))}
+                    <MasterStrip
+                      volume={selected.master_volume ?? 1}
+                      onVolume={updateMasterVolume}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* Mixdown modal */}
+      {mixdownState && mixdownState !== 'rendering' && (
+        <>
+          <div className="mt-modal-backdrop" onClick={() => setMixdownState(null)} />
+          <div className="mt-modal">
+            <div className="mt-modal-title">✓ Mixdown ready</div>
+            <div className="mt-modal-sub">
+              All tracks rendered to a single stereo WAV ({fmt(projectDuration(engineTracks()))}).
+            </div>
+            <audio controls src={mixdownState.dataUrl} className="mt-modal-audio" />
+            <button className="app-btn primary mt-modal-btn" onClick={downloadMix}>
+              ⬇ Download WAV
+            </button>
+            <div className="mt-modal-songs-lbl">…or save it onto a song:</div>
+            {songs.length === 0 ? (
+              <div className="mt-muted">No songs yet.</div>
+            ) : (
+              <div className="mt-modal-songs">
+                {songs.map(s => (
+                  <button key={s.id} className="mt-modal-song" onClick={() => saveMixToSong(s.id)}>
+                    🎵 {s.title}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button className="mt-modal-close" onClick={() => setMixdownState(null)}>Close</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Waveform canvas — draws the trimmed slice of a clip's peaks
+   ───────────────────────────────────────────────────────────── */
+function ClipWaveform({ peaks, fullDur, trimStart, trimEnd, width, height, color }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !peaks || !fullDur) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, width) * dpr;
+    canvas.height = height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width, height);
+
+    // map the trimmed window into peak-index space
+    const startFrac = (trimStart || 0) / fullDur;
+    const endFrac   = (fullDur - (trimEnd || 0)) / fullDur;
+    const startIdx  = Math.floor(startFrac * peaks.length);
+    const endIdx    = Math.max(startIdx + 1, Math.floor(endFrac * peaks.length));
+    const span      = endIdx - startIdx;
+    const mid       = height / 2;
+
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.85;
+    const cols = Math.max(1, Math.floor(width));
+    for (let x = 0; x < cols; x++) {
+      const idx = startIdx + Math.floor((x / cols) * span);
+      const peak = peaks[idx] || 0;
+      const h = Math.max(1, peak * (height - 4));
+      ctx.fillRect(x, mid - h / 2, 1, h);
+    }
+  }, [peaks, fullDur, trimStart, trimEnd, width, height, color]);
+
+  return <canvas ref={canvasRef} className="mt-waveform" style={{ width, height }} />;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Channel strip — EQ + compressor + reverb send for one track
+   ───────────────────────────────────────────────────────────── */
+function FxSlider({ label, min, max, step, value, suffix, onChange }) {
+  return (
+    <label className="mt-fx-slider">
+      <span className="mt-fx-slider-lbl">{label}</span>
+      <input
+        type="range"
+        min={min} max={max} step={step}
+        value={value}
+        onChange={e => onChange(parseFloat(e.target.value))}
+      />
+      <span className="mt-fx-slider-val">
+        {typeof value === 'number' ? value.toFixed(suffix === 'dB' ? 1 : suffix === ':1' ? 1 : 0) : value}{suffix || ''}
+      </span>
+    </label>
+  );
+}
+
+function ChannelStrip({ track, color, onFx }) {
+  const fx = { ...DEFAULT_FX, ...(track.effects || {}) };
+  const isBypassed = fx.eqLow === 0 && fx.eqMid === 0 && fx.eqHigh === 0
+    && fx.compThreshold === 0 && fx.reverbSend === 0;
+  return (
+    <div className="mt-strip" style={{ borderTopColor: color }}>
+      <div className="mt-strip-name" style={{ color }}>{track.name}</div>
+
+      <div className="mt-strip-section">
+        <div className="mt-strip-section-lbl">EQ</div>
+        <FxSlider label="Hi"  min={-12} max={12} step={0.5} suffix="dB"
+          value={fx.eqHigh} onChange={v => onFx({ eqHigh: v })} />
+        <FxSlider label="Mid" min={-12} max={12} step={0.5} suffix="dB"
+          value={fx.eqMid}  onChange={v => onFx({ eqMid: v })} />
+        <FxSlider label="Lo"  min={-12} max={12} step={0.5} suffix="dB"
+          value={fx.eqLow}  onChange={v => onFx({ eqLow: v })} />
+      </div>
+
+      <div className="mt-strip-section">
+        <div className="mt-strip-section-lbl">Compressor</div>
+        <FxSlider label="Thr" min={-60} max={0} step={1} suffix="dB"
+          value={fx.compThreshold} onChange={v => onFx({ compThreshold: v })} />
+        <FxSlider label="Rat" min={1} max={12} step={0.5} suffix=":1"
+          value={fx.compRatio} onChange={v => onFx({ compRatio: v })} />
+      </div>
+
+      <div className="mt-strip-section">
+        <div className="mt-strip-section-lbl">Reverb Send</div>
+        <FxSlider label="Send" min={0} max={1} step={0.02} suffix="%"
+          value={fx.reverbSend * 100} onChange={v => onFx({ reverbSend: v / 100 })} />
+      </div>
+
+      <div className={`mt-strip-status ${isBypassed ? '' : 'active'}`}>
+        {isBypassed ? 'flat' : '● processing'}
+      </div>
+    </div>
+  );
+}
+
+function MasterStrip({ volume, onVolume }) {
+  return (
+    <div className="mt-strip mt-strip-master">
+      <div className="mt-strip-name">MASTER</div>
+      <div className="mt-strip-section mt-master-fader">
+        <FxSlider label="Vol" min={0} max={1.5} step={0.02} suffix="%"
+          value={volume * 100} onChange={v => onVolume(v / 100)} />
+      </div>
+      <div className="mt-master-limiter">🛡 Limiter on<br/><span>protects against clipping</span></div>
+    </div>
+  );
+}

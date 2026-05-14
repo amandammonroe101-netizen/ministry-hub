@@ -43,8 +43,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# ── Claude Code workspace state ──────────────────────────
-.claude/launch.json
+# ── Claude Code workspace state (local/personal) ────────
+.claude/
 
 # ── Backups created during iterative dev ─────────────────
 *.old.js

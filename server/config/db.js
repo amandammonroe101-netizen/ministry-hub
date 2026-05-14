@@ -189,6 +189,103 @@ const initDb = async () => {
     UNIQUE(habit_id, date)
   );`);
 
+  /* ── Songwriting ─────────────────────────────────────── */
+  db.run(`CREATE TABLE IF NOT EXISTS songs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    artist TEXT DEFAULT '',
+    song_key TEXT DEFAULT '',
+    tempo INTEGER,
+    time_signature TEXT DEFAULT '4/4',
+    status TEXT DEFAULT 'idea',
+    tags TEXT DEFAULT '[]',
+    theme TEXT DEFAULT '',
+    scripture TEXT DEFAULT '',
+    inspiration TEXT DEFAULT '',
+    notes TEXT DEFAULT '',
+    prayer_id INTEGER,
+    journal_id INTEGER,
+    created_at DATETIME DEFAULT (datetime('now')),
+    updated_at DATETIME DEFAULT (datetime('now'))
+  );`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS song_sections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    song_id INTEGER NOT NULL,
+    section_type TEXT NOT NULL,
+    label TEXT DEFAULT '',
+    content TEXT DEFAULT '',
+    sort_order INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT (datetime('now')),
+    FOREIGN KEY (song_id) REFERENCES songs(id)
+  );`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS song_recordings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    song_id INTEGER NOT NULL,
+    label TEXT DEFAULT '',
+    audio_data TEXT NOT NULL,
+    duration REAL DEFAULT 0,
+    created_at DATETIME DEFAULT (datetime('now')),
+    FOREIGN KEY (song_id) REFERENCES songs(id)
+  );`);
+
+  // Additive: performance notes + per-section bars (for duration estimator)
+  try { db.run("ALTER TABLE songs ADD COLUMN performance_notes TEXT DEFAULT ''"); } catch(e){}
+  try { db.run("ALTER TABLE song_sections ADD COLUMN bars INTEGER DEFAULT 4"); } catch(e){}
+
+  /* ── Setlists ─────────────────────────────────────────── */
+  db.run(`CREATE TABLE IF NOT EXISTS setlists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    occasion TEXT DEFAULT '',
+    event_date TEXT DEFAULT '',
+    created_at DATETIME DEFAULT (datetime('now')),
+    updated_at DATETIME DEFAULT (datetime('now'))
+  );`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS setlist_songs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    setlist_id INTEGER NOT NULL,
+    song_id INTEGER NOT NULL,
+    sort_order INTEGER DEFAULT 0,
+    notes TEXT DEFAULT '',
+    FOREIGN KEY (setlist_id) REFERENCES setlists(id),
+    FOREIGN KEY (song_id) REFERENCES songs(id)
+  );`);
+
+  /* ── Multitrack recording studio ──────────────────────── */
+  db.run(`CREATE TABLE IF NOT EXISTS studio_projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    tempo INTEGER DEFAULT 100,
+    created_at DATETIME DEFAULT (datetime('now')),
+    updated_at DATETIME DEFAULT (datetime('now'))
+  );`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS studio_tracks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    name TEXT DEFAULT 'Track',
+    audio_data TEXT NOT NULL,
+    volume REAL DEFAULT 1,
+    pan REAL DEFAULT 0,
+    is_muted INTEGER DEFAULT 0,
+    is_solo INTEGER DEFAULT 0,
+    clip_offset REAL DEFAULT 0,
+    trim_start REAL DEFAULT 0,
+    trim_end REAL DEFAULT 0,
+    effects TEXT DEFAULT '{}',
+    sort_order INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT (datetime('now')),
+    FOREIGN KEY (project_id) REFERENCES studio_projects(id)
+  );`);
+
+  // Additive migration — channel-strip effects + master volume
+  try { db.run("ALTER TABLE studio_tracks ADD COLUMN effects TEXT DEFAULT '{}'"); } catch(e){}
+  try { db.run("ALTER TABLE studio_projects ADD COLUMN master_volume REAL DEFAULT 1"); } catch(e){}
+
   saveDb();
   console.log('✅ Database initialized');
   return db;

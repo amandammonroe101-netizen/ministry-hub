@@ -7,6 +7,9 @@ const NAV = [
   { path: '/friends',  icon: '👥', label: 'Friends',  color: 'var(--tab-friends)' },
   { path: '/calendar', icon: '📅', label: 'Calendar', color: 'var(--accent-amber)' },
   { path: '/habits',   icon: '✅', label: 'Habits',   color: 'var(--accent-blue)'  },
+  { path: '/songs',      icon: '🎵', label: 'Songs',      color: 'var(--tab-songs)'      },
+  { path: '/studio',     icon: '🎹', label: 'Studio',     color: 'var(--tab-studio)'     },
+  { path: '/multitrack', icon: '🎚', label: 'Multitrack', color: 'var(--tab-multitrack)' },
 ];
 
 export default function NavRail() {

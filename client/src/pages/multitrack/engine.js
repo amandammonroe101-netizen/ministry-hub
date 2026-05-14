@@ -87,13 +87,30 @@ const makeMasterBus = (ctx, dest, masterVolume = 1) => {
   limiter.attack.value = 0.003;
   limiter.release.value = 0.25;
   masterGain.connect(limiter).connect(dest);
+  // metering tap on the final output
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  limiter.connect(analyser);
   // shared reverb return → master
   const reverb = ctx.createConvolver();
   reverb.buffer = makeImpulse(ctx);
   const reverbReturn = ctx.createGain();
   reverbReturn.gain.value = 0.9;
   reverb.connect(reverbReturn).connect(masterGain);
-  return { masterGain, limiter, reverb };
+  return { masterGain, limiter, reverb, analyser };
+};
+
+/** Peak level (0..~1.3) from an AnalyserNode's time-domain data. */
+const _meterBuf = new Float32Array(256);
+const readLevel = (analyser) => {
+  if (!analyser) return 0;
+  analyser.getFloatTimeDomainData(_meterBuf);
+  let peak = 0;
+  for (let i = 0; i < _meterBuf.length; i++) {
+    const v = Math.abs(_meterBuf[i]);
+    if (v > peak) peak = v;
+  }
+  return peak;
 };
 
 /** Build one track's channel strip: source → vol → EQ×3 → comp → pan → master + reverb send. */
@@ -126,7 +143,12 @@ const buildChannelStrip = (ctx, src, tr, masterGain, reverbNode) => {
   send.gain.value = fx.reverbSend || 0;
   panner.connect(send).connect(reverbNode);         // reverb send
 
-  return { vol, eqLow, eqMid, eqHigh, comp, panner, send };
+  // metering tap (post-fader, post-FX)
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  panner.connect(analyser);
+
+  return { vol, eqLow, eqMid, eqHigh, comp, panner, send, analyser };
 };
 
 /* ── Multitrack player ───────────────────────────────────────── */
@@ -140,6 +162,7 @@ export class MultitrackPlayer {
     const bus = makeMasterBus(this.ctx, this.ctx.destination, masterVolume);
     this.masterGain = bus.masterGain;
     this.reverb = bus.reverb;
+    this.masterAnalyser = bus.analyser;
   }
 
   /** tracks: [{ id, buffer, volume, pan, muted, solo, clipOffset, trimStart, trimEnd, effects }] */
@@ -219,6 +242,15 @@ export class MultitrackPlayer {
     s.comp.threshold.value = fx.compThreshold ?? 0;
     s.comp.ratio.value     = Math.max(1, fx.compRatio ?? 1);
     s.send.gain.value   = fx.reverbSend || 0;
+  }
+
+  /** Read current peak levels: { master, [trackId]: level }. */
+  getLevels() {
+    const out = { master: readLevel(this.masterAnalyser) };
+    for (const id in this.strips) {
+      out[id] = readLevel(this.strips[id].analyser);
+    }
+    return out;
   }
 }
 

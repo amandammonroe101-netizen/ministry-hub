@@ -42,6 +42,7 @@ export default function Multitrack() {
   const [pxPerSec, setPxPerSec]   = useState(80);
   const [countIn, setCountIn]     = useState(true);
   const [showMixer, setShowMixer] = useState(false);
+  const [levels, setLevels]       = useState({});
 
   const [showNewProject, setShowNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -189,6 +190,7 @@ export default function Multitrack() {
     setPlaying(true);
     const tick = () => {
       setPlayhead(player.now());
+      setLevels(player.getLevels());
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
@@ -199,6 +201,7 @@ export default function Multitrack() {
     playerRef.current = null;
     cancelAnimationFrame(rafRef.current);
     setPlaying(false);
+    setLevels({});
   };
 
   const stopAll = () => {
@@ -555,6 +558,10 @@ export default function Multitrack() {
                 {recording === 'arming' && (
                   <span className="mt-rec-arming">Get ready…</span>
                 )}
+                <div className="mt-tp-master-meter">
+                  <span className="mt-tp-master-lbl">MASTER</span>
+                  <Meter level={levels.master || 0} horizontal />
+                </div>
               </div>
 
               {/* Workspace: fixed heads column + scrollable timeline */}
@@ -600,6 +607,7 @@ export default function Multitrack() {
                         <span>{(t.clip_offset).toFixed(2)}s</span>
                         <button onClick={() => nudge(t, 0.05)} title="Nudge right">›</button>
                       </div>
+                      <Meter level={levels[t.id] || 0} />
                     </div>
                   ))}
                   {selected.tracks.length === 0 && (
@@ -689,11 +697,13 @@ export default function Multitrack() {
                         key={t.id}
                         track={t}
                         color={TRACK_COLORS[i % TRACK_COLORS.length]}
+                        level={levels[t.id] || 0}
                         onFx={(patch) => updateTrackFx(t.id, patch)}
                       />
                     ))}
                     <MasterStrip
                       volume={selected.master_volume ?? 1}
+                      level={levels.master || 0}
                       onVolume={updateMasterVolume}
                     />
                   </div>
@@ -795,13 +805,14 @@ function FxSlider({ label, min, max, step, value, suffix, onChange }) {
   );
 }
 
-function ChannelStrip({ track, color, onFx }) {
+function ChannelStrip({ track, color, level = 0, onFx }) {
   const fx = { ...DEFAULT_FX, ...(track.effects || {}) };
   const isBypassed = fx.eqLow === 0 && fx.eqMid === 0 && fx.eqHigh === 0
     && fx.compThreshold === 0 && fx.reverbSend === 0;
   return (
     <div className="mt-strip" style={{ borderTopColor: color }}>
       <div className="mt-strip-name" style={{ color }}>{track.name}</div>
+      <div className="mt-strip-meter"><Meter level={level} /></div>
 
       <div className="mt-strip-section">
         <div className="mt-strip-section-lbl">EQ</div>
@@ -834,15 +845,41 @@ function ChannelStrip({ track, color, onFx }) {
   );
 }
 
-function MasterStrip({ volume, onVolume }) {
+function MasterStrip({ volume, level = 0, onVolume }) {
   return (
     <div className="mt-strip mt-strip-master">
       <div className="mt-strip-name">MASTER</div>
+      <div className="mt-strip-meter"><Meter level={level} /></div>
       <div className="mt-strip-section mt-master-fader">
         <FxSlider label="Vol" min={0} max={1.5} step={0.02} suffix="%"
           value={volume * 100} onChange={v => onVolume(v / 100)} />
       </div>
       <div className="mt-master-limiter">🛡 Limiter on<br/><span>protects against clipping</span></div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Level meter — peak bar with green/amber/red zones + clip latch
+   ───────────────────────────────────────────────────────────── */
+function Meter({ level = 0, horizontal = false }) {
+  const [clipped, setClipped] = useState(false);
+  useEffect(() => {
+    if (level >= 0.99) setClipped(true);
+  }, [level]);
+  const pct  = Math.min(100, level * 100);
+  const zone = level >= 0.9 ? 'red' : level >= 0.7 ? 'amber' : 'green';
+  return (
+    <div
+      className={`mt-meter ${horizontal ? 'h' : 'v'}`}
+      onClick={() => setClipped(false)}
+      title={clipped ? 'Peaked — click to reset' : 'Level meter'}
+    >
+      <div
+        className={`mt-meter-fill ${zone}`}
+        style={horizontal ? { width: `${pct}%` } : { height: `${pct}%` }}
+      />
+      {clipped && <div className="mt-meter-clip" />}
     </div>
   );
 }

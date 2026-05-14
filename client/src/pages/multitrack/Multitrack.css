@@ -301,10 +301,19 @@
 }
 .mt-track-head {
   padding: 8px 10px;
+  padding-right: 16px;
   border-bottom: 0.5px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 5px;
+  position: relative;
+}
+.mt-track-head > .mt-meter.v {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  right: 5px;
+  width: 5px;
 }
 .mt-track-name {
   background: transparent;
@@ -641,5 +650,64 @@
 }
 .mt-master-limiter span {
   font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* ── Level meters ──────────────────────────────────────── */
+.mt-meter {
+  position: relative;
+  background: var(--bg-glass-md);
+  border: 0.5px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mt-meter.v {
+  width: 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.mt-meter.h {
+  width: 90px;
+  height: 9px;
+}
+.mt-meter-fill {
+  transition: height 60ms linear, width 60ms linear;
+  border-radius: 2px;
+}
+.mt-meter.v .mt-meter-fill { width: 100%; }
+.mt-meter.h .mt-meter-fill { height: 100%; }
+.mt-meter-fill.green  { background: linear-gradient(to top, #22c55e, #4ade80); }
+.mt-meter-fill.amber  { background: linear-gradient(to top, #22c55e 55%, #fbbf24); }
+.mt-meter-fill.red    { background: linear-gradient(to top, #22c55e 45%, #fbbf24 75%, #ef4444); }
+.mt-meter.h .mt-meter-fill.amber { background: linear-gradient(to right, #22c55e 55%, #fbbf24); }
+.mt-meter.h .mt-meter-fill.red   { background: linear-gradient(to right, #22c55e 45%, #fbbf24 75%, #ef4444); }
+.mt-meter-clip {
+  position: absolute;
+  background: #ef4444;
+  box-shadow: 0 0 5px #ef4444;
+}
+.mt-meter.v .mt-meter-clip { top: 0; left: 0; right: 0; height: 3px; }
+.mt-meter.h .mt-meter-clip { top: 0; bottom: 0; right: 0; width: 3px; }
+
+/* Channel-strip meter sits under the name */
+.mt-strip-meter {
+  height: 44px;
+  display: flex;
+  justify-content: center;
+}
+.mt-strip-meter .mt-meter.v { width: 10px; }
+
+/* Master meter in the transport bar */
+.mt-tp-master-meter {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mt-tp-master-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   color: var(--text-muted);
 }

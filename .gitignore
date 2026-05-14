@@ -1,0 +1,56 @@
+# ── Node ─────────────────────────────────────────────────
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── Build output ─────────────────────────────────────────
+dist/
+dist-electron/
+client/dist/
+build/
+out/
+*.dmg
+*.exe
+*.AppImage
+*.deb
+
+# ── Local database (each user / machine gets their own) ──
+server/database/*.db
+server/database/*.db-journal
+
+# ── Environment ──────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Editor / IDE ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── macOS ────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── Windows ──────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── Claude Code workspace state ──────────────────────────
+.claude/launch.json
+
+# ── Backups created during iterative dev ─────────────────
+*.old.js
+*.old.jsx
+*.old.css
+
+# ── Logs ─────────────────────────────────────────────────
+*.log
+logs/

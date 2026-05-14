@@ -1,0 +1,78 @@
+{
+  "name": "elite-journal-hub",
+  "version": "1.0.0",
+  "description": "A local-first personal-growth desktop app for journaling, prayer tracking, relationship-keeping, and habit-building, with a unified calendar that pulls from every tab.",
+  "keywords": ["journal", "prayer", "habits", "calendar", "electron", "react", "sqlite", "personal-growth"],
+  "main": "electron/main.js",
+  "author": "Elite Journal Hub",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently --kill-others \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:electron\"",
+    "dev:server": "cd server && node index.js",
+    "dev:client": "cd client && npm run dev",
+    "dev:electron": "wait-on http://localhost:5173 http://localhost:5000/api/health && cross-env NODE_ENV=development electron .",
+    "build:client": "cd client && npm run build",
+    "build": "npm run build:client && electron-builder",
+    "dist:mac": "npm run build:client && electron-builder --mac",
+    "dist:win": "npm run build:client && electron-builder --win",
+    "dist:linux": "npm run build:client && electron-builder --linux"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "electron": "^42.0.1",
+    "electron-builder": "^26.8.1",
+    "wait-on": "^9.0.10"
+  },
+  "build": {
+    "appId": "com.elitejournalhub.app",
+    "productName": "Elite Journal Hub",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "server/**/*",
+      "client/dist/**/*",
+      "!**/node_modules/.cache",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "server",
+        "to": "server",
+        "filter": [
+          "**/*",
+          "!node_modules/.cache"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

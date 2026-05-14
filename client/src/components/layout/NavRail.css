@@ -1,0 +1,94 @@
+/* ──────────────────────────────────────────────
+   NavRail — vertical tab navigation
+   Tokens from index.css. Pages set width via
+   the --rail-w var (default 48px).
+   ────────────────────────────────────────────── */
+
+.nav-rail {
+  background: rgba(255,255,255,0.025);
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.nr-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  border: 0.5px solid transparent;
+  background: transparent;
+  transition: all var(--transition);
+  --tab-color: var(--accent-purple);
+}
+
+.nr-icon {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform var(--transition);
+}
+
+.nr-btn:hover { background: var(--bg-glass); color: var(--text-primary); }
+.nr-btn:hover .nr-icon { transform: scale(1.08); }
+
+.nr-btn.on {
+  background: var(--bg-glass-md);
+  border-color: var(--border-hi);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px var(--tab-color) inset, 0 0 16px -4px var(--tab-color);
+}
+
+.nr-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.nr-btn.disabled:hover { background: transparent; }
+.nr-btn.disabled:hover .nr-icon { transform: none; }
+
+/* Floating label on hover (revealed to the right of the rail) */
+.nr-label {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: rgba(13,11,30,0.92);
+  border: 0.5px solid var(--border);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition), transform var(--transition);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+}
+.nr-btn:hover .nr-label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Active tab indicator — a small colored bar on the left edge */
+.nr-indicator {
+  position: absolute;
+  left: -7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 18px;
+  border-radius: 0 3px 3px 0;
+  background: var(--tab-color);
+  box-shadow: 0 0 8px var(--tab-color);
+}

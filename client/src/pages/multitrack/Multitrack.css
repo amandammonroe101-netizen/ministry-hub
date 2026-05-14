@@ -191,7 +191,57 @@
 }
 .mt-tempo input::-webkit-inner-spin-button,
 .mt-tempo input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.mt-timesig { padding: 0 4px; }
+.mt-timesig select {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.mt-timesig select option { background: #1a1726; color: var(--text-primary); }
 .mt-toolbar-spacer { flex: 1; }
+.mt-grid-ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mt-grid-toggle {
+  height: 30px;
+  padding: 0 10px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mt-grid-toggle:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.mt-snap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.mt-snap select {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.mt-snap select option { background: #1a1726; color: var(--text-primary); }
 .mt-zoom {
   display: inline-flex;
   align-items: center;
@@ -251,8 +301,20 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  padding: 0 10px;
+  padding: 0 6px 0 10px;
   min-width: 78px;
+}
+.mt-tp-bars {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tab-multitrack);
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  min-width: 42px;
+  text-align: center;
 }
 .mt-countin {
   display: inline-flex;
@@ -523,10 +585,23 @@
 .mt-lane {
   position: relative;
   border-bottom: 0.5px solid var(--border);
-  background:
-    repeating-linear-gradient(90deg, transparent 0, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
   cursor: pointer;
 }
+
+/* ── Tempo grid ─────────────────────────────────────────────── */
+.mt-grid {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.mt-gridline {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+}
+.mt-gridline.beat { background: rgba(255,255,255,0.045); }
+.mt-gridline.bar  { background: rgba(255,255,255,0.13); }
 
 .mt-clip {
   position: absolute;

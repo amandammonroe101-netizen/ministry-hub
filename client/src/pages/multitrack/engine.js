@@ -57,6 +57,22 @@ export const projectDuration = (tracks) => {
   return max;
 };
 
+/* ── Tempo grid ──────────────────────────────────────────────── */
+/** Beat / bar lengths (seconds) from tempo + time signature. */
+export const gridMetrics = (tempo, timeSig = '4/4') => {
+  const bpm = Math.max(20, tempo || 100);
+  const parts = String(timeSig || '4/4').split('/');
+  const beatsPerBar = Math.max(1, parseInt(parts[0], 10) || 4);
+  const beatUnit    = Math.max(1, parseInt(parts[1], 10) || 4);
+  // A "beat" is the note value in the denominator, measured against a quarter note.
+  const beatSec = (60 / bpm) * (4 / beatUnit);
+  return { beatSec, barSec: beatSec * beatsPerBar, beatsPerBar };
+};
+
+/** Snap a time (seconds) to the nearest multiple of `division`. */
+export const snapToGrid = (sec, division) =>
+  (!division || division <= 0) ? sec : Math.round(sec / division) * division;
+
 /* ── Channel-strip helpers ───────────────────────────────────── */
 export const DEFAULT_FX = {
   eqLow: 0, eqMid: 0, eqHigh: 0,     // dB  (-12 … +12)

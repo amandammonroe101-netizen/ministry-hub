@@ -6,6 +6,7 @@ import {
   MultitrackPlayer, decodeTrack, dropFromCache, computePeaks,
   clipDuration, projectDuration, playCountIn, startMicRecording,
   calibrateLatency, mixdown, encodeWav, blobToDataUrl, DEFAULT_FX, getCtx,
+  gridMetrics, snapToGrid,
 } from './engine';
 import './Multitrack.css';
 
@@ -25,6 +26,16 @@ const fmtPrecise = (s) => {
   const r = (s % 60).toFixed(1);
   return `${m}:${r.padStart(4, '0')}`;
 };
+/** Seconds → "bar.beat" given a tempo grid. */
+const fmtBarsBeats = (s, grid) => {
+  if (!grid || !grid.beatSec || !isFinite(s) || s < 0) return '1.1';
+  const totalBeats = s / grid.beatSec;
+  const bar  = Math.floor(totalBeats / grid.beatsPerBar) + 1;
+  const beat = Math.floor(totalBeats % grid.beatsPerBar) + 1;
+  return `${bar}.${beat}`;
+};
+
+const TIME_SIGS = ['4/4', '3/4', '2/4', '6/8', '12/8'];
 
 /* ─────────────────────────────────────────────────────────────
    Component
@@ -41,6 +52,8 @@ export default function Multitrack() {
   const [playhead, setPlayhead]   = useState(0);
   const [pxPerSec, setPxPerSec]   = useState(80);
   const [countIn, setCountIn]     = useState(true);
+  const [rulerMode, setRulerMode] = useState('bars'); // 'bars' | 'time'
+  const [snap, setSnap]           = useState('beat'); // 'off' | 'bar' | 'beat'
   const [showMixer, setShowMixer] = useState(false);
   const [levels, setLevels]       = useState({});
   const [monitorInput, setMonitorInput]   = useState(false);
@@ -397,19 +410,54 @@ export default function Multitrack() {
   }, [engineTracks]);
   const timelineW = totalDur * pxPerSec;
 
+  /* tempo grid */
+  const grid = useMemo(
+    () => gridMetrics(selected?.tempo, selected?.time_signature),
+    [selected?.tempo, selected?.time_signature]
+  );
+  const snapSec = snap === 'bar' ? grid.barSec : snap === 'beat' ? grid.beatSec : 0;
+  const applySnap = useCallback((t) => snapToGrid(t, snapSec), [snapSec]);
+
+  /* vertical beat / bar gridlines drawn behind the lanes */
+  const gridLines = useMemo(() => {
+    if (!selected || !grid.beatSec) return [];
+    const beatPx = grid.beatSec * pxPerSec;
+    const lines = [];
+    if (beatPx >= 7) {
+      const n = Math.min(4000, Math.ceil(totalDur / grid.beatSec) + 1);
+      for (let i = 0; i < n; i++)
+        lines.push({ x: i * grid.beatSec, bar: i % grid.beatsPerBar === 0 });
+    } else {
+      const n = Math.min(2000, Math.ceil(totalDur / grid.barSec) + 1);
+      for (let i = 0; i < n; i++) lines.push({ x: i * grid.barSec, bar: true });
+    }
+    return lines;
+  }, [selected, grid, totalDur, pxPerSec]);
+
+  /* ruler ticks — bar numbers or seconds depending on mode */
   const rulerTicks = useMemo(() => {
+    if (rulerMode === 'bars') {
+      if (!grid.barSec) return [];
+      const barPx = grid.barSec * pxPerSec;
+      const every = barPx >= 44 ? 1 : barPx >= 22 ? 2 : barPx >= 11 ? 4 : 8;
+      const bars = Math.min(2000, Math.ceil(totalDur / grid.barSec) + 1);
+      const ticks = [];
+      for (let b = 0; b < bars; b++)
+        if (b % every === 0) ticks.push({ t: b * grid.barSec, label: String(b + 1) });
+      return ticks;
+    }
     const step = pxPerSec >= 120 ? 1 : pxPerSec >= 50 ? 2 : 5;
     const ticks = [];
-    for (let t = 0; t <= totalDur; t += step) ticks.push(t);
+    for (let t = 0; t <= totalDur; t += step) ticks.push({ t, label: fmt(t) });
     return ticks;
-  }, [totalDur, pxPerSec]);
+  }, [rulerMode, grid, totalDur, pxPerSec]);
 
   const seekFromEvent = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left + (scrollRef.current?.scrollLeft || 0);
-    const t = Math.max(0, x / pxPerSec);
+    const t = applySnap(Math.max(0, x / pxPerSec));
     if (playing) { stopPlayback(); }
-    setPlayhead(t);
+    setPlayhead(Math.max(0, t));
   };
 
   /* ── clip drag (offset) + trim handles ───────────────────── */
@@ -434,7 +482,7 @@ export default function Multitrack() {
     const buf = buffers[d.trackId]?.buffer;
     if (!track || !buf) return;
     if (d.mode === 'move') {
-      patchTrackLocal(d.trackId, { clip_offset: Math.max(0, d.base.offset + dx) });
+      patchTrackLocal(d.trackId, { clip_offset: Math.max(0, applySnap(d.base.offset + dx)) });
     } else if (d.mode === 'trim-start') {
       const max = buf.duration - d.base.trimEnd - 0.05;
       const ts = Math.min(Math.max(0, d.base.trimStart + dx), max);
@@ -465,8 +513,12 @@ export default function Multitrack() {
     }
   };
 
-  const nudge = (track, amount) => {
-    updateTrack(track.id, { clip_offset: Math.max(0, track.clip_offset + amount) });
+  /* nudge by one grid step (snap on) or a fine 0.05s (snap off) */
+  const nudge = (track, dir) => {
+    const next = snapSec
+      ? snapToGrid(track.clip_offset + dir * (snapSec + 1e-4), snapSec)
+      : track.clip_offset + dir * 0.05;
+    updateTrack(track.id, { clip_offset: Math.max(0, next) });
   };
 
   /* ── render ──────────────────────────────────────────────── */
@@ -585,6 +637,18 @@ export default function Multitrack() {
                   />
                   <span>BPM</span>
                 </label>
+                <label className="mt-tempo mt-timesig">
+                  <select
+                    value={selected.time_signature || '4/4'}
+                    onChange={e => {
+                      const ts = e.target.value;
+                      setSelected(s => ({ ...s, time_signature: ts }));
+                      studioProjectService.update(selected.id, { time_signature: ts }).catch(() => {});
+                    }}
+                  >
+                    {TIME_SIGS.map(ts => <option key={ts} value={ts}>{ts}</option>)}
+                  </select>
+                </label>
                 <div className="mt-toolbar-spacer" />
                 <button className="app-btn ghost" onClick={() => fileInputRef.current?.click()}>
                   ⬆ Add track from file
@@ -602,6 +666,21 @@ export default function Multitrack() {
                 >
                   {mixdownState === 'rendering' ? 'Rendering…' : '⬇ Mix Down'}
                 </button>
+                <div className="mt-grid-ctrl">
+                  <button
+                    className="mt-grid-toggle"
+                    onClick={() => setRulerMode(m => (m === 'bars' ? 'time' : 'bars'))}
+                    title="Ruler: bars or time"
+                  >{rulerMode === 'bars' ? '𝄞 Bars' : '⏱ Time'}</button>
+                  <label className="mt-snap">
+                    <span>Snap</span>
+                    <select value={snap} onChange={e => setSnap(e.target.value)}>
+                      <option value="off">Off</option>
+                      <option value="beat">Beat</option>
+                      <option value="bar">Bar</option>
+                    </select>
+                  </label>
+                </div>
                 <div className="mt-zoom">
                   <button className="mt-zoom-btn" onClick={() => setPxPerSec(p => Math.max(20, p - 20))}>−</button>
                   <span className="mt-zoom-lbl">zoom</span>
@@ -631,6 +710,7 @@ export default function Multitrack() {
                   title="Recording settings"
                 >⚙</button>
                 <div className="mt-tp-time">{fmtPrecise(playhead)}</div>
+                <div className="mt-tp-bars" title="Bar . beat">{fmtBarsBeats(playhead, grid)}</div>
                 <label className="mt-countin">
                   <input type="checkbox" checked={countIn} onChange={e => setCountIn(e.target.checked)} />
                   Count-in
@@ -749,9 +829,9 @@ export default function Multitrack() {
                         <button className="mt-track-del" onClick={() => removeTrack(t.id)} title="Delete track">🗑</button>
                       </div>
                       <div className="mt-track-nudge">
-                        <button onClick={() => nudge(t, -0.05)} title="Nudge left">‹</button>
-                        <span>{(t.clip_offset).toFixed(2)}s</span>
-                        <button onClick={() => nudge(t, 0.05)} title="Nudge right">›</button>
+                        <button onClick={() => nudge(t, -1)} title={snapSec ? 'Nudge back one ' + snap : 'Nudge left'}>‹</button>
+                        <span title="Clip start (bar.beat)">{fmtBarsBeats(t.clip_offset, grid)}</span>
+                        <button onClick={() => nudge(t, 1)} title={snapSec ? 'Nudge forward one ' + snap : 'Nudge right'}>›</button>
                       </div>
                       <Meter level={levels[t.id] || 0} />
                     </div>
@@ -767,12 +847,28 @@ export default function Multitrack() {
                   <div className="mt-timeline" style={{ width: timelineW }}>
                     {/* Ruler */}
                     <div className="mt-ruler" style={{ height: RULER_H }} onClick={seekFromEvent}>
-                      {rulerTicks.map(t => (
-                        <div key={t} className="mt-tick" style={{ left: t * pxPerSec }}>
-                          <span className="mt-tick-lbl">{fmt(t)}</span>
+                      {rulerTicks.map(tick => (
+                        <div key={tick.t} className="mt-tick" style={{ left: tick.t * pxPerSec }}>
+                          <span className="mt-tick-lbl">{tick.label}</span>
                         </div>
                       ))}
                     </div>
+
+                    {/* Tempo grid (behind the lanes) */}
+                    {selected.tracks.length > 0 && (
+                      <div
+                        className="mt-grid"
+                        style={{ top: RULER_H, height: selected.tracks.length * TRACK_H }}
+                      >
+                        {gridLines.map((g, i) => (
+                          <div
+                            key={i}
+                            className={`mt-gridline ${g.bar ? 'bar' : 'beat'}`}
+                            style={{ left: g.x * pxPerSec }}
+                          />
+                        ))}
+                      </div>
+                    )}
 
                     {/* Lanes */}
                     {selected.tracks.map((t, i) => {

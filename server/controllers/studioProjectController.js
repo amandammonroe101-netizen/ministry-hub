@@ -57,12 +57,13 @@ const update = (req, res) => {
   try {
     const existing = q1('SELECT * FROM studio_projects WHERE id = ?', [req.params.id]);
     if (!existing) return res.status(404).json({ success: false, message: 'Not found' });
-    const { name, tempo, master_volume, record_latency_ms } = req.body;
+    const { name, tempo, time_signature, master_volume, record_latency_ms } = req.body;
     getDb().run(
-      `UPDATE studio_projects SET name=?, tempo=?, master_volume=?, record_latency_ms=?, updated_at=datetime('now') WHERE id=?`,
+      `UPDATE studio_projects SET name=?, tempo=?, time_signature=?, master_volume=?, record_latency_ms=?, updated_at=datetime('now') WHERE id=?`,
       [
         name ?? existing.name,
         tempo ?? existing.tempo,
+        time_signature ?? existing.time_signature ?? '4/4',
         master_volume !== undefined ? master_volume : (existing.master_volume ?? 1),
         record_latency_ms !== undefined ? record_latency_ms : (existing.record_latency_ms ?? 0),
         req.params.id,

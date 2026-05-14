@@ -260,6 +260,7 @@ const initDb = async () => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     tempo INTEGER DEFAULT 100,
+    time_signature TEXT DEFAULT '4/4',
     master_volume REAL DEFAULT 1,
     record_latency_ms INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT (datetime('now')),
@@ -288,6 +289,7 @@ const initDb = async () => {
   try { db.run("ALTER TABLE studio_tracks ADD COLUMN effects TEXT DEFAULT '{}'"); } catch(e){}
   try { db.run("ALTER TABLE studio_projects ADD COLUMN master_volume REAL DEFAULT 1"); } catch(e){}
   try { db.run("ALTER TABLE studio_projects ADD COLUMN record_latency_ms INTEGER DEFAULT 0"); } catch(e){}
+  try { db.run("ALTER TABLE studio_projects ADD COLUMN time_signature TEXT DEFAULT '4/4'"); } catch(e){}
 
   saveDb();
   console.log('✅ Database initialized');

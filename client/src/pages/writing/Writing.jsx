@@ -334,6 +334,7 @@ export default function Writing() {
   const [openId, setOpenId] = useState(null);
   const [lastSession, setLastSession] = useState(null);
   const [expandedFolders, setExpandedFolders] = useState(() => new Set());
+  const [seriesDraft, setSeriesDraft] = useState(null); // { mode:'create'|'rename', id, value }
 
   /* Topbar: notification bell + profile avatar (shared modal). */
   const [showProfile, setShowProfile] = useState(false);
@@ -429,19 +430,25 @@ export default function Writing() {
 
   const assignDoc = (id, folderId) => patchDoc(id, { folderId });
 
-  const createFolder = () => {
-    const name = (window.prompt('Name this series') || '').trim();
-    if (!name) return;
-    const f = { id: newFolderId(), name, createdAt: new Date().toISOString() };
-    setFolders([f, ...foldersList]);
-    setExpandedFolders(prev => new Set(prev).add(f.id));
-  };
-
+  /* Series naming uses an in-app modal rather than window.prompt(),
+     which Electron does not support (it returns null, so the old
+     prompt-based create/rename silently did nothing). */
+  const createFolder = () => setSeriesDraft({ mode: 'create', id: null, value: '' });
   const renameFolder = (id) => {
     const cur = foldersList.find(f => f.id === id);
-    const name = (window.prompt('Rename series', cur?.name || '') || '').trim();
+    setSeriesDraft({ mode: 'rename', id, value: cur?.name || '' });
+  };
+  const commitSeries = () => {
+    const name = (seriesDraft?.value || '').trim();
     if (!name) return;
-    setFolders(foldersList.map(f => (f.id === id ? { ...f, name } : f)));
+    if (seriesDraft.mode === 'create') {
+      const f = { id: newFolderId(), name, createdAt: new Date().toISOString() };
+      setFolders([f, ...foldersList]);
+      setExpandedFolders(prev => new Set(prev).add(f.id));
+    } else {
+      setFolders(foldersList.map(f => (f.id === seriesDraft.id ? { ...f, name } : f)));
+    }
+    setSeriesDraft(null);
   };
 
   /* Deleting a series keeps its documents — they just return to the
@@ -640,6 +647,42 @@ export default function Writing() {
           onSession={addSession}
           onClose={() => setOpenId(null)}
         />
+      )}
+
+      {seriesDraft && (
+        <div className="wm-series-modal-scrim" onClick={() => setSeriesDraft(null)}>
+          <div
+            className="wm-series-modal"
+            role="dialog"
+            aria-label={seriesDraft.mode === 'create' ? 'New series' : 'Rename series'}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="wm-series-modal-title">
+              {seriesDraft.mode === 'create' ? '📚 New series' : 'Rename series'}
+            </h3>
+            <input
+              className="wm-series-modal-input"
+              autoFocus
+              value={seriesDraft.value}
+              placeholder="Series name…"
+              onChange={e => setSeriesDraft(d => ({ ...d, value: e.target.value }))}
+              onKeyDown={e => {
+                if (e.key === 'Enter') commitSeries();
+                else if (e.key === 'Escape') setSeriesDraft(null);
+              }}
+            />
+            <div className="wm-series-modal-actions">
+              <button className="app-btn ghost" onClick={() => setSeriesDraft(null)}>Cancel</button>
+              <button
+                className="app-btn primary"
+                onClick={commitSeries}
+                disabled={!seriesDraft.value.trim()}
+              >
+                {seriesDraft.mode === 'create' ? 'Create' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <ProfileModal

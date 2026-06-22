@@ -1275,3 +1275,50 @@
   margin-top: 10px;
 }
 .wm-sound-vol input[type="range"] { flex: 1; accent-color: var(--wm-accent, #38bdf8); }
+
+/* ─────────────────────────────────────────────────────────────
+   Series naming modal (Electron-safe replacement for prompt)
+   ───────────────────────────────────────────────────────────── */
+.wm-series-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.wm-series-modal {
+  width: 360px;
+  max-width: calc(100vw - 40px);
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-elevated, #16181d);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  padding: 20px;
+}
+.wm-series-modal-title {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.wm-series-modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-glass, rgba(255,255,255,0.03));
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+.wm-series-modal-input:focus { border-color: var(--wm-accent, #38bdf8); }
+.wm-series-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}

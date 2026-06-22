@@ -1112,6 +1112,42 @@
 .wm-library { display: flex; flex-direction: column; gap: 18px; }
 .wm-folder-list { display: flex; flex-direction: column; gap: 12px; }
 
+/* ── Folders / Other Documents tabs ─────────────────────────── */
+.wm-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 18px;
+}
+.wm-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 9px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.wm-tab:hover { color: var(--text-secondary); }
+.wm-tab.on {
+  color: var(--text-primary);
+  border-bottom-color: var(--wm-accent, #38bdf8);
+}
+.wm-tab-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-accent) 16%, transparent);
+  color: var(--text-secondary);
+}
+
 .wm-folder {
   border: 0.5px solid var(--border);
   border-radius: 16px;
@@ -1155,26 +1191,13 @@
 .wm-folder:hover .wm-folder-head-actions { opacity: 1; }
 .wm-folder-chev { font-size: 12px; color: var(--text-muted); width: 14px; text-align: center; }
 
-.wm-folder-stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.wm-folder-desc {
   padding: 0 16px 14px;
-}
-.wm-folder-stack-item {
-  font-size: 12px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  border: 0.5px solid var(--border);
-  background: color-mix(in srgb, var(--wm-accent) 8%, transparent);
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--text-secondary);
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.wm-folder-stack-more { font-size: 12px; color: var(--text-muted); align-self: center; }
-.wm-folder-stack-empty { font-size: 12.5px; color: var(--text-faint); font-style: italic; }
+.wm-folder-desc-empty { color: var(--text-faint); font-style: italic; }
 
 /* ── Series drill-in page ───────────────────────────────────── */
 .wm-series-view { display: flex; flex-direction: column; gap: 18px; }
@@ -1203,6 +1226,7 @@
   font-weight: 800;
   color: var(--text-primary);
 }
+.wm-series-desc { font-size: 14px; line-height: 1.5; color: var(--text-secondary); margin: 6px 0 0; }
 .wm-series-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 .wm-series-header-actions { display: flex; gap: 4px; }
 
@@ -1345,6 +1369,21 @@
   outline: none;
 }
 .wm-series-modal-input:focus { border-color: var(--wm-accent, #38bdf8); }
+.wm-series-modal-textarea {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-glass, rgba(255,255,255,0.03));
+  color: var(--text-primary);
+  font-size: 13.5px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+.wm-series-modal-textarea:focus { border-color: var(--wm-accent, #38bdf8); }
 .wm-series-modal-actions {
   display: flex;
   justify-content: flex-end;

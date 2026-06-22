@@ -334,7 +334,8 @@ export default function Writing() {
   const [openId, setOpenId] = useState(null);
   const [lastSession, setLastSession] = useState(null);
   const [openSeriesId, setOpenSeriesId] = useState(null); // series whose document page is open
-  const [seriesDraft, setSeriesDraft] = useState(null); // { mode:'create'|'rename', id, value }
+  const [seriesDraft, setSeriesDraft] = useState(null); // { mode:'create'|'rename', id, value, desc }
+  const [tab, setTab] = useState('folders'); // 'folders' | 'docs'
 
   /* Topbar: notification bell + profile avatar (shared modal). */
   const [showProfile, setShowProfile] = useState(false);
@@ -436,19 +437,20 @@ export default function Writing() {
   /* Series naming uses an in-app modal rather than window.prompt(),
      which Electron does not support (it returns null, so the old
      prompt-based create/rename silently did nothing). */
-  const createFolder = () => setSeriesDraft({ mode: 'create', id: null, value: '' });
+  const createFolder = () => setSeriesDraft({ mode: 'create', id: null, value: '', desc: '' });
   const renameFolder = (id) => {
     const cur = foldersList.find(f => f.id === id);
-    setSeriesDraft({ mode: 'rename', id, value: cur?.name || '' });
+    setSeriesDraft({ mode: 'rename', id, value: cur?.name || '', desc: cur?.description || '' });
   };
   const commitSeries = () => {
     const name = (seriesDraft?.value || '').trim();
     if (!name) return;
+    const description = (seriesDraft?.desc || '').trim();
     if (seriesDraft.mode === 'create') {
-      const f = { id: newFolderId(), name, createdAt: new Date().toISOString() };
+      const f = { id: newFolderId(), name, description, createdAt: new Date().toISOString() };
       setFolders([f, ...foldersList]);
     } else {
-      setFolders(foldersList.map(f => (f.id === seriesDraft.id ? { ...f, name } : f)));
+      setFolders(foldersList.map(f => (f.id === seriesDraft.id ? { ...f, name, description } : f)));
     }
     setSeriesDraft(null);
   };
@@ -609,44 +611,67 @@ export default function Writing() {
           </button>
         </div>
 
-        {sorted.length === 0 && foldersList.length === 0 ? (
-          <div className="wm-empty">
-            <div className="wm-empty-icon">✍️</div>
-            <div className="wm-empty-title">Nothing written yet</div>
-            <div className="wm-empty-sub">Create a document to enter Writing Mode.</div>
-          </div>
-        ) : (
-          <div className="wm-library">
-            {foldersList.length > 0 && (
-              <div className="wm-folder-list">
-                {foldersList.map(f => (
-                  <FolderBlock
-                    key={f.id}
-                    folder={f}
-                    docs={docsByFolder[f.id] || []}
-                    onOpen={() => setOpenSeriesId(f.id)}
-                    onRename={() => renameFolder(f.id)}
-                    onDelete={() => deleteFolder(f.id)}
-                  />
-                ))}
-              </div>
-            )}
+        <div className="wm-tabs" role="tablist">
+          <button
+            role="tab"
+            aria-selected={tab === 'folders'}
+            className={`wm-tab ${tab === 'folders' ? 'on' : ''}`}
+            onClick={() => setTab('folders')}
+          >
+            Folders {foldersList.length > 0 && <span className="wm-tab-count">{foldersList.length}</span>}
+          </button>
+          <button
+            role="tab"
+            aria-selected={tab === 'docs'}
+            className={`wm-tab ${tab === 'docs' ? 'on' : ''}`}
+            onClick={() => setTab('docs')}
+          >
+            Other Documents {looseDocs.length > 0 && <span className="wm-tab-count">{looseDocs.length}</span>}
+          </button>
+        </div>
 
-            {looseDocs.length > 0 && (
-              <div className="wm-doc-grid">
-                {looseDocs.map(d => (
-                  <DocCard
-                    key={d.id}
-                    doc={d}
-                    folders={foldersList}
-                    onOpen={() => setOpenId(d.id)}
-                    onDelete={() => removeDoc(d.id)}
-                    onAssign={assignDoc}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        {tab === 'folders' ? (
+          foldersList.length === 0 ? (
+            <div className="wm-empty">
+              <div className="wm-empty-icon">📚</div>
+              <div className="wm-empty-title">No folders yet</div>
+              <div className="wm-empty-sub">Make one with “📚 New series” to bundle documents together.</div>
+            </div>
+          ) : (
+            <div className="wm-folder-list">
+              {foldersList.map(f => (
+                <FolderBlock
+                  key={f.id}
+                  folder={f}
+                  docs={docsByFolder[f.id] || []}
+                  onOpen={() => setOpenSeriesId(f.id)}
+                  onRename={() => renameFolder(f.id)}
+                  onDelete={() => deleteFolder(f.id)}
+                />
+              ))}
+            </div>
+          )
+        ) : (
+          looseDocs.length === 0 ? (
+            <div className="wm-empty">
+              <div className="wm-empty-icon">✍️</div>
+              <div className="wm-empty-title">No loose documents</div>
+              <div className="wm-empty-sub">Create a document to enter Writing Mode.</div>
+            </div>
+          ) : (
+            <div className="wm-doc-grid">
+              {looseDocs.map(d => (
+                <DocCard
+                  key={d.id}
+                  doc={d}
+                  folders={foldersList}
+                  onOpen={() => setOpenId(d.id)}
+                  onDelete={() => removeDoc(d.id)}
+                  onAssign={assignDoc}
+                />
+              ))}
+            </div>
+          )
         )}
       </div>
       )}
@@ -684,6 +709,14 @@ export default function Writing() {
                 if (e.key === 'Enter') commitSeries();
                 else if (e.key === 'Escape') setSeriesDraft(null);
               }}
+            />
+            <textarea
+              className="wm-series-modal-textarea"
+              value={seriesDraft.desc}
+              placeholder="Description (shown on the folder face)…"
+              rows={3}
+              onChange={e => setSeriesDraft(d => ({ ...d, desc: e.target.value }))}
+              onKeyDown={e => { if (e.key === 'Escape') setSeriesDraft(null); }}
             />
             <div className="wm-series-modal-actions">
               <button className="app-btn ghost" onClick={() => setSeriesDraft(null)}>Cancel</button>
@@ -793,7 +826,6 @@ function DocCard({ doc, folders, onOpen, onDelete, onAssign }) {
    rename/delete actions in the head stop propagation so they don't
    trigger the drill-in. A small stack preview hints at what's inside. */
 function FolderBlock({ folder, docs, onOpen, onRename, onDelete }) {
-  const totalWords = docs.reduce((s, d) => s + countWords(d.body), 0);
   return (
     <div
       className="wm-folder"
@@ -807,7 +839,7 @@ function FolderBlock({ folder, docs, onOpen, onRename, onDelete }) {
         <div className="wm-folder-info">
           <h3 className="wm-folder-name">{folder.name}</h3>
           <div className="wm-folder-meta">
-            {docs.length} doc{docs.length === 1 ? '' : 's'} · {totalWords.toLocaleString()} words
+            {docs.length} doc{docs.length === 1 ? '' : 's'}
           </div>
         </div>
         <div className="wm-folder-head-actions" onClick={e => e.stopPropagation()}>
@@ -817,17 +849,10 @@ function FolderBlock({ folder, docs, onOpen, onRename, onDelete }) {
         <span className="wm-folder-chev" aria-hidden="true">▸</span>
       </div>
 
-      <div className="wm-folder-stack">
-        {docs.length === 0 ? (
-          <span className="wm-folder-stack-empty">
-            Empty series — open it to add documents.
-          </span>
-        ) : (
-          docs.slice(0, 4).map(d => (
-            <span key={d.id} className="wm-folder-stack-item">{d.title || 'Untitled'}</span>
-          ))
-        )}
-        {docs.length > 4 && <span className="wm-folder-stack-more">+{docs.length - 4} more</span>}
+      <div className="wm-folder-desc">
+        {folder.description
+          ? folder.description
+          : <span className="wm-folder-desc-empty">No description yet — open to add documents.</span>}
       </div>
     </div>
   );
@@ -850,6 +875,9 @@ function SeriesView({
         <span className="wm-series-icon" aria-hidden="true">📚</span>
         <div className="wm-series-info">
           <h1 className="wm-series-name">{series.name}</h1>
+          {series.description && (
+            <p className="wm-series-desc">{series.description}</p>
+          )}
           <div className="wm-series-meta">
             {docs.length} doc{docs.length === 1 ? '' : 's'} · {totalWords.toLocaleString()} words
           </div>

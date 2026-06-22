@@ -1121,17 +1121,23 @@
     0 1px 0 0 var(--bg-glass, rgba(255,255,255,0.03)),
     3px 3px 0 -1px color-mix(in srgb, var(--wm-accent) 10%, transparent),
     6px 6px 0 -2px color-mix(in srgb, var(--wm-accent) 6%, transparent);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.12s ease;
+  cursor: pointer;
 }
-.wm-folder.open { box-shadow: none; }
-.wm-folder:hover { border-color: color-mix(in srgb, var(--wm-accent) 40%, var(--border)); }
+.wm-folder:hover {
+  border-color: color-mix(in srgb, var(--wm-accent) 40%, var(--border));
+  transform: translateY(-1px);
+}
+.wm-folder:focus-visible {
+  outline: 2px solid var(--wm-accent);
+  outline-offset: 2px;
+}
 
 .wm-folder-head {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  cursor: pointer;
 }
 .wm-folder-icon { font-size: 22px; }
 .wm-folder-info { flex: 1; min-width: 0; }
@@ -1170,12 +1176,35 @@
 .wm-folder-stack-more { font-size: 12px; color: var(--text-muted); align-self: center; }
 .wm-folder-stack-empty { font-size: 12.5px; color: var(--text-faint); font-style: italic; }
 
-.wm-folder-docs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-  padding: 0 16px 16px;
+/* ── Series drill-in page ───────────────────────────────────── */
+.wm-series-view { display: flex; flex-direction: column; gap: 18px; }
+.wm-series-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
+.wm-series-back:hover { color: var(--wm-accent, #38bdf8); }
+
+.wm-series-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.wm-series-icon { font-size: 30px; }
+.wm-series-info { flex: 1; min-width: 0; }
+.wm-series-name {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.wm-series-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+.wm-series-header-actions { display: flex; gap: 4px; }
 
 /* ── Per-card "file into series" menu ───────────────────────── */
 .wm-doc-menu-wrap { position: relative; display: inline-flex; }

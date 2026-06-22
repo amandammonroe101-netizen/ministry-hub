@@ -333,7 +333,7 @@ export default function Writing() {
   const [prefs, setPrefs] = useUserStoreKey('writing:prefs', DEFAULT_PREFS);
   const [openId, setOpenId] = useState(null);
   const [lastSession, setLastSession] = useState(null);
-  const [expandedFolders, setExpandedFolders] = useState(() => new Set());
+  const [openSeriesId, setOpenSeriesId] = useState(null); // series whose document page is open
   const [seriesDraft, setSeriesDraft] = useState(null); // { mode:'create'|'rename', id, value }
 
   /* Topbar: notification bell + profile avatar (shared modal). */
@@ -370,6 +370,9 @@ export default function Writing() {
     [sorted, foldersList]
   );
 
+  /* The series whose document page is currently open (null = library). */
+  const openSeries = openSeriesId ? foldersList.find(f => f.id === openSeriesId) || null : null;
+
   /* Bell items — light writing nudges derived from the documents:
      a "you haven't written today" prompt and any unmet word goals.
      Clicking an item opens that document. */
@@ -400,12 +403,6 @@ export default function Writing() {
     return items.slice(0, 8);
   }, [list, sorted]);
 
-  const toggleFolder = (id) => setExpandedFolders(prev => {
-    const n = new Set(prev);
-    n.has(id) ? n.delete(id) : n.add(id);
-    return n;
-  });
-
   const totalWords = useMemo(
     () => list.reduce((sum, d) => sum + countWords(d.body), 0),
     [list]
@@ -413,6 +410,12 @@ export default function Writing() {
 
   const create = () => {
     const doc = newDoc();
+    setDocs([doc, ...list]);
+    setOpenId(doc.id);
+  };
+
+  const createInSeries = (folderId) => {
+    const doc = { ...newDoc(), folderId };
     setDocs([doc, ...list]);
     setOpenId(doc.id);
   };
@@ -444,7 +447,6 @@ export default function Writing() {
     if (seriesDraft.mode === 'create') {
       const f = { id: newFolderId(), name, createdAt: new Date().toISOString() };
       setFolders([f, ...foldersList]);
-      setExpandedFolders(prev => new Set(prev).add(f.id));
     } else {
       setFolders(foldersList.map(f => (f.id === seriesDraft.id ? { ...f, name } : f)));
     }
@@ -546,6 +548,22 @@ export default function Writing() {
       </div>
 
       <div className="wm-wrap" style={{ '--wm-accent': ACCENT }}>
+      {openSeries ? (
+        <div className="wm-shell">
+          <SeriesView
+            series={openSeries}
+            docs={docsByFolder[openSeries.id] || []}
+            allFolders={foldersList}
+            onBack={() => setOpenSeriesId(null)}
+            onOpenDoc={setOpenId}
+            onDeleteDoc={removeDoc}
+            onAssign={assignDoc}
+            onNewDoc={() => createInSeries(openSeries.id)}
+            onRename={() => renameFolder(openSeries.id)}
+            onDelete={() => { deleteFolder(openSeries.id); setOpenSeriesId(null); }}
+          />
+        </div>
+      ) : (
       <div className="wm-shell">
         <header className="wm-header">
           <div className="wm-title-row">
@@ -606,12 +624,7 @@ export default function Writing() {
                     key={f.id}
                     folder={f}
                     docs={docsByFolder[f.id] || []}
-                    allFolders={foldersList}
-                    expanded={expandedFolders.has(f.id)}
-                    onToggle={() => toggleFolder(f.id)}
-                    onOpenDoc={setOpenId}
-                    onDeleteDoc={removeDoc}
-                    onAssign={assignDoc}
+                    onOpen={() => setOpenSeriesId(f.id)}
                     onRename={() => renameFolder(f.id)}
                     onDelete={() => deleteFolder(f.id)}
                   />
@@ -636,6 +649,7 @@ export default function Writing() {
           </div>
         )}
       </div>
+      )}
 
       {openDoc && (
         <FocusWriter
@@ -774,16 +788,21 @@ function DocCard({ doc, folders, onOpen, onDelete, onAssign }) {
   );
 }
 
-/* A series block — a bundle of documents shown as one card. Click
-   the head to expand and reveal every document inside. */
-function FolderBlock({
-  folder, docs, allFolders, expanded,
-  onToggle, onOpenDoc, onDeleteDoc, onAssign, onRename, onDelete,
-}) {
+/* A series block — a bundle of documents shown as one clickable
+   card. The whole card drills into the series page (onOpen); the
+   rename/delete actions in the head stop propagation so they don't
+   trigger the drill-in. A small stack preview hints at what's inside. */
+function FolderBlock({ folder, docs, onOpen, onRename, onDelete }) {
   const totalWords = docs.reduce((s, d) => s + countWords(d.body), 0);
   return (
-    <div className={`wm-folder ${expanded ? 'open' : ''}`}>
-      <div className="wm-folder-head" onClick={onToggle}>
+    <div
+      className="wm-folder"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
+    >
+      <div className="wm-folder-head">
         <span className="wm-folder-icon" aria-hidden="true">📚</span>
         <div className="wm-folder-info">
           <h3 className="wm-folder-name">{folder.name}</h3>
@@ -795,38 +814,74 @@ function FolderBlock({
           <button className="app-btn ghost icon-only" title="Rename series" onClick={onRename}>✎</button>
           <button className="app-btn ghost icon-only" title="Delete series" onClick={onDelete}>🗑</button>
         </div>
-        <span className="wm-folder-chev" aria-hidden="true">{expanded ? '▾' : '▸'}</span>
+        <span className="wm-folder-chev" aria-hidden="true">▸</span>
       </div>
 
-      {!expanded ? (
-        <div className="wm-folder-stack">
-          {docs.length === 0 ? (
-            <span className="wm-folder-stack-empty">
-              Empty series — file documents here from a card's 🗂 menu.
-            </span>
-          ) : (
-            docs.slice(0, 4).map(d => (
-              <span key={d.id} className="wm-folder-stack-item">{d.title || 'Untitled'}</span>
-            ))
-          )}
-          {docs.length > 4 && <span className="wm-folder-stack-more">+{docs.length - 4} more</span>}
+      <div className="wm-folder-stack">
+        {docs.length === 0 ? (
+          <span className="wm-folder-stack-empty">
+            Empty series — open it to add documents.
+          </span>
+        ) : (
+          docs.slice(0, 4).map(d => (
+            <span key={d.id} className="wm-folder-stack-item">{d.title || 'Untitled'}</span>
+          ))
+        )}
+        {docs.length > 4 && <span className="wm-folder-stack-more">+{docs.length - 4} more</span>}
+      </div>
+    </div>
+  );
+}
+
+/* SeriesView — the drill-in page for a single series. Replaces the
+   library while open: a back button returns to the full library,
+   the header shows the series name + counts with rename/delete, and
+   the body lists every document in the series as DocCards. */
+function SeriesView({
+  series, docs, allFolders,
+  onBack, onOpenDoc, onDeleteDoc, onAssign, onNewDoc, onRename, onDelete,
+}) {
+  const totalWords = docs.reduce((s, d) => s + countWords(d.body), 0);
+  return (
+    <div className="wm-series-view">
+      <button className="wm-series-back" onClick={onBack}>← All documents</button>
+
+      <header className="wm-series-header">
+        <span className="wm-series-icon" aria-hidden="true">📚</span>
+        <div className="wm-series-info">
+          <h1 className="wm-series-name">{series.name}</h1>
+          <div className="wm-series-meta">
+            {docs.length} doc{docs.length === 1 ? '' : 's'} · {totalWords.toLocaleString()} words
+          </div>
+        </div>
+        <div className="wm-series-header-actions">
+          <button className="app-btn ghost icon-only" title="Rename series" onClick={onRename}>✎</button>
+          <button className="app-btn ghost icon-only" title="Delete series" onClick={onDelete}>🗑</button>
+        </div>
+      </header>
+
+      <div className="wm-toolbar">
+        <button className="app-btn primary" onClick={onNewDoc}>+ New document in this series</button>
+      </div>
+
+      {docs.length === 0 ? (
+        <div className="wm-empty">
+          <div className="wm-empty-icon">📚</div>
+          <div className="wm-empty-title">No documents yet</div>
+          <div className="wm-empty-sub">Add one with the button above, or file an existing document here.</div>
         </div>
       ) : (
-        <div className="wm-folder-docs">
-          {docs.length === 0 ? (
-            <div className="wm-folder-stack-empty">No documents in this series yet.</div>
-          ) : (
-            docs.map(d => (
-              <DocCard
-                key={d.id}
-                doc={d}
-                folders={allFolders}
-                onOpen={() => onOpenDoc(d.id)}
-                onDelete={() => onDeleteDoc(d.id)}
-                onAssign={onAssign}
-              />
-            ))
-          )}
+        <div className="wm-doc-grid">
+          {docs.map(d => (
+            <DocCard
+              key={d.id}
+              doc={d}
+              folders={allFolders}
+              onOpen={() => onOpenDoc(d.id)}
+              onDelete={() => onDeleteDoc(d.id)}
+              onAssign={onAssign}
+            />
+          ))}
         </div>
       )}
     </div>

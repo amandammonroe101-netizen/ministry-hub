@@ -1,0 +1,1277 @@
+/* Writing Mode — standalone page.
+   .wm-wrap is the library surface (lives inside the app shell).
+   .wm-focus is a fixed fullscreen overlay that hides all app chrome. */
+
+.wm-wrap {
+  height: 100%;
+  overflow-y: auto;
+  padding: 28px 24px 64px;
+}
+
+.wm-shell {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.wm-header { margin-bottom: 20px; }
+
+.wm-title-row { display: flex; align-items: center; gap: 12px; }
+
+.wm-title-icon { font-size: 28px; }
+
+.wm-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.wm-desc {
+  margin: 10px 0 0;
+  max-width: 720px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── Stats ──────────────────────────────────────────────── */
+.wm-stats { display: flex; gap: 12px; margin-bottom: 18px; }
+
+.wm-stat {
+  flex: 0 0 auto;
+  min-width: 110px;
+  padding: 12px 16px;
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-glass, rgba(255,255,255,0.03));
+}
+
+.wm-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--wm-accent);
+  line-height: 1;
+}
+
+.wm-stat-label { margin-top: 4px; font-size: 12px; color: var(--text-muted); }
+
+/* ── Last-session banner ────────────────────────────────── */
+.wm-lastsession {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border: 0.5px solid color-mix(in srgb, var(--wm-accent) 40%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--wm-accent) 10%, transparent);
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+.wm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* ── Document grid ──────────────────────────────────────── */
+.wm-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.wm-doc-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-glass, rgba(255,255,255,0.03));
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.wm-doc-card:hover {
+  border-color: color-mix(in srgb, var(--wm-accent) 45%, var(--border));
+  transform: translateY(-2px);
+}
+
+.wm-doc-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wm-doc-snippet {
+  flex: 1;
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wm-doc-empty { color: var(--text-faint); font-style: italic; }
+
+.wm-doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.wm-doc-actions { display: flex; gap: 8px; }
+.wm-doc-actions .app-btn:first-child { flex: 1; }
+
+/* ── Empty state ────────────────────────────────────────── */
+.wm-empty {
+  padding: 56px 20px;
+  text-align: center;
+  border: 0.5px dashed var(--border-hi);
+  border-radius: 16px;
+}
+.wm-empty-icon { font-size: 42px; }
+.wm-empty-title { margin-top: 10px; font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.wm-empty-sub { margin-top: 4px; font-size: 13px; color: var(--text-muted); }
+
+/* ─────────────────────────────────────────────────────────
+   Focus overlay — fullscreen, covers nav rail + header.
+   ───────────────────────────────────────────────────────── */
+.wm-focus {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  /* Gray "desk" canvas — a shade darker than the page sheet. */
+  background: color-mix(in srgb, var(--wm-bg) 84%, #000);
+  color: var(--wm-text);
+}
+
+/* Top chrome wrapper — meta bar + formatting toolbar fade together. */
+.wm-chrome { transition: opacity 0.4s ease; }
+.wm-chrome.hide { opacity: 0; pointer-events: none; }
+.wm-chrome.show { opacity: 1; }
+
+/* Meta bar (exit · title · goals · flow · themes) */
+.wm-focus-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  background: var(--wm-bg);
+  border-bottom: 1px solid var(--wm-faint);
+}
+
+.wm-fb-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+
+.wm-fb-exit {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.wm-fb-exit:hover { background: color-mix(in srgb, var(--wm-text) 8%, transparent); }
+
+.wm-fb-title {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+}
+.wm-fb-title::placeholder { color: var(--wm-faint); }
+
+.wm-fb-center { flex: 0 1 auto; }
+
+.wm-goals { display: flex; gap: 12px; }
+
+.wm-goal { display: flex; align-items: center; gap: 7px; }
+
+.wm-goal-track {
+  width: 90px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-text) 14%, transparent);
+  overflow: hidden;
+}
+.wm-goal-fill {
+  height: 100%;
+  background: var(--wm-text);
+  opacity: 0.55;
+  transition: width 0.3s ease;
+}
+.wm-goal.done .wm-goal-fill { background: #34d399; opacity: 0.9; }
+.wm-goal-text { font-size: 12px; color: var(--wm-faint); white-space: nowrap; }
+.wm-goal.done .wm-goal-text { color: #34d399; font-weight: 600; }
+
+.wm-fb-right { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; }
+
+.wm-goal-inputs { display: flex; gap: 6px; }
+.wm-goal-input {
+  width: 58px;
+  padding: 5px 8px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 12px;
+  outline: none;
+}
+.wm-goal-input::placeholder { color: var(--wm-faint); }
+
+.wm-themes { display: flex; gap: 6px; }
+.wm-theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.wm-theme-dot:hover { opacity: 1; }
+.wm-theme-dot.on { opacity: 1; transform: scale(1.18); box-shadow: 0 0 0 2px var(--wm-bg), 0 0 0 3px var(--wm-text); }
+
+.wm-font { display: flex; gap: 4px; }
+.wm-font button {
+  width: 30px;
+  height: 28px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.wm-font button:hover { background: color-mix(in srgb, var(--wm-text) 8%, transparent); }
+
+/* ── Word-style ribbon ──────────────────────────────────────
+   A tab strip (Home / Insert / Layout / References / View) above
+   a grouped ribbon body. Each group is a cluster of controls with
+   a small caption beneath, mirroring Microsoft Word. */
+.wm-ribbon-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 14px;
+  background: var(--wm-bg);
+  border-bottom: 1px solid var(--wm-faint);
+}
+.wm-ribbon-tab {
+  position: relative;
+  padding: 8px 14px 7px;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--wm-text) 70%, var(--wm-bg));
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 7px 7px 0 0;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.wm-ribbon-tab:hover { background: color-mix(in srgb, var(--wm-text) 7%, transparent); color: var(--wm-text); }
+.wm-ribbon-tab.on {
+  color: var(--wm-accent, #38bdf8);
+  font-weight: 600;
+}
+.wm-ribbon-tab.on::after {
+  content: '';
+  position: absolute;
+  left: 10px; right: 10px; bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--wm-accent, #38bdf8);
+}
+
+/* Ribbon body — the grouped control surface. */
+.wm-ribbon {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  min-height: 78px;
+  background: color-mix(in srgb, var(--wm-bg) 96%, var(--wm-text));
+  border-bottom: 1px solid var(--wm-faint);
+}
+
+/* A labelled group: stacked control body + caption, with a divider. */
+.wm-grp {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-right: 1px solid color-mix(in srgb, var(--wm-text) 12%, transparent);
+}
+.wm-grp:last-child { border-right: 0; }
+.wm-grp-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+}
+.wm-grp-cap {
+  margin-top: 5px;
+  text-align: center;
+  font-size: 10.5px;
+  color: color-mix(in srgb, var(--wm-text) 52%, var(--wm-bg));
+  letter-spacing: 0.01em;
+}
+
+/* A horizontal row of controls inside a group. */
+.wm-rt-row { display: flex; align-items: center; gap: 3px; flex-wrap: nowrap; }
+
+/* Wide (labelled) ribbon buttons stack to fill a group column. */
+.wm-rt-wide {
+  width: 100%;
+  justify-content: flex-start;
+  white-space: nowrap;
+  text-align: left;
+  padding: 0 10px;
+}
+
+/* Compact selects used inline in the ribbon (case, line spacing, zoom). */
+.wm-mini-select {
+  height: 30px;
+  padding: 0 4px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Labelled field (Layout tab: Margins / Orientation / Size). */
+.wm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: color-mix(in srgb, var(--wm-text) 60%, var(--wm-bg));
+}
+
+.wm-style-select {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.wm-rt-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.wm-rt-btn:hover { background: color-mix(in srgb, var(--wm-text) 10%, transparent); }
+.wm-rt-btn.on {
+  border-color: color-mix(in srgb, var(--wm-accent, #38bdf8) 60%, var(--wm-faint));
+  background: color-mix(in srgb, var(--wm-accent, #38bdf8) 18%, transparent);
+  color: var(--wm-text);
+}
+.wm-rt-sep { width: 1px; height: 20px; background: var(--wm-faint); margin: 0 4px; }
+
+.wm-font-select { max-width: 130px; }
+.wm-num {
+  width: 54px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  outline: none;
+}
+
+/* Color pickers — a letter/swatch with a hidden native input below. */
+.wm-color-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.wm-color-wrap:hover { background: color-mix(in srgb, var(--wm-text) 10%, transparent); }
+.wm-color-icon { font-size: 14px; font-weight: 700; line-height: 1; pointer-events: none; }
+.wm-color-icon.wm-hl { color: #eab308; }
+.wm-color {
+  position: absolute;
+  left: 3px;
+  bottom: 2px;
+  width: 24px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.wm-color::-webkit-color-swatch-wrapper { padding: 0; }
+.wm-color::-webkit-color-swatch { border: none; border-radius: 2px; }
+
+/* Word/char count popover */
+.wm-count-wrap { position: relative; }
+.wm-count-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 6;
+  min-width: 190px;
+  padding: 12px 14px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 12px;
+  background: var(--wm-bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  color: var(--wm-text);
+}
+.wm-count-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 3px 0;
+}
+.wm-count-row span { color: color-mix(in srgb, var(--wm-text) 65%, var(--wm-bg)); }
+.wm-count-row b { font-weight: 600; }
+
+/* Count popover shown inline within the View ribbon. */
+.wm-count-inline {
+  position: static;
+  align-self: center;
+  margin-left: 6px;
+  box-shadow: none;
+}
+
+/* Symbol palette (Insert ▸ Symbol). */
+.wm-sym-wrap { position: relative; }
+.wm-sym-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 7;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  width: 252px;
+  padding: 8px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 12px;
+  background: var(--wm-bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.wm-sym-menu button {
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 16px;
+  cursor: pointer;
+}
+.wm-sym-menu button:hover { background: color-mix(in srgb, var(--wm-text) 12%, transparent); }
+
+/* Verse insert popover (Insert ▸ Verse). */
+.wm-verse-wrap { position: relative; }
+.wm-verse-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+  padding: 10px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 12px;
+  background: var(--wm-bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.wm-verse-trans { width: 100%; }
+.wm-verse-err {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #dc2626;
+}
+.wm-verse-actions { display: flex; justify-content: flex-end; gap: 6px; }
+.wm-verse-go {
+  border-color: color-mix(in srgb, var(--wm-accent, #38bdf8) 60%, var(--wm-faint));
+  background: color-mix(in srgb, var(--wm-accent, #38bdf8) 18%, transparent);
+}
+.wm-verse-go:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Find & Replace bar. */
+.wm-find {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--wm-bg);
+  border-bottom: 1px solid var(--wm-faint);
+}
+.wm-find-input {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  outline: none;
+}
+.wm-find-input:focus { border-color: var(--wm-text); }
+
+/* ── Workspace: optional outline pane + scrolling canvas ───── */
+.wm-workspace { flex: 1; display: flex; min-height: 0; }
+
+.wm-outline {
+  flex: 0 0 240px;
+  overflow-y: auto;
+  padding: 18px 12px;
+  background: color-mix(in srgb, var(--wm-bg) 92%, var(--wm-text));
+  border-right: 1px solid var(--wm-faint);
+}
+.wm-outline-title {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wm-faint);
+}
+.wm-outline-empty { font-size: 12.5px; line-height: 1.5; color: var(--wm-faint); }
+.wm-outline ul { list-style: none; margin: 0; padding: 0; }
+.wm-outline li button {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: color-mix(in srgb, var(--wm-text) 82%, var(--wm-bg));
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.wm-outline li button:hover { background: color-mix(in srgb, var(--wm-text) 10%, transparent); color: var(--wm-text); }
+.wm-ol-h1 button { font-weight: 600; }
+.wm-ol-h2 button { padding-left: 20px; }
+.wm-ol-h3 button { padding-left: 32px; font-size: 12.5px; opacity: 0.9; }
+
+/* Writing canvas — the gray desk that scrolls. */
+.wm-canvas {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 36px 24px 140px;
+}
+
+/* The page — sized from Layout (PAGE_SIZES + margins) via CSS vars.
+   It renders a STACK of real page sheets (a background layer) with
+   the editor overlaid on top. As content overflows, JS bumps the
+   sheet count, so a fresh page appears automatically beneath the
+   current one. Because the editor is one continuous overlay and the
+   sheets are contiguous (no flow-altering gap), text stays aligned
+   to every page and never lands in a gutter. */
+.wm-page {
+  position: relative;
+  width: var(--wm-page-w, 816px);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Background layer: one .wm-sheet per page, stacked top-to-bottom with
+   a gray gutter between them (the desk showing through). The gutter
+   width matches the JS PAGE_GAP so pagination spacers line content up
+   with each sheet's margins. */
+.wm-sheets { display: flex; flex-direction: column; gap: var(--wm-gap, 28px); }
+.wm-sheet {
+  position: relative;
+  height: var(--wm-page-h, 1056px);
+  background: var(--wm-bg);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22), 0 10px 34px rgba(0, 0, 0, 0.18);
+}
+
+/* Per-page number, bottom-right within the margin (toggled by Insert
+   ▸ Page №). Accurate on every page, unlike a single footer line. */
+.wm-sheet-num {
+  position: absolute;
+  right: var(--wm-pad-h, 96px);
+  bottom: calc(var(--wm-pad-v, 96px) / 2.2);
+  font-size: 12px;
+  color: var(--wm-faint);
+  pointer-events: none;
+}
+
+/* Foreground: the editable content, overlaid exactly on the sheets.
+   The editor is the sole flow child (its top = the page's top, so the
+   pagination math lines up); header/footer bands are positioned
+   absolutely in the page margins and don't shift it. */
+.wm-pagebody {
+  position: absolute;
+  inset: 0;
+  padding: 0 var(--wm-pad-h, 96px);
+  z-index: 1;
+}
+
+/* The contentEditable editor itself. */
+.wm-body {
+  position: relative; /* anchor for free-floating (cursor-moved) images */
+  min-height: 100%;
+  padding: var(--wm-pad-v, 96px) 0;
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  tab-size: 4;
+  outline: none;
+}
+.wm-body:focus { outline: none; }
+
+/* Pagination spacers — fill the bottom margin + gutter + next page's
+   top margin so content resumes inside the next sheet's margins.
+   Invisible (the white sheets / gray gutter show through) and inert. */
+.wm-body .wm-spacer {
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Block styles inside the editor. */
+.wm-body h1 { font-size: 2em;   font-weight: 700; line-height: 1.2; margin: 0.4em 0 0.2em; }
+.wm-body h2 { font-size: 1.5em; font-weight: 600; line-height: 1.25; margin: 0.5em 0 0.2em; }
+.wm-body h3 { font-size: 1.18em; font-weight: 600; margin: 0.5em 0 0.2em; color: color-mix(in srgb, var(--wm-text) 72%, var(--wm-bg)); }
+.wm-body p  { margin: 0 0 0.55em; }
+.wm-body ul, .wm-body ol { margin: 0 0 0.55em; padding-left: 1.5em; }
+.wm-body li { margin: 0.15em 0; }
+
+.wm-body blockquote {
+  margin: 0 0 0.6em;
+  padding: 0.2em 0 0.2em 1em;
+  border-left: 3px solid color-mix(in srgb, var(--wm-text) 30%, var(--wm-bg));
+  color: color-mix(in srgb, var(--wm-text) 82%, var(--wm-bg));
+  font-style: italic;
+}
+.wm-body blockquote.wm-verse cite {
+  display: block;
+  margin-top: 0.45em;
+  font-style: normal;
+  font-size: 0.82em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #38bdf8;
+}
+.wm-body code,
+.wm-body code.wm-code {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 0.9em;
+  padding: 0.08em 0.36em;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--wm-text) 12%, transparent);
+}
+.wm-body hr,
+.wm-body hr.wm-pagebreak {
+  border: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--wm-text) 38%, var(--wm-bg));
+  margin: 1.2em 0;
+}
+.wm-body hr.wm-pagebreak { border-top-style: solid; opacity: 0.5; }
+.wm-body a { color: #2563eb; text-decoration: underline; }
+
+/* Checklists (Insert ▸ Checklist / Home ▸ Paragraph). */
+.wm-body ul.wm-checklist { list-style: none; padding-left: 0.2em; }
+.wm-body ul.wm-checklist li { display: flex; align-items: baseline; gap: 0.5em; }
+.wm-body ul.wm-checklist input[type="checkbox"] { cursor: pointer; transform: translateY(1px); }
+.wm-body ul.wm-checklist li.wm-checked { text-decoration: line-through; color: color-mix(in srgb, var(--wm-text) 50%, var(--wm-bg)); }
+
+/* Tables (Insert ▸ Table). */
+.wm-body table.wm-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 0.8em;
+}
+.wm-body table.wm-table td {
+  border: 1px solid color-mix(in srgb, var(--wm-text) 32%, var(--wm-bg));
+  padding: 6px 9px;
+  min-width: 2em;
+  vertical-align: top;
+}
+
+/* Inserted images — a non-editable wrapper that can be dragged to a
+   new spot (move), resized from its corner handle, and aligned left /
+   center / right, like a Word picture. */
+.wm-img-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.3em 0;
+  cursor: grab;
+  vertical-align: top;
+}
+.wm-img-wrap:active { cursor: grabbing; }
+.wm-img-wrap.wm-img-center { display: block; margin-left: auto; margin-right: auto; width: fit-content; }
+.wm-img-wrap.wm-img-left  { float: left;  margin: 0.3em 1em 0.4em 0; }
+.wm-img-wrap.wm-img-right { float: right; margin: 0.3em 0 0.4em 1em; }
+/* Free-floating image: dragged anywhere by the cursor, positioned
+   absolutely within the page body (sits in front of the text). */
+.wm-img-wrap.wm-img-free {
+  position: absolute;
+  float: none;
+  margin: 0;
+  z-index: 5;
+  cursor: grab;
+}
+.wm-img-wrap.wm-img-free:active { cursor: grabbing; }
+.wm-img { display: block; max-width: 100%; height: auto; border-radius: 3px; }
+.wm-img-wrap.wm-img-sel .wm-img { outline: 2px solid var(--wm-accent, #38bdf8); outline-offset: 2px; }
+
+/* Corner resize handle. */
+.wm-img-handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--wm-accent, #38bdf8);
+  border-radius: 3px;
+  background: var(--wm-bg);
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.wm-img-wrap:hover .wm-img-handle,
+.wm-img-wrap.wm-img-sel .wm-img-handle { opacity: 1; }
+
+/* Per-image alignment mini toolbar (top-left, on hover/select). */
+.wm-img-tools {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: none;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 7px;
+  background: color-mix(in srgb, #000 62%, transparent);
+  z-index: 3;
+}
+.wm-img-wrap:hover .wm-img-tools,
+.wm-img-wrap.wm-img-sel .wm-img-tools { display: inline-flex; }
+.wm-img-tools button {
+  width: 24px;
+  height: 22px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+.wm-img-tools button:hover { background: rgba(255, 255, 255, 0.22); }
+.wm-img-tools button.wm-img-del:hover { background: rgba(220, 38, 38, 0.85); }
+
+/* Forced page break marker (Insert ▸ Break) — invisible; it only tells
+   the paginator that content after it starts on the next page. No rule
+   or label is drawn. */
+.wm-forced-break {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Table of contents (References ▸ Insert/Update). */
+.wm-body .wm-toc {
+  margin: 0 0 1em;
+  padding: 0.8em 1.1em;
+  border: 1px solid color-mix(in srgb, var(--wm-text) 22%, var(--wm-bg));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--wm-text) 4%, transparent);
+}
+.wm-body .wm-toc-title { font-weight: 700; font-size: 1.05em; margin-bottom: 0.4em; }
+.wm-body .wm-toc ul { list-style: none; margin: 0; padding: 0; }
+.wm-body .wm-toc li { margin: 0.2em 0; }
+.wm-body .wm-toc-h1 { font-weight: 600; }
+.wm-body .wm-toc-h2 { padding-left: 1.2em; }
+.wm-body .wm-toc-h3 { padding-left: 2.4em; font-size: 0.95em; }
+
+/* Formatting marks (¶) — shown after each block when toggled on. */
+.wm-body.wm-show-marks > p::after,
+.wm-body.wm-show-marks > h1::after,
+.wm-body.wm-show-marks > h2::after,
+.wm-body.wm-show-marks > h3::after,
+.wm-body.wm-show-marks > blockquote::after {
+  content: '¶';
+  color: color-mix(in srgb, var(--wm-text) 32%, var(--wm-bg));
+  margin-left: 0.15em;
+}
+
+/* Paragraph dimming — fade every block except the caret's. Tracks
+   live because .wm-active is moved on each selection change. */
+.wm-body.wm-dim-on > * { opacity: 0.28; transition: opacity 0.2s ease; }
+.wm-body.wm-dim-on > .wm-active { opacity: 1; }
+
+/* Header / footer bands — positioned in the first page's top margin
+   and the last page's bottom margin, over the editor's empty margin
+   space so they don't disturb pagination geometry. */
+.wm-band {
+  position: absolute;
+  left: var(--wm-pad-h, 96px);
+  right: var(--wm-pad-h, 96px);
+  z-index: 2;
+  color: color-mix(in srgb, var(--wm-text) 78%, var(--wm-bg));
+  font-size: 0.82em;
+}
+.wm-band-h { top: calc(var(--wm-pad-v, 96px) / 2.6); padding-bottom: 4px; border-bottom: 1px solid color-mix(in srgb, var(--wm-text) 14%, transparent); }
+.wm-band-f { bottom: calc(var(--wm-pad-v, 96px) / 2.6); padding-top: 4px; border-top: 1px solid color-mix(in srgb, var(--wm-text) 14%, transparent); }
+.wm-band-edit { outline: none; min-height: 1.4em; }
+.wm-band-edit:empty::before {
+  content: attr(data-ph);
+  color: var(--wm-faint);
+}
+
+/* Hardcore cue — a faint amber edge on every page sheet. */
+.wm-focus.hardcore .wm-sheet {
+  box-shadow: 0 0 0 2px color-mix(in srgb, #f59e0b 45%, transparent),
+              0 10px 34px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Flow toggles + sprint (top-right chrome) ───────────────── */
+.wm-flowtoggles { display: flex; gap: 4px; }
+
+.wm-flow {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.wm-flow:hover { opacity: 1; background: color-mix(in srgb, var(--wm-text) 8%, transparent); }
+.wm-flow.on {
+  opacity: 1;
+  border-color: var(--wm-text);
+  background: color-mix(in srgb, var(--wm-text) 14%, transparent);
+}
+
+.wm-sprint-wrap { position: relative; }
+
+.wm-sprint-live {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid #34d399;
+  border-radius: 7px;
+  background: color-mix(in srgb, #34d399 16%, transparent);
+  color: color-mix(in srgb, #34d399 65%, var(--wm-text));
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wm-sprint-live:hover { background: color-mix(in srgb, #34d399 24%, transparent); }
+
+.wm-sprint-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  min-width: 184px;
+  padding: 12px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 12px;
+  background: var(--wm-bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.wm-sprint-menu-label { margin-bottom: 8px; font-size: 12px; color: var(--wm-faint); }
+.wm-sprint-presets { display: flex; gap: 6px; }
+.wm-sprint-presets button {
+  flex: 1;
+  height: 32px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.wm-sprint-presets button:hover {
+  background: color-mix(in srgb, var(--wm-text) 10%, transparent);
+  border-color: var(--wm-text);
+}
+
+/* Hardcore (no-delete) cue in the footer. */
+.wm-hc-note { color: color-mix(in srgb, #f59e0b 75%, var(--wm-text)); font-weight: 600; }
+
+/* ── Sprint result toast ────────────────────────────────────── */
+.wm-sprint-result {
+  position: fixed;
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 22px 30px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 16px;
+  background: var(--wm-bg);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.38);
+  animation: wm-pop 0.3s ease;
+}
+@keyframes wm-pop {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.wm-sprint-result-big { font-size: 28px; font-weight: 700; color: var(--wm-text); }
+.wm-sprint-result-sub { font-size: 13px; color: var(--wm-faint); }
+.wm-sprint-result-close {
+  margin-top: 12px;
+  padding: 7px 18px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.wm-sprint-result-close:hover { background: color-mix(in srgb, var(--wm-text) 10%, transparent); }
+
+/* Bottom status */
+.wm-focus-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 18px;
+  font-size: 12px;
+  color: var(--wm-faint);
+  border-top: 1px solid var(--wm-faint);
+  background: color-mix(in srgb, var(--wm-bg) 80%, transparent);
+  transition: opacity 0.4s ease;
+}
+.wm-focus-foot.hide { opacity: 0; }
+.wm-focus-foot.show { opacity: 1; }
+
+.wm-save.saving { color: var(--wm-faint); }
+.wm-save.saved { color: color-mix(in srgb, #34d399 70%, var(--wm-text)); }
+
+/* Zoom control in the footer status bar. */
+.wm-foot-zoom { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; }
+.wm-foot-zoom button {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--wm-faint);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+.wm-foot-zoom button:hover { background: color-mix(in srgb, var(--wm-text) 10%, transparent); }
+.wm-foot-zoom span { min-width: 34px; text-align: center; }
+
+@media (max-width: 720px) {
+  .wm-fb-center { display: none; }
+  .wm-goal-inputs { display: none; }
+  .wm-outline { display: none; }
+  .wm-ribbon { overflow-x: auto; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Topbar bell (library surface)
+   ───────────────────────────────────────────────────────────── */
+.wm-tb-bell-wrap { position: relative; display: inline-flex; }
+
+.wm-tb-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-glass, rgba(255,255,255,0.03));
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.wm-tb-bell:hover { border-color: color-mix(in srgb, var(--wm-accent) 45%, var(--border)); }
+
+.wm-tb-bell-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--wm-accent, #38bdf8);
+  color: #06283a;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+}
+
+.wm-bell-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 60;
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated, #16181d);
+  box-shadow: 0 16px 44px rgba(0,0,0,0.45);
+  padding: 8px;
+}
+.wm-bell-hd { padding: 6px 8px 8px; }
+.wm-bell-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.wm-bell-empty { padding: 14px 8px; font-size: 13px; color: var(--text-faint); }
+.wm-bell-list { display: flex; flex-direction: column; gap: 4px; }
+.wm-bell-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.wm-bell-item:hover { background: color-mix(in srgb, var(--wm-accent) 12%, transparent); }
+.wm-bell-icon { font-size: 15px; line-height: 1.3; }
+.wm-bell-text { min-width: 0; }
+.wm-bell-item-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.wm-bell-item-body { font-size: 12px; color: var(--text-secondary); }
+
+/* ─────────────────────────────────────────────────────────────
+   Library layout + series (folders)
+   ───────────────────────────────────────────────────────────── */
+.wm-library { display: flex; flex-direction: column; gap: 18px; }
+.wm-folder-list { display: flex; flex-direction: column; gap: 12px; }
+
+.wm-folder {
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-glass, rgba(255,255,255,0.03));
+  /* layered look so a series reads as a stack of pages */
+  box-shadow:
+    0 1px 0 0 var(--bg-glass, rgba(255,255,255,0.03)),
+    3px 3px 0 -1px color-mix(in srgb, var(--wm-accent) 10%, transparent),
+    6px 6px 0 -2px color-mix(in srgb, var(--wm-accent) 6%, transparent);
+  transition: border-color 0.15s ease;
+}
+.wm-folder.open { box-shadow: none; }
+.wm-folder:hover { border-color: color-mix(in srgb, var(--wm-accent) 40%, var(--border)); }
+
+.wm-folder-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+.wm-folder-icon { font-size: 22px; }
+.wm-folder-info { flex: 1; min-width: 0; }
+.wm-folder-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wm-folder-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.wm-folder-head-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s ease; }
+.wm-folder:hover .wm-folder-head-actions { opacity: 1; }
+.wm-folder-chev { font-size: 12px; color: var(--text-muted); width: 14px; text-align: center; }
+
+.wm-folder-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 14px;
+}
+.wm-folder-stack-item {
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 0.5px solid var(--border);
+  background: color-mix(in srgb, var(--wm-accent) 8%, transparent);
+  color: var(--text-secondary);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wm-folder-stack-more { font-size: 12px; color: var(--text-muted); align-self: center; }
+.wm-folder-stack-empty { font-size: 12.5px; color: var(--text-faint); font-style: italic; }
+
+.wm-folder-docs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+/* ── Per-card "file into series" menu ───────────────────────── */
+.wm-doc-menu-wrap { position: relative; display: inline-flex; }
+.wm-doc-menu-scrim { position: fixed; inset: 0; z-index: 40; }
+.wm-doc-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  width: 220px;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated, #16181d);
+  box-shadow: 0 14px 38px rgba(0,0,0,0.45);
+  padding: 6px;
+}
+.wm-doc-menu-label {
+  padding: 4px 8px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.wm-doc-menu-empty { padding: 6px 8px 8px; font-size: 12px; color: var(--text-faint); }
+.wm-doc-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wm-doc-menu-item:hover { background: color-mix(in srgb, var(--wm-accent) 14%, transparent); }
+.wm-doc-menu-item.on { color: var(--wm-accent); font-weight: 600; }
+.wm-doc-menu-item.danger { color: #f87171; }
+.wm-doc-menu-item.danger:hover { background: color-mix(in srgb, #f87171 14%, transparent); }
+
+/* ─────────────────────────────────────────────────────────────
+   Soundscape menu (focus meta bar)
+   ───────────────────────────────────────────────────────────── */
+.wm-sound-wrap { position: relative; display: inline-flex; }
+.wm-sound-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: 230px;
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated, #16181d);
+  box-shadow: 0 14px 38px rgba(0,0,0,0.45);
+  padding: 10px;
+}
+.wm-sound-menu-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.wm-sound-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wm-sound-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border: 0.5px solid var(--border);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.wm-sound-opt:hover { border-color: color-mix(in srgb, var(--wm-accent) 45%, var(--border)); }
+.wm-sound-opt.on {
+  border-color: var(--wm-accent);
+  background: color-mix(in srgb, var(--wm-accent) 16%, transparent);
+  color: var(--text-primary);
+}
+.wm-sound-opt-icon { font-size: 14px; }
+.wm-sound-vol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.wm-sound-vol input[type="range"] { flex: 1; accent-color: var(--wm-accent, #38bdf8); }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
 import { useUserStoreKey } from '../../lib/userStore';
+import { useWritingDocs } from '../../lib/writingDocsStore';
 import { fetchVerseText } from '../../lib/bibleLookup';
 import { ProfileModal, useProfileTopbar } from '../../components/profile/ProfileModal';
 import './Writing.css';
@@ -24,9 +25,11 @@ import './Writing.css';
    Bodies are stored as HTML (rich text). Older plain-text docs are
    upgraded to paragraphs on open.
 
-   Storage:
-     'writing:documents' → array of documents
-     'writing:prefs'     → shared { theme, fontSize, dim, ... }
+   Storage (all Firestore, per-user):
+     /users/{uid}/writingDocs/{id} → one doc per document
+                                     (see lib/writingDocsStore)
+     'writing:folders'   → array of series/folders (kv blob)
+     'writing:prefs'     → shared { theme, fontSize, dim, ... } (kv)
    ───────────────────────────────────────────────────────────── */
 
 const ACCENT = '#7dd3fc';
@@ -328,7 +331,16 @@ const timeAgo = (iso) => {
    Page
    ───────────────────────────────────────────────────────────── */
 export default function Writing() {
-  const [docs, setDocs] = useUserStoreKey('writing:documents', []);
+  /* Documents now live one-per-Firestore-doc (was a single kv blob)
+     so each save stays well under Firestore's 1 MB per-document cap.
+     The hook also migrates any legacy 'writing:documents' blob once. */
+  const {
+    docs,
+    createDoc: createDocFs,
+    updateDoc: updateDocFs,
+    removeDoc: removeDocFs,
+    updateMany: updateManyFs,
+  } = useWritingDocs();
   const [folders, setFolders] = useUserStoreKey('writing:folders', []);
   const [prefs, setPrefs] = useUserStoreKey('writing:prefs', DEFAULT_PREFS);
   const [openId, setOpenId] = useState(null);
@@ -411,24 +423,22 @@ export default function Writing() {
 
   const create = () => {
     const doc = newDoc();
-    setDocs([doc, ...list]);
+    createDocFs(doc);
     setOpenId(doc.id);
   };
 
   const createInSeries = (folderId) => {
     const doc = { ...newDoc(), folderId };
-    setDocs([doc, ...list]);
+    createDocFs(doc);
     setOpenId(doc.id);
   };
 
   const patchDoc = useCallback((id, patch) => {
-    setDocs(prev => (Array.isArray(prev) ? prev : []).map(d =>
-      d.id === id ? { ...d, ...patch, updatedAt: new Date().toISOString() } : d
-    ));
-  }, [setDocs]);
+    updateDocFs(id, patch);
+  }, [updateDocFs]);
 
   const removeDoc = (id) => {
-    setDocs(list.filter(d => d.id !== id));
+    removeDocFs(id);
     if (openId === id) setOpenId(null);
   };
 
@@ -463,18 +473,14 @@ export default function Writing() {
         !window.confirm(`Delete this series? Its ${members.length} document${members.length === 1 ? '' : 's'} will stay, just un-filed.`)) {
       return;
     }
-    setDocs(prev => (Array.isArray(prev) ? prev : []).map(d =>
-      d.folderId === id ? { ...d, folderId: null } : d
-    ));
+    updateManyFs(members.map(d => d.id), { folderId: null });
     setFolders(foldersList.filter(f => f.id !== id));
   };
 
   const addSession = useCallback((id, session) => {
-    setDocs(prev => (Array.isArray(prev) ? prev : []).map(d =>
-      d.id === id ? { ...d, sessions: [...(d.sessions || []), session] } : d
-    ));
+    updateDocFs(id, d => ({ sessions: [...(d.sessions || []), session] }));
     setLastSession(session);
-  }, [setDocs]);
+  }, [updateDocFs]);
 
   return (
     <>

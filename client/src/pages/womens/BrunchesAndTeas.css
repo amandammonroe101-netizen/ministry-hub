@@ -1,0 +1,437 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Brunches & Teas
+   Shares the .wls-* rose-gold 3D design system with LifeStages.css
+   (same .wls-root/.wls-split/.wls-sidebar/.wls-node/.wls-panel/
+   .wls-stat-row/.wls-filter-chip/.wls-empty-note primitives — see
+   that file for the base theme). Only the bits Life Stages doesn't
+   have — the gathering sidebar nodes, invite/RSVP rows, menu &
+   decor checklists, budget list, and recap photo grid — are
+   purpose-built here, prefix .bt-, restyled to match rather than
+   the old card-grid/slide-over dark-glass look this page used to
+   have. ys-* form-primitive overrides here mirror the same
+   reskin AllWomen.css already does for its own .wa-root pages.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Overview panel (page-wide, above the split) ──────────────── */
+.wls-stat-row.bt-stat-row-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ── Sidebar — search, when/type filters, gathering list ──────── */
+.bt-sidebar-search .ys-inp { font-size: 14px; }
+.bt-sidebar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.wls-sidebar .bt-sidebar-filters .wls-filter-chip {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.wls-sidebar .bt-sidebar-list.wls-sidebar-list {
+  gap: 8px;
+}
+
+/* Gathering node — built on .wls-node.vertical, with a title +
+   date stacked instead of a bare label. */
+.bt-gathering-node.is-past { opacity: .62; }
+.wls-root .bt-gathering-node .bt-gathering-node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  align-items: flex-start;
+}
+.wls-root .bt-gathering-node .wls-node-name {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.wls-root .bt-gathering-node-date {
+  font-size: 12px;
+  opacity: .75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Detail placeholder (nothing selected) ────────────────────── */
+.bt-detail-placeholder {
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px;
+}
+
+/* ── Event header panel (icon + title + delete) ───────────────── */
+.bt-detail-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.bt-title-inp {
+  font-size: 19px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 4px 2px;
+}
+.wls-root .bt-title-inp:focus {
+  background: rgba(255,255,255,.5);
+  border-radius: 8px;
+  box-shadow: var(--wls-3d-shadow-sm);
+}
+.bt-sync-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ── ys-* form primitives, reskinned to match .wls-panel ──────── */
+.wls-root .ys-section {
+  background: var(--wls-3d-bg);
+  border: none;
+  border-top: none;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--wls-3d-shadow);
+}
+.wls-root .ys-section:first-of-type { padding-top: 18px; }
+.ys-section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wls-root .ys-section-title {
+  font-size: 20px;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: normal;
+  margin: 0;
+}
+
+/* ── Edit toggle button ────────────────────────────────────────── */
+.wls-root .bt-edit-btn {
+  appearance: none;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+  cursor: pointer;
+}
+.wls-root .bt-edit-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+/* ── View-mode read-only fields ───────────────────────────────── */
+.bt-view-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.bt-view-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 140px;
+}
+.bt-view-field.block { flex-basis: 100%; }
+.bt-view-field-lbl {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.bt-view-field-val {
+  font-size: 14px;
+  color: var(--wms-ink, #3d1728);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.bt-view-field-val.is-empty {
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+}
+.wls-root .ys-del-btn {
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wls-root .ys-del-btn:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #b91c1c; }
+.wls-root .ys-del-btn.armed {
+  background: linear-gradient(145deg, #ffd7d7, #fca5a5);
+  color: #b91c1c;
+  box-shadow: var(--wls-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+}
+.wls-root .ys-add-btn {
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wls-root .ys-add-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.wls-root .ys-add-btn:disabled { opacity: .5; transform: none; }
+
+/* ── Inline add rows (invite from directory / add guest) ──────── */
+.bt-inline-add {
+  display: flex;
+  gap: 6px;
+}
+.bt-inline-add .ys-inp {
+  flex: 1;
+  min-width: 0;
+}
+.bt-guest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bt-guest-mini-field {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+
+/* ── Invite / menu / decor / budget rows — raised warm cards ──── */
+.wls-root .bt-invite-list,
+.wls-root .bt-menu-list,
+.wls-root .bt-checklist,
+.wls-root .bt-budget-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wls-root .bt-invite-row,
+.wls-root .bt-menu-row,
+.wls-root .bt-checklist-row,
+.wls-root .bt-budget-row {
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-radius: 11px;
+  box-shadow: var(--wls-3d-shadow-sm);
+  padding: 11px 14px;
+}
+.wls-root .bt-invite-row { display: flex; flex-direction: column; gap: 8px; }
+.wls-root .bt-menu-row,
+.wls-root .bt-checklist-row,
+.wls-root .bt-budget-row { display: flex; align-items: center; gap: 10px; }
+.wls-root .bt-menu-row.is-brought,
+.wls-root .bt-checklist-row.is-done {
+  box-shadow: var(--wls-3d-shadow-sm), 0 0 0 2px rgba(74,222,128,.35);
+}
+
+/* Invite rows */
+.bt-invite-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bt-invite-name {
+  font-size: 14px;
+}
+button.bt-invite-name.is-linked {
+  appearance: none;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.wls-root button.bt-invite-name.is-linked { color: var(--wms-rose-deep, #c2426a); }
+.bt-invite-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.bt-rsvp-toggle {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.wls-root .bt-rsvp-btn {
+  appearance: none;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-family: inherit;
+  white-space: nowrap;
+  background: rgba(255,255,255,.45);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  cursor: pointer;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wls-root .bt-rsvp-btn.rsvp-yes.on     { background: linear-gradient(145deg, #d9f7c4, #86efac 70%, #4ade80); color: #14532d; }
+.wls-root .bt-rsvp-btn.rsvp-no.on      { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #7f1d1d; }
+.wls-root .bt-rsvp-btn.rsvp-maybe.on   { background: linear-gradient(145deg, #fff3c4, #fde68a 70%, #fbbf24); color: #7c4a03; }
+.wls-root .bt-rsvp-btn.rsvp-pending.on { background: var(--wls-3d-bg); box-shadow: var(--wls-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.3); color: var(--wms-ink, #3d1728); }
+.bt-invite-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.bt-mini-inp { width: 52px; padding: 4px 6px; }
+.bt-dietary-inp { flex: 1; min-width: 120px; padding: 5px 8px; font-size: 12px; }
+.bt-guest-date-inp { width: auto; padding: 5px 8px; font-size: 12px; }
+.bt-reachout-field {
+  width: 100%;
+  justify-content: space-between;
+}
+.bt-reachout-field .bt-guest-date-inp { flex-shrink: 0; }
+
+/* Menu rows */
+.bt-menu-check { display: flex; flex-shrink: 0; }
+.bt-menu-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bt-menu-dish { font-size: 14px; }
+.wls-root .bt-menu-row.is-brought .bt-menu-dish {
+  text-decoration: line-through;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.bt-menu-meta { font-size: 12.5px; }
+.wls-root .bt-menu-meta { color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+
+/* Decor checklist */
+.bt-checklist-text { flex: 1; font-size: 14px; }
+.wls-root .bt-checklist-row.is-done .bt-checklist-text {
+  text-decoration: line-through;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+
+/* Budget — stat cards + progress bar */
+.bt-budget-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.wls-root .bt-budget-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  box-shadow: var(--wls-3d-shadow-sm);
+  text-align: center;
+}
+.bt-budget-stat-n { font-size: 18px; font-weight: 700; color: var(--wms-ink, #3d1728); }
+.bt-budget-stat.is-over .bt-budget-stat-n { color: #b91c1c; }
+.bt-budget-stat-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.bt-budget-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.5);
+  box-shadow: inset 0 1px 3px rgba(61,23,40,.18);
+  overflow: hidden;
+}
+.bt-budget-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4ade80, #86efac);
+  transition: width .25s ease;
+}
+.bt-budget-bar-fill.is-over { background: linear-gradient(90deg, #f87171, #fca5a5); }
+
+/* Budget list */
+.bt-budget-label { flex: 1; font-size: 14px; }
+.wls-root .bt-budget-amount { font-size: 14px; font-weight: 700; color: #a1650c; }
+
+/* Small row-delete button (invite/menu/decor/budget items) */
+.wls-root .bt-row-del {
+  appearance: none;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  font-size: 12px;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  cursor: pointer;
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wls-root .bt-row-del:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #b91c1c; }
+
+.bt-photo-error {
+  font-size: 12.5px;
+  color: #b91c1c;
+}
+
+/* ── Recap photos ──────────────────────────────────────────────── */
+.bt-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+.wls-root .bt-photo-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+}
+.bt-photo-img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,.3);
+}
+.bt-photo-caption { font-size: 11px; padding: 0 6px 6px; }
+.wls-root .bt-photo-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(61,23,40,.55);
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 860px) {
+  .bt-sidebar-search, .bt-sidebar-filters { width: 100%; }
+  .bt-budget-stats { grid-template-columns: repeat(2, 1fr); }
+}

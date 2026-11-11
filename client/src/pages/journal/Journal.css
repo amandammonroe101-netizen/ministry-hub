@@ -32,9 +32,15 @@
 .j-search-input{background:transparent;border:none;outline:none;font-size:12px;color:rgba(255,255,255,.7);width:100%;font-family:inherit;}
 .j-search-input::placeholder{color:rgba(255,255,255,.22);}
 .j-search-clear{background:none;border:none;color:rgba(255,255,255,.28);font-size:11px;cursor:pointer;}
-.j-filter-pills{display:flex;gap:4px;padding:0 8px 8px;flex-shrink:0;flex-wrap:wrap;}
-.j-fpill{padding:3px 8px;border-radius:20px;font-size:10px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s;}
-.j-fpill.active{background:rgba(140,100,255,.22);border-color:rgba(140,100,255,.4);color:#c4b5fd;}
+/* ── Date-range filter (replaces mood filter pills) ── */
+.j-daterange{display:flex;flex-direction:column;gap:4px;padding:0 8px 8px;flex-shrink:0;}
+.j-daterange-row{display:flex;align-items:center;gap:6px;}
+.j-daterange-lbl{font-size:10px;color:rgba(255,255,255,.5);width:34px;text-transform:uppercase;letter-spacing:.06em;}
+.j-daterange-input{flex:1;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.12);border-radius:6px;padding:4px 8px;font-size:11px;color:rgba(255,255,255,.85);font-family:inherit;color-scheme:dark;cursor:pointer;}
+.j-daterange-input:hover{background:rgba(255,255,255,.1);}
+.j-daterange-input:focus{outline:none;border-color:rgba(140,100,255,.5);background:rgba(140,100,255,.08);}
+.j-daterange-clear{align-self:flex-end;background:transparent;border:none;color:rgba(140,100,255,.7);font-size:10px;padding:2px 4px;cursor:pointer;text-decoration:underline;}
+.j-daterange-clear:hover{color:#c4b5fd;}
 .j-error{margin:0 8px 6px;display:flex;align-items:center;justify-content:space-between;background:rgba(239,68,68,.12);border:.5px solid rgba(239,68,68,.25);border-radius:7px;padding:6px 10px;font-size:11px;color:#fca5a5;flex-shrink:0;}
 .j-error button{background:none;border:none;color:#fca5a5;cursor:pointer;}
 .j-entries{flex:1;overflow-y:auto;padding:0 8px 8px;display:flex;flex-direction:column;gap:6px;}
@@ -51,15 +57,8 @@
 .j-ecard-date{font-size:10px;color:rgba(255,255,255,.28);}
 .j-ecard-del{background:none;border:none;color:rgba(255,255,255,.15);font-size:10px;cursor:pointer;padding:1px 3px;border-radius:4px;transition:all .15s;flex-shrink:0;}
 .j-ecard-del:hover{color:#fca5a5;background:rgba(239,68,68,.1);}
-.j-ecard-pills{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
-.j-mood-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;border:.5px solid rgba(255,255,255,.1);}
-/* View + Edit buttons per entry */
-.j-ecard-actions{display:flex;gap:5px;}
-.j-ecard-view,.j-ecard-edit{flex:1;padding:4px 0;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:.5px solid;transition:all .15s;text-align:center;font-family:inherit;}
-.j-ecard-view{background:rgba(56,189,248,.12);color:#7dd3fc;border-color:rgba(56,189,248,.2);}
-.j-ecard-view:hover{background:rgba(56,189,248,.22);}
-.j-ecard-edit{background:rgba(140,100,255,.12);color:#c4b5fd;border-color:rgba(140,100,255,.2);}
-.j-ecard-edit:hover{background:rgba(140,100,255,.22);}
+/* (j-ecard-pills + j-mood-pill removed — moods no longer displayed) */
+/* (j-ecard-actions View/Edit buttons removed — row click already opens View, Edit is available from within the View) */
 
 /* ── CENTER ── */
 .j-center{display:flex;flex-direction:column;overflow:hidden;}
@@ -111,8 +110,23 @@
 .j-view-wrap{flex:1;display:flex;flex-direction:column;overflow-y:auto;}
 .j-view-wrap::-webkit-scrollbar{width:3px;}
 .j-view-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
-.j-view-cover{flex-shrink:0;width:100%;max-height:340px;overflow:hidden;}
-.j-view-cover-img{width:100%;height:100%;object-fit:cover;display:block;}
+.j-view-cover{
+  flex-shrink:0;width:100%;max-height:340px;overflow:hidden;
+  /* Mirror the editor's checker backdrop so the framing the user
+     chose (including any letterbox area when zoomed out below
+     100%) matches what they previewed while editing. */
+  background-color:#0d0b1e;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.018) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,.018) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,.018) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.018) 75%);
+  background-size:22px 22px;
+  background-position:0 0, 0 11px, 11px -11px, -11px 0;
+}
+/* object-fit:contain matches the editor — the user sees the whole
+   image at zoom 100% and chooses to crop in via zoom. */
+.j-view-cover-img{width:100%;height:100%;object-fit:contain;display:block;}
 .j-detail-hero{height:140px;flex-shrink:0;background:linear-gradient(135deg,#f97316 0%,#ec4899 45%,#8b5cf6 100%);position:relative;}
 .hero-shine{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.13) 0%,transparent 60%);}
 .j-view-body{padding:22px 26px;display:flex;flex-direction:column;gap:12px;}
@@ -150,6 +164,55 @@
 .j-prompt-skip{padding:5px 12px;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.1);border-radius:7px;font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;font-family:inherit;}
 
 /* Image upload */
+/* ── Cover image editor (edit/new mode) ──
+   Wraps the cover photo in a clipped frame the user can pan +
+   zoom, and a control bar with a zoom slider + reset + replace +
+   remove buttons.
+   The frame uses object-fit:contain so the WHOLE image is visible
+   at zoom 100%. Going below 100% shrinks the image inside the
+   frame (empty space around it shows the checkered backdrop, so
+   it reads as intentional "letterbox" not as a layout bug). */
+.j-cover-editor{display:flex;flex-direction:column;gap:8px;}
+.j-cover-frame{
+  position:relative;width:100%;height:240px;border-radius:10px;overflow:hidden;
+  cursor:grab;user-select:none;border:.5px solid rgba(255,255,255,.1);
+  /* Subtle checker pattern shows through when the image is smaller
+     than the frame — like Figma / Photoshop's transparency
+     backdrop. Keeps the user oriented that they zoomed out. */
+  background-color:#0f0d1f;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.025) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,.025) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,.025) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.025) 75%);
+  background-size:18px 18px;
+  background-position:0 0, 0 9px, 9px -9px, -9px 0;
+}
+.j-cover-frame.is-dragging{cursor:grabbing;}
+.j-cover-img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  pointer-events:none;transition:transform .04s linear;will-change:transform;
+}
+.j-cover-frame.is-dragging .j-cover-img{transition:none;}
+.j-cover-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.6);background:rgba(0,0,0,.55);border:.5px solid rgba(255,255,255,.14);border-radius:999px;padding:3px 9px;letter-spacing:.04em;pointer-events:none;opacity:.85;}
+.j-cover-frame.is-dragging .j-cover-hint{opacity:0;}
+
+.j-cover-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.08);border-radius:10px;}
+.j-cover-ctrl-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.06em;}
+.j-cover-step{width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.75);font-size:14px;line-height:1;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;transition:all .12s;}
+.j-cover-step:hover{background:rgba(140,100,255,.18);border-color:rgba(140,100,255,.32);color:#c4b5fd;}
+.j-cover-slider{flex:1;min-width:120px;accent-color:#a78bfa;cursor:pointer;}
+.j-cover-ctrl-value{font-size:11px;font-weight:600;color:rgba(255,255,255,.65);min-width:40px;text-align:right;font-variant-numeric:tabular-nums;}
+.j-cover-ctrl-sep{flex:1;}
+.j-cover-ctrl-btn{padding:5px 11px;border-radius:6px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;}
+.j-cover-ctrl-btn:hover{background:rgba(140,100,255,.18);border-color:rgba(140,100,255,.32);color:#c4b5fd;}
+.j-cover-ctrl-btn.danger:hover{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.32);color:#fca5a5;}
+
+/* View-mode cover — give it overflow:hidden so the inline transform
+   on the img can scale + translate without leaking outside the
+   hero frame. */
+.j-view-cover-img{transition:transform .25s ease;}
+
 .j-image-upload-area{border:.5px dashed rgba(255,255,255,.15);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s;min-height:80px;display:flex;align-items:center;justify-content:center;}
 .j-image-upload-area:hover{border-color:rgba(140,100,255,.4);}
 .j-image-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px;}
@@ -176,12 +239,366 @@
 .j-verse-preview-text{font-size:12px;color:rgba(255,255,255,.55);line-height:1.75;font-style:italic;white-space:pre-wrap;}
 
 .j-form-footer{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;flex-wrap:wrap;}
-.j-mood-sel-wrap{position:relative;}
-.j-mood-sel{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:.5px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 12px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;font-family:inherit;}
-.j-mood-sel:hover{background:rgba(255,255,255,.12);}
-.j-mood-dropdown{position:absolute;bottom:calc(100% + 6px);left:0;background:rgba(14,10,30,.97);backdrop-filter:blur(20px);border:.5px solid rgba(255,255,255,.14);border-radius:10px;padding:6px;display:grid;grid-template-columns:1fr 1fr;gap:3px;z-index:100;min-width:190px;box-shadow:0 8px 28px rgba(0,0,0,.5);}
-.j-mood-opt{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.55);background:transparent;border:none;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit;}
-.j-mood-opt:hover,.j-mood-opt.active{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);}
+/* ── Lock toggle (replaces mood picker in form footer) ── */
+.j-lock-wrap{display:flex;align-items:center;gap:8px;}
+.j-lock-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:.5px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 12px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;font-family:inherit;}
+.j-lock-btn:hover{background:rgba(255,255,255,.12);}
+.j-lock-btn.on{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.4);color:#fcd34d;}
+.j-lock-btn.on:hover{background:rgba(251,191,36,.22);}
+.j-lock-change{background:transparent;border:none;color:rgba(140,100,255,.7);font-size:11px;padding:4px 6px;cursor:pointer;text-decoration:underline;font-family:inherit;}
+.j-lock-change:hover{color:#c4b5fd;}
+
+/* ── Lock icon on entry cards ── */
+.j-ecard.locked{}
+.j-ecard-lock{display:inline-block;margin-right:4px;font-size:12px;color:#fcd34d;}
+
+/* ── View mode word count + lock indicator ── */
+.j-view-lock{display:inline-block;margin-right:6px;font-size:18px;color:#fcd34d;vertical-align:middle;}
+.j-view-wc{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:rgba(140,100,255,.16);border:.5px solid rgba(140,100,255,.32);color:#c4b5fd;font-size:11px;font-weight:600;}
+
+/* ── Prayer picker (entry editor + view mode) ── */
+.j-prayer-picker {
+  display:flex; flex-direction:column; gap:6px;
+  padding:9px 11px; margin-top:6px;
+  background:rgba(244,114,182,.06);
+  border:.5px solid rgba(244,114,182,.22);
+  border-radius:8px;
+}
+.j-prayer-picker-lbl {
+  font-size:10px; font-weight:700;
+  color:rgba(244,114,182,.85);
+  letter-spacing:.06em; text-transform:uppercase;
+}
+.j-prayer-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.j-prayer-chip {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px; border-radius:20px;
+  background:rgba(244,114,182,.16);
+  border:.5px solid rgba(244,114,182,.4);
+  color:#f9a8d4;
+  font-size:11px; font-weight:600;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.j-prayer-chip:hover { background:rgba(244,114,182,.26); }
+.j-prayer-chip.view { cursor:pointer; }
+.j-prayer-chip.view:hover { transform:translateY(-1px); }
+.j-prayer-select {
+  width:100%; box-sizing:border-box;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:6px;
+  padding:6px 9px;
+  font-size:11px; color:rgba(255,255,255,.85);
+  font-family:inherit;
+}
+.j-prayer-empty {
+  font-size:11px; color:rgba(255,255,255,.5);
+  padding:4px 0;
+}
+.j-prayer-empty-link {
+  background:transparent; border:none;
+  color:#f9a8d4; cursor:pointer; font-family:inherit;
+  font-size:11px; font-weight:600;
+  text-decoration:underline; padding:0;
+}
+.j-prayer-empty-link:hover { color:#fbcfe8; }
+
+/* View-mode linked-prayers strip — sits between scripture refs
+   and the body content. */
+.j-view-prayers {
+  display:flex; flex-direction:column; gap:6px;
+  padding:8px 11px; margin:8px 0;
+  background:rgba(244,114,182,.06);
+  border-left:3px solid rgba(244,114,182,.55);
+  border-radius:0 8px 8px 0;
+}
+.j-view-prayers-lbl {
+  font-size:10px; font-weight:700;
+  color:rgba(244,114,182,.85);
+  letter-spacing:.06em; text-transform:uppercase;
+}
+
+/* ── Data & Reset section UI ── */
+.j-ps-reset-grid {
+  display:flex; flex-wrap:wrap; gap:6px;
+  padding:4px 0 6px;
+}
+.j-ps-reset-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 11px; border-radius:7px;
+  font-size:11px; font-weight:600;
+  background:rgba(140,100,255,.1);
+  border:.5px solid rgba(140,100,255,.28);
+  color:#c4b5fd;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.j-ps-reset-btn:hover { background:rgba(140,100,255,.18); border-color:rgba(140,100,255,.5); }
+
+.j-ps-import-ta {
+  font-family:'SF Mono', Menlo, monospace;
+  font-size:11px;
+  resize:vertical; min-height:80px;
+  width:100%; box-sizing:border-box;
+}
+.j-ps-import-status {
+  font-size:11px; padding:6px 10px;
+  background:rgba(140,100,255,.08);
+  border:.5px solid rgba(140,100,255,.2);
+  border-radius:6px;
+  color:rgba(255,255,255,.78);
+}
+
+.j-ps-nuke-btn {
+  align-self:flex-start;
+  padding:9px 14px; border-radius:7px;
+  font-size:12px; font-weight:700;
+  background:rgba(239,68,68,.12);
+  border:.5px solid rgba(239,68,68,.4);
+  color:#fca5a5;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.j-ps-nuke-btn:hover { background:rgba(239,68,68,.22); border-color:#ef4444; color:#fee2e2; }
+
+/* ── Memory Verse "Memorized" button + section ── */
+.jd-mv-memorize-btn {
+  font-size:11px; padding:5px 10px; border-radius:6px;
+  background:rgba(255,255,255,.05);
+  border:.5px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.65);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.jd-mv-memorize-btn:hover {
+  background:rgba(110,231,183,.14); border-color:rgba(110,231,183,.36); color:#6ee7b7;
+}
+.jd-mv-memorize-btn.on {
+  background:rgba(110,231,183,.2);
+  border-color:rgba(110,231,183,.5);
+  color:#6ee7b7;
+}
+.jd-mv-memorized-title {
+  margin-top:10px; padding:6px 0;
+  font-size:11px; font-weight:700;
+  color:#6ee7b7;
+  border-top:.5px solid rgba(110,231,183,.18);
+}
+.jd-mv-memorized-toggle {
+  color:#6ee7b7;
+  margin-top:8px;
+}
+.jd-mv-memorized-toggle:hover { color:#86efac; }
+.jd-mv-sr-pill {
+  margin-top:6px; padding:6px 10px;
+  background:rgba(110,231,183,.12);
+  border:.5px solid rgba(110,231,183,.28);
+  border-radius:7px;
+  font-size:11px; color:#6ee7b7; font-weight:600;
+  display:flex; align-items:center; gap:6px;
+}
+.jd-mv-sr-btn {
+  font-size:11px; padding:5px 10px; border-radius:6px;
+  background:rgba(110,231,183,.1);
+  border:.5px solid rgba(110,231,183,.3);
+  color:#6ee7b7;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.jd-mv-sr-btn:hover { background:rgba(110,231,183,.2); }
+.jd-mv-sr-btn.on {
+  background:rgba(110,231,183,.22);
+  border-color:rgba(110,231,183,.55);
+}
+
+/* Inline "Schedule reviews" popup — opens beneath the verse meta
+   when the user clicks the Schedule reviews button. */
+.jd-mv-sr-popup {
+  margin-top:10px; padding:10px 12px;
+  background:rgba(110,231,183,.06);
+  border:.5px solid rgba(110,231,183,.32);
+  border-radius:9px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.jd-mv-sr-popup-hd {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12px; font-weight:700; color:#6ee7b7;
+}
+.jd-mv-sr-popup-close {
+  background:transparent; border:none;
+  color:rgba(255,255,255,.4);
+  font-size:13px; cursor:pointer;
+  padding:2px 6px; border-radius:5px;
+  font-family:inherit;
+}
+.jd-mv-sr-popup-close:hover { color:#fca5a5; background:rgba(239,68,68,.1); }
+.jd-mv-sr-popup-sub {
+  font-size:11px; color:rgba(255,255,255,.6); line-height:1.5;
+}
+.jd-mv-sr-popup-sub b { color:#86efac; }
+.jd-mv-sr-popup-err {
+  font-size:10.5px; color:#fca5a5;
+  padding:4px 8px;
+  background:rgba(239,68,68,.1);
+  border:.5px solid rgba(239,68,68,.22);
+  border-radius:5px;
+}
+.jd-mv-sr-popup-ft {
+  display:flex; justify-content:flex-end; gap:6px; margin-top:4px;
+}
+.jd-mv-sr-popup-cancel,
+.jd-mv-sr-popup-save {
+  font-size:11px; font-weight:600;
+  padding:6px 12px; border-radius:6px;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.jd-mv-sr-popup-cancel {
+  background:transparent;
+  border:.5px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.6);
+}
+.jd-mv-sr-popup-cancel:hover { background:rgba(255,255,255,.05); color:rgba(255,255,255,.85); }
+.jd-mv-sr-popup-save {
+  background:rgba(110,231,183,.2);
+  border:.5px solid rgba(110,231,183,.5);
+  color:#86efac;
+}
+.jd-mv-sr-popup-save:hover { background:rgba(110,231,183,.3); }
+.jd-mv-sr-popup-save:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ── Mini calendar grid inside the SR popup ── */
+.jd-mv-sr-cal-head {
+  display:grid; grid-template-columns:repeat(7, 1fr);
+  gap:4px;
+  margin-top:8px; margin-bottom:4px;
+}
+.jd-mv-sr-cal-head-cell {
+  text-align:center;
+  font-size:9px; font-weight:700;
+  color:rgba(255,255,255,.4);
+  letter-spacing:.08em; text-transform:uppercase;
+}
+.jd-mv-sr-cal-grid {
+  display:grid; grid-template-columns:repeat(7, 1fr);
+  gap:4px;
+}
+.jd-mv-sr-cell {
+  position:relative;
+  aspect-ratio:1 / 1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.04);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:7px;
+  color:rgba(255,255,255,.7); font-family:inherit;
+  cursor:pointer; transition:all .12s;
+  padding:2px;
+}
+.jd-mv-sr-cell.pad {
+  background:transparent;
+  border-color:transparent;
+  cursor:default;
+}
+.jd-mv-sr-cell.available:hover {
+  background:rgba(110,231,183,.14);
+  border-color:rgba(110,231,183,.4);
+  color:#86efac;
+}
+.jd-mv-sr-cell.today {
+  background:rgba(140,100,255,.16);
+  border-color:rgba(140,100,255,.45);
+  color:#c4b5fd; cursor:default;
+}
+.jd-mv-sr-cell.pnv {
+  background:rgba(244,114,182,.14);
+  border-color:rgba(244,114,182,.45);
+  color:#f9a8d4; cursor:default;
+}
+.jd-mv-sr-cell.selected {
+  background:rgba(110,231,183,.32);
+  border-color:rgba(110,231,183,.7);
+  color:#dcfce7;
+  box-shadow:0 0 0 .5px rgba(110,231,183,.6) inset;
+}
+.jd-mv-sr-cell-num {
+  font-size:13px; font-weight:700; line-height:1;
+}
+.jd-mv-sr-cell-tag {
+  font-size:8px; font-weight:700;
+  letter-spacing:.04em; text-transform:uppercase;
+  margin-top:2px;
+}
+.jd-mv-sr-cell-tag.pnv { color:#f9a8d4; }
+.jd-mv-sr-cell-check {
+  position:absolute;
+  top:2px; right:3px;
+  font-size:10px;
+  color:#22c55e;
+  font-weight:900;
+}
+.jd-mv-sr-popup-count {
+  font-size:11px; color:rgba(255,255,255,.6); font-weight:600;
+  flex:1;
+}
+.jd-mv-memorized-item {
+  border-left:3px solid #6ee7b7;
+  border-radius:0 8px 8px 0;
+  background:rgba(110,231,183,.06);
+}
+
+/* ── View mode Download button ── */
+.j-view-dl-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(110,231,183,.14);border:.5px solid rgba(110,231,183,.34);color:#6ee7b7;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;}
+.j-view-dl-btn:hover{background:rgba(110,231,183,.22);border-color:rgba(110,231,183,.5);}
+
+/* ── Lock modal (unlock + set/change). Electron doesn't support
+       window.prompt, so the lock flows route through this modal. ── */
+.j-lock-modal{
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(14,10,30,.97); backdrop-filter:blur(20px);
+  border:.5px solid rgba(251,191,36,.32);
+  border-radius:14px; padding:0;
+  width:min(420px, 92vw);
+  z-index:1000;
+  box-shadow:0 24px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(251,191,36,.08) inset;
+  animation:lockModalIn .18s ease-out;
+}
+@keyframes lockModalIn{
+  from{ opacity:0; transform:translate(-50%,-46%); }
+  to  { opacity:1; transform:translate(-50%,-50%); }
+}
+.j-lock-modal-hd{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:.5px solid rgba(255,255,255,.08);
+  font-size:13px; font-weight:600; color:#fcd34d;
+}
+.j-lock-modal-body{ padding:16px 18px; display:flex; flex-direction:column; gap:10px; }
+.j-lock-modal-lbl{ font-size:12px; color:rgba(255,255,255,.7); line-height:1.5; }
+.j-lock-modal-input{
+  width:100%; box-sizing:border-box;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:14px; color:#fff; font-family:inherit;
+  letter-spacing:.08em;
+}
+.j-lock-modal-input:focus{
+  outline:none;
+  border-color:rgba(251,191,36,.55);
+  background:rgba(251,191,36,.06);
+}
+.j-lock-modal-err{
+  font-size:11px; color:#fca5a5;
+  background:rgba(239,68,68,.1); border:.5px solid rgba(239,68,68,.25);
+  border-radius:6px; padding:6px 9px;
+}
+.j-lock-modal-ft{
+  display:flex; justify-content:flex-end; gap:8px;
+  padding:12px 18px 16px;
+  border-top:.5px solid rgba(255,255,255,.06);
+}
 .j-cancel-btn{padding:7px 14px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.11);border-radius:8px;font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;font-family:inherit;}
 .j-save-btn{display:flex;align-items:center;gap:6px;padding:7px 18px;background:linear-gradient(135deg,rgba(140,100,255,.85),rgba(180,60,130,.75));border:.5px solid rgba(255,255,255,.2);border-radius:8px;font-size:12px;font-weight:600;color:white;cursor:pointer;box-shadow:0 2px 10px rgba(140,100,255,.2),inset 0 1px 0 rgba(255,255,255,.15);transition:opacity .15s;font-family:inherit;}
 .j-save-btn:hover:not(:disabled){opacity:.84;}
@@ -595,9 +1012,15 @@
   overflow: hidden;
   animation: verseIn .2s ease;
 }
+/* Verse card row holds the toggle + delete as siblings (was a
+   button-inside-button before — invalid DOM nesting). */
+.j-verse-card-row {
+  display: flex; align-items: center; gap: 4px;
+  padding-right: 6px;
+}
 .j-verse-card-toggle {
   display: flex; align-items: center; gap: 8px;
-  width: 100%; padding: 9px 12px;
+  flex: 1; padding: 9px 12px;
   background: none; border: none; cursor: pointer;
   font-family: inherit; text-align: left;
 }
@@ -803,6 +1226,25 @@
 .jd-inp-lbl { font-size:9px; font-weight:600; color:rgba(255,255,255,.28); letter-spacing:.08em; text-transform:uppercase; margin-bottom:3px; }
 .jd-sel { width:100%; background:rgba(255,255,255,.07); border:.5px solid rgba(255,255,255,.12); border-radius:7px; padding:7px 10px; font-size:12px; color:rgba(255,255,255,.7); outline:none; font-family:inherit; }
 .jd-mv-form-row { display:flex; gap:8px; align-items:flex-end; }
+
+/* Memory-verse reference row: input + auto-fetch spinner. */
+.jd-mv-ref-row { position:relative; display:flex; align-items:center; }
+.jd-mv-ref-row .jd-inp { padding-right:42px; }
+.jd-mv-spinner {
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  display:flex; gap:3px; pointer-events:none;
+}
+.jd-mv-dot {
+  width:5px; height:5px; border-radius:50%;
+  background:rgba(140,100,255,.75);
+  animation: jdMvBounce 1.05s infinite ease-in-out;
+}
+.jd-mv-dot:nth-child(2) { animation-delay:.15s; }
+.jd-mv-dot:nth-child(3) { animation-delay:.30s; }
+@keyframes jdMvBounce {
+  0%, 80%, 100% { transform:translateY(0); opacity:.4; }
+  40%           { transform:translateY(-4px); opacity:1; }
+}
 .jd-add-btn { padding:7px 16px; background:linear-gradient(135deg,rgba(140,100,255,.85),rgba(180,60,130,.75)); border:.5px solid rgba(255,255,255,.2); border-radius:8px; font-size:12px; font-weight:600; color:white; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
 .jd-add-btn:disabled { opacity:.35; cursor:not-allowed; }
 .jd-mv-current { background:rgba(140,100,255,.08); border:.5px solid rgba(140,100,255,.2); border-left:3px solid rgba(140,100,255,.6); border-radius:0 9px 9px 0; padding:12px 14px; margin-bottom:8px; }
@@ -818,8 +1260,1030 @@
 .jd-archive-ref { font-size:11px; font-weight:600; color:rgba(196,181,253,.7); }
 .jd-archive-text { font-size:11px; color:rgba(255,255,255,.4); font-style:italic; line-height:1.5; }
 .jd-archive-date { font-size:10px; color:rgba(255,255,255,.22); }
-.jd-archive-activate { margin-top:4px; font-size:10px; color:#c4b5fd; background:rgba(140,100,255,.12); border:.5px solid rgba(140,100,255,.22); border-radius:5px; padding:3px 8px; cursor:pointer; font-family:inherit; align-self:flex-start; }
+.jd-archive-activate { font-size:10px; color:#c4b5fd; background:rgba(140,100,255,.12); border:.5px solid rgba(140,100,255,.22); border-radius:5px; padding:3px 8px; cursor:pointer; font-family:inherit; }
+
+/* Per-archived-item action row (Set current + delete sit side-by-side). */
+.jd-archive-acts { display:flex; gap:6px; margin-top:5px; }
+.jd-archive-delete {
+  font-size:10px; color:#fca5a5;
+  background:rgba(239,68,68,.10); border:.5px solid rgba(239,68,68,.22);
+  border-radius:5px; padding:3px 8px; cursor:pointer; font-family:inherit;
+}
+.jd-archive-delete:hover { background:rgba(239,68,68,.18); }
+
+/* ── Current verse: header row with collapse toggle ── */
+.jd-mv-current-hd {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; margin-bottom:5px;
+}
+.jd-mv-current-hd .jd-mv-ref { margin-bottom:0; }
+.jd-mv-collapse {
+  background:rgba(255,255,255,.06); border:.5px solid rgba(255,255,255,.1);
+  border-radius:5px; padding:3px 8px;
+  font-size:10px; color:rgba(255,255,255,.55);
+  cursor:pointer; font-family:inherit; transition:all .15s; white-space:nowrap;
+}
+.jd-mv-collapse:hover {
+  background:rgba(140,100,255,.16); color:#c4b5fd;
+  border-color:rgba(140,100,255,.3);
+}
+
+/* ── Numbered verses (current verse + add-form preview) ── */
+.jd-mv-verses { display:flex; flex-direction:column; gap:6px; margin:8px 0; }
+.jd-mv-verse-line {
+  display:flex; gap:8px; align-items:baseline;
+  font-size:13px; color:rgba(255,255,255,.78); line-height:1.75;
+  font-style:italic;
+}
+.jd-mv-vnum {
+  flex-shrink:0; min-width:18px;
+  font-size:10px; font-weight:700; color:#c4b5fd;
+  background:rgba(140,100,255,.18); border-radius:4px;
+  padding:1px 5px;
+  text-align:center;
+  font-style:normal;
+  letter-spacing:0;
+  align-self:flex-start;
+  position:relative; top:2px;
+}
+.jd-mv-vtxt { flex:1; }
+
+/* Live verse preview while adding a new memory verse. */
+.jd-mv-preview {
+  background:rgba(140,100,255,.06); border:.5px solid rgba(140,100,255,.18);
+  border-radius:7px; padding:8px 10px;
+  display:flex; flex-direction:column; gap:5px;
+  max-height:160px; overflow-y:auto;
+}
+.jd-mv-preview-line {
+  display:flex; gap:6px; align-items:baseline;
+  font-size:12px; color:rgba(255,255,255,.7); line-height:1.6;
+  font-style:italic;
+}
+.jd-mv-error {
+  background:rgba(248,113,113,.10); border:.5px solid rgba(248,113,113,.32);
+  border-radius:7px; padding:8px 10px;
+  font-size:12px; color:#fca5a5; line-height:1.5;
+}
+
+/* ── Section-level Reminder Schedule panel ── */
+.jd-mv-sched {
+  margin-top:10px;
+  padding:9px 11px;
+  background:rgba(34,197,94,.06); border:.5px solid rgba(34,197,94,.2);
+  border-radius:8px;
+}
+.jd-mv-sched-toggle {
+  display:flex; align-items:center; gap:8px;
+  cursor:pointer; user-select:none;
+}
+.jd-mv-sched-toggle input[type="checkbox"] {
+  accent-color:#22c55e; width:14px; height:14px; cursor:pointer; margin:0;
+}
+.jd-mv-sched-toggle-txt { font-size:12px; font-weight:600; color:rgba(255,255,255,.78); }
+.jd-mv-sched-body {
+  margin-top:9px; padding-top:9px;
+  border-top:.5px dashed rgba(34,197,94,.25);
+  display:flex; flex-direction:column; gap:7px;
+}
+.jd-mv-sched-row {
+  display:grid; grid-template-columns:1fr 1fr 80px; gap:7px;
+}
+.jd-mv-sched-col { display:flex; flex-direction:column; gap:3px; }
+.jd-mv-sched-weeks .jd-inp {
+  text-align:center; padding:7px 6px;
+  appearance:textfield; -moz-appearance:textfield;
+}
+.jd-mv-sched-weeks .jd-inp::-webkit-outer-spin-button,
+.jd-mv-sched-weeks .jd-inp::-webkit-inner-spin-button {
+  appearance:none; margin:0;
+}
+.jd-mv-sched-hint {
+  font-size:10px; color:rgba(255,255,255,.45);
+  line-height:1.5; font-style:italic;
+}
+
+/* "On Calendar" pill on the current verse meta line. */
+.jd-mv-syncpill {
+  display:inline-flex; align-items:center; gap:3px;
+  margin-left:8px; padding:2px 8px;
+  background:rgba(34,197,94,.16); border:.5px solid rgba(34,197,94,.34);
+  border-radius:20px; color:#86efac; font-size:10px; font-weight:600;
+}
+
+/* ── Current-verse action row (Archive + Delete) ── */
+.jd-mv-actions { display:flex; gap:6px; margin-top:10px; }
+.jd-mv-archive-btn,
+.jd-mv-delete-btn {
+  font-size:11px; padding:5px 10px; border-radius:6px;
+  cursor:pointer; font-family:inherit; transition:all .15s;
+}
+.jd-mv-archive-btn {
+  color:#fbbf24; background:rgba(251,191,36,.1);
+  border:.5px solid rgba(251,191,36,.25);
+}
+.jd-mv-archive-btn:hover { background:rgba(251,191,36,.18); }
+.jd-mv-delete-btn {
+  color:#fca5a5; background:rgba(239,68,68,.1);
+  border:.5px solid rgba(239,68,68,.25);
+}
+.jd-mv-delete-btn:hover { background:rgba(239,68,68,.18); }
 
 /* ── EMPTY STATE ── */
 .jd-empty-title { font-size:20px; font-weight:700; color:rgba(255,255,255,.7); letter-spacing:-.02em; margin-bottom:6px; }
 .jd-empty-sub { font-size:13px; color:rgba(255,255,255,.3); max-width:340px; line-height:1.7; margin:0 auto; }
+
+/* ── Per-entry theme picker ──
+   Lives inside the new/edit entry editor (NOT the topbar). The
+   button shows a swatch of the entry's current theme + its name;
+   clicking opens a drop-down popover with all available themes.
+   Same visual language as Chat's per-channel picker. */
+.j-edit-themes-wrap { position: relative; align-self: stretch; margin-bottom: 4px; }
+.j-edit-themes-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.05);
+  border: .5px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.78);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.j-edit-themes-btn:hover {
+  background: var(--j-surface, rgba(140,100,255,.12));
+  border-color: var(--j-accent, rgba(140,100,255,.36));
+  color: #fff;
+}
+.j-edit-themes-swatch {
+  width: 14px; height: 14px; border-radius: 4px;
+  border: .5px solid rgba(255,255,255,.32);
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0,0,0,.32);
+  flex-shrink: 0;
+}
+.j-edit-themes-label { letter-spacing: -.01em; }
+.j-edit-themes-chev {
+  margin-left: 2px;
+  font-size: 9px; opacity: .6;
+}
+.j-edit-themes-popover {
+  /* Position the picker dropdown relative to the .j-edit-themes-wrap. */
+  top: 100%; left: 0;
+  margin-top: 6px;
+  width: 260px;
+}
+
+.j-themes-popover {
+  position: absolute; top: 40px; right: 0;
+  width: 240px;
+  max-height: 360px; overflow-y: auto;
+  background: rgba(14,10,30,.97);
+  backdrop-filter: blur(20px);
+  border: .5px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  box-shadow: 0 14px 38px rgba(0,0,0,.55);
+  z-index: 50;
+  padding: 6px 0;
+  animation: jThemesIn .15s ease-out;
+}
+@keyframes jThemesIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.j-themes-popover-hd {
+  padding: 8px 14px 6px;
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,.55);
+  text-transform: uppercase; letter-spacing: .08em;
+  border-bottom: .5px solid rgba(255,255,255,.06);
+}
+.j-themes-list {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 4px 0;
+}
+.j-themes-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 7px 14px;
+  background: transparent; border: none;
+  text-align: left; cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,.78);
+  font-size: 12.5px; font-weight: 500;
+  transition: background .15s, color .15s;
+}
+.j-themes-item:hover {
+  background: rgba(140,100,255,.12);
+  color: rgba(255,255,255,.95);
+}
+.j-themes-item.is-active {
+  background: rgba(140,100,255,.16);
+  color: #c4b5fd;
+  font-weight: 600;
+}
+.j-themes-item-swatch {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: .5px solid rgba(255,255,255,.22);
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.35);
+}
+.j-themes-item-name { flex: 1; min-width: 0; }
+.j-themes-item-check {
+  /* Picks up the THEME's accent (cascaded from --j-accent on the
+     editor wrapper) when the picker is rendered inside an entry
+     editor. Falls back to the default purple anywhere else. */
+  color: var(--j-accent, #c4b5fd);
+  font-size: 12px;
+}
+
+/* ── Per-entry themed surfaces ──
+   When the editor or view wrapper has --j-bg / --j-accent /
+   --j-surface set, the entry gets a full themed treatment:
+     • .j-themed-bg     — the theme gradient filling the surface
+     • .j-theme-deco    — decorative SVG overlay (hexagons, stars,
+                          clouds, etc. — defined in JournalThemeDeco)
+     • everything else  — bumped to z-index: 1 so the deco sits
+                          underneath. */
+.j-themed {
+  position: relative;
+  /* 0.25" solid black frame on all four sides of the entry. Replaces
+     the old top-only header strip (form-header tint + view-mode hero
+     band) which read as an uneven "weird" margin. With box-sizing:
+     border-box (global) the inner layout just shrinks by 24px, the
+     themed bg + deco fill the inside of the frame cleanly. */
+  border: 24px solid #000;
+}
+.j-themed-bg {
+  position: absolute; inset: 0;
+  background: var(--j-bg);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Kill the old top-only chrome that fought with the new black frame:
+     • Editor header had a tinted bg + bottom hairline (the "weird
+       header margin" the user called out).
+     • View mode rendered a 140px themed hero band at the top — also
+       redundant now that the whole surface is themed. */
+.j-form-wrap.j-themed .j-form-header {
+  background: transparent;
+  border-bottom: none;
+}
+.j-view-wrap.j-themed .j-detail-hero-themed {
+  display: none;
+}
+.j-theme-deco {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  /* Keep the deco subtle — the SVG opacities are already low, but
+     this knob lets us dial the whole layer down if a theme reads
+     too busy behind the prose. */
+  opacity: .9;
+}
+/* Every direct child of a themed wrapper sits above the deco so
+   clicks, focus rings, and text render normally. */
+.j-themed > *:not(.j-themed-bg):not(.j-theme-deco) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Themed hero header in view mode — uses the entry's theme
+   gradient instead of the hardcoded brand one. */
+.j-view-wrap[style*="--j-bg"] .j-detail-hero-themed {
+  background: var(--j-bg);
+}
+
+/* The themed editor's theme-picker button picks up the active accent. */
+.j-edit-themes-btn { transition: all .18s; }
+.j-form-wrap.j-themed .j-edit-themes-btn {
+  border-color: var(--j-accent);
+  color: var(--j-accent);
+}
+
+/* ── Fullscreen entry mode ──
+   Hides the app topbar, the entries list panel, and the floating
+   NavRail trigger so the editor / view fills the entire viewport.
+   The body's grid drops to a single 1fr column (overrides the inline
+   style="grid-template-columns:..." with !important). Esc exits — see
+   the keydown handler in Journal.jsx. */
+.j-root.j-fullscreen .app-topbar,
+.j-root.j-fullscreen .j-list-panel,
+.j-root.j-fullscreen .nr-trigger { display: none !important; }
+.j-root.j-fullscreen .j-body { grid-template-columns: 1fr !important; }
+
+/* App.jsx mounts a GLOBAL NavRail outside .j-root — so the .j-root
+   selector above misses it. Mirror the flag onto <body> (see the
+   effect in Journal.jsx) and hide the trigger, dim backdrop, AND
+   the rail itself if it happened to be open when fullscreen started. */
+body.j-fs .nr-trigger,
+body.j-fs .nr-backdrop,
+body.j-fs .nav-rail { display: none !important; }
+
+/* Header-actions row in the editor — pairs the new ⛶ button with
+   the existing ✕ close button. */
+.j-form-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The ⛶ buttons. Matches the visual weight of the surrounding
+   action buttons so they don't shout. */
+.j-form-fs,
+.j-view-fs-btn {
+  padding: 6px 12px;
+  background: rgba(255,255,255,.06);
+  border: .5px solid rgba(255,255,255,.14);
+  border-radius: 7px;
+  color: rgba(255,255,255,.7);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.j-form-fs:hover,
+.j-view-fs-btn:hover {
+  background: rgba(255,255,255,.11);
+  color: rgba(255,255,255,.92);
+  border-color: rgba(255,255,255,.22);
+}
+/* When inside a themed wrapper, pick up the active accent so the
+   button blends with the rest of the themed chrome. */
+.j-themed .j-form-fs,
+.j-themed .j-view-fs-btn {
+  border-color: var(--j-accent);
+  color: var(--j-accent);
+}
+
+/* ── Header reminder bell + profile avatar ──
+   Replaces the old right-sidebar toggle. The bell opens the reminder
+   modal; the avatar deep-links to /settings (which hosts profile). */
+.j-tb-bell {
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.12);
+  cursor:pointer; font-size:15px;
+  color:rgba(255,255,255,.78);
+  transition:all .15s; font-family:inherit;
+}
+.j-tb-bell:hover {
+  background:rgba(140,100,255,.16);
+  border-color:rgba(140,100,255,.36);
+  color:#c4b5fd;
+}
+.j-tb-bell-badge {
+  position:absolute; top:-3px; right:-3px;
+  min-width:16px; height:16px; padding:0 4px;
+  display:flex; align-items:center; justify-content:center;
+  /* Blue notification circle (per request — was amber). */
+  background:#3b82f6; color:#fff;
+  border-radius:999px;
+  font-size:9px; font-weight:800; line-height:1;
+  border:1.5px solid rgba(14,10,30,.95);
+  box-shadow:0 0 0 2px rgba(59,130,246,.15);
+}
+
+/* ── Notification popover (hover + click anchored to the bell) ── */
+.j-tb-bell-wrap { position:relative; }
+.j-notif-popover {
+  position:absolute; top:38px; right:0;
+  width:min(320px, 84vw);
+  background:rgba(14,10,30,.98); backdrop-filter:blur(20px);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:10px;
+  padding:8px 0;
+  z-index:900;
+  box-shadow:0 12px 36px rgba(0,0,0,.55);
+  animation:notifPopIn .14s ease-out;
+}
+/* Invisible bridge between the bell button and the popover so the
+   mouse never leaves a hover surface during the trip from one to
+   the other. Combined with the JS grace-period timer, the tooltip
+   reliably stays open while you scroll through reminders. */
+.j-notif-popover::before {
+  content:'';
+  position:absolute;
+  top:-10px; left:0; right:0;
+  height:10px;
+  background:transparent;
+}
+@keyframes notifPopIn {
+  from { opacity:0; transform:translateY(-4px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.j-notif-popover-hd {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:4px 12px 8px;
+  border-bottom:.5px solid rgba(255,255,255,.06);
+}
+.j-notif-popover-title {
+  font-size:12px; font-weight:700; color:rgba(255,255,255,.85);
+}
+.j-notif-dismiss-all {
+  background:transparent; border:none;
+  font-size:11px; color:#7dd3fc;
+  cursor:pointer; font-family:inherit;
+  padding:2px 4px;
+}
+.j-notif-dismiss-all:hover { text-decoration:underline; }
+
+.j-notif-empty {
+  padding:20px 14px; text-align:center;
+  font-size:12px; color:rgba(255,255,255,.4);
+  font-style:italic;
+}
+.j-notif-list { display:flex; flex-direction:column; max-height:340px; overflow-y:auto; }
+.j-notif-item {
+  display:flex; align-items:flex-start; gap:9px;
+  padding:8px 12px;
+  border-top:.5px solid rgba(255,255,255,.04);
+  transition:background .12s;
+}
+.j-notif-item:first-child { border-top:none; }
+.j-notif-item:hover { background:rgba(59,130,246,.06); }
+.j-notif-icon { font-size:15px; flex-shrink:0; line-height:1.2; }
+.j-notif-text  { flex:1; min-width:0; }
+.j-notif-title { font-size:12px; font-weight:600; color:rgba(255,255,255,.85); line-height:1.4; }
+.j-notif-body  { font-size:11px; color:rgba(255,255,255,.5); margin-top:2px; line-height:1.4; }
+.j-notif-dismiss {
+  flex-shrink:0;
+  background:transparent; border:none;
+  color:rgba(255,255,255,.3); font-size:13px;
+  cursor:pointer; padding:2px 5px; border-radius:4px;
+  transition:all .12s; font-family:inherit;
+}
+.j-notif-dismiss:hover { color:#fca5a5; background:rgba(239,68,68,.1); }
+
+/* ── Page Settings sub-tab pill bar ──
+   Horizontal pills (icon + label side-by-side), one row, evenly
+   spaced across the modal width. Wraps to a second row only on
+   very narrow modals. */
+.j-ps-subtabs {
+  display:flex; gap:6px; flex-wrap:wrap;
+  padding:5px;
+  margin-bottom:14px;
+  background:rgba(255,255,255,.04);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:10px;
+}
+.j-ps-subtab {
+  flex:1 1 0;
+  min-width:90px;
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:6px;
+  padding:9px 10px;
+  background:transparent; border:none;
+  border-radius:7px;
+  cursor:pointer; font-family:inherit;
+  color:rgba(255,255,255,.6);
+  font-size:12px; font-weight:600;
+  letter-spacing:.01em;
+  white-space:nowrap;
+  transition:all .14s;
+}
+.j-ps-subtab:hover { background:rgba(255,255,255,.06); color:rgba(255,255,255,.92); }
+.j-ps-subtab.on {
+  background:rgba(140,100,255,.22);
+  color:#c4b5fd;
+  box-shadow:0 0 0 .5px rgba(140,100,255,.4) inset;
+}
+.j-ps-subtab-icon { font-size:14px; line-height:1; flex-shrink:0; }
+.j-ps-subtab-name { font-size:12px; font-weight:600; }
+
+/* ── Page Settings tab content ── */
+.j-ps-section { display:flex; flex-direction:column; gap:8px; }
+/* Visual separation between adjacent visible sections within a
+   sub-tab. (Previously handled by inline .j-ps-divider — now CSS
+   so dividers only appear when two sections actually render side
+   by side.) */
+.j-ps-section + .j-ps-section {
+  margin-top:14px;
+  padding-top:14px;
+  border-top:.5px solid rgba(255,255,255,.06);
+}
+.j-ps-section-title {
+  font-size:13px; font-weight:700; color:#c4b5fd;
+  letter-spacing:.02em;
+}
+.j-ps-section-sub {
+  font-size:11px; color:rgba(255,255,255,.5); line-height:1.5;
+}
+.j-ps-section-sub b { color:rgba(255,255,255,.85); }
+.j-ps-divider {
+  height:1px; background:rgba(255,255,255,.08); margin:6px 0;
+}
+.j-ps-mini-title {
+  font-size:10px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:rgba(255,255,255,.4);
+  margin-top:2px;
+}
+.j-ps-rem-list { display:flex; flex-direction:column; gap:7px; }
+.j-ps-rem-item {
+  background:rgba(255,255,255,.04);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  padding:8px 10px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.j-ps-rem-row { display:flex; align-items:center; gap:8px; }
+
+/* Edit pencil — small ghost button alongside the delete ✕. */
+.j-ps-rem-edit {
+  flex-shrink:0;
+  background:transparent; border:none;
+  color:rgba(255,255,255,.35); font-size:13px;
+  padding:4px 6px; border-radius:5px;
+  cursor:pointer; font-family:inherit;
+  transition:all .14s;
+}
+.j-ps-rem-edit:hover { color:#a78bfa; background:rgba(140,100,255,.12); }
+
+/* Highlight the row currently being edited so it's obvious which
+   reminder the form below corresponds to. */
+.j-ps-rem-item.editing {
+  border-color:rgba(140,100,255,.4);
+  background:rgba(140,100,255,.08);
+  box-shadow:0 0 0 .5px rgba(140,100,255,.2) inset;
+}
+.j-ps-add-row { display:flex; gap:8px; align-items:flex-end; }
+.j-ps-add-col { flex:1; display:flex; flex-direction:column; gap:3px; }
+.j-ps-add-col-wide { flex:2; }
+.j-ps-sync-row {
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; color:rgba(255,255,255,.7);
+  cursor:pointer; user-select:none;
+  padding:5px 0;
+}
+.j-ps-sync-row input[type="checkbox"] {
+  accent-color:#3b82f6; width:13px; height:13px; cursor:pointer; margin:0;
+}
+.j-ps-mv-grid {
+  display:grid; grid-template-columns:1fr 1fr 80px; gap:8px;
+  padding:8px 10px;
+  background:rgba(34,197,94,.05);
+  border:.5px solid rgba(34,197,94,.18);
+  border-radius:8px;
+}
+
+/* Dashboard card visibility grid (2 columns of checkboxes). */
+.j-ps-cards-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.03);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:8px;
+}
+.j-ps-card-toggle {
+  display:flex; align-items:center; gap:7px;
+  font-size:11.5px; color:rgba(255,255,255,.78);
+  cursor:pointer; user-select:none; padding:3px 0;
+}
+.j-ps-card-toggle input[type="checkbox"] {
+  accent-color:#3b82f6; width:13px; height:13px; cursor:pointer; margin:0;
+}
+.j-ps-card-toggle-emoji { font-size:13px; flex-shrink:0; }
+.j-ps-card-toggle-lbl   { flex:1; min-width:0; }
+
+/* Prompt category chip cloud reuses .j-profile-chip styles, but
+   we add a wrapping container with a top margin. */
+.j-ps-chips {
+  display:flex; flex-wrap:wrap; gap:5px;
+  margin-top:2px; margin-bottom:6px;
+}
+
+/* Custom prompt list (one row per prompt). */
+.j-ps-custom-list { display:flex; flex-direction:column; gap:5px; }
+.j-ps-custom-item {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:6px 10px;
+  background:rgba(140,100,255,.06);
+  border:.5px solid rgba(140,100,255,.18);
+  border-radius:7px;
+}
+.j-ps-custom-text {
+  flex:1; min-width:0;
+  font-size:11.5px; color:rgba(255,255,255,.78);
+  font-style:italic; line-height:1.5;
+}
+
+/* ── How to Use guide (Page Settings → How to Use sub-tab) ──
+   A typed-out, in-app reference so users don't have to leave the
+   app to learn the page. Reuses .j-ps-section-title/.j-ps-mini-title
+   for headers so it matches the rest of Page Settings, plus a small
+   set of article-specific classes for body copy and bullet lists. */
+.j-ps-howto-title-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+}
+.j-ps-howto-download {
+  flex-shrink:0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px; font-weight: 700; color: #1a1206;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  cursor:pointer; transition: opacity .15s;
+}
+.j-ps-howto-download:hover { opacity: .85; }
+.j-ps-howto-intro {
+  font-size:11.5px; color:rgba(255,255,255,.6); line-height:1.6;
+  background:rgba(140,100,255,.06);
+  border:.5px solid rgba(140,100,255,.16);
+  border-radius:8px; padding:10px 12px;
+}
+/* Feedback callout — pinned to the top of the guide so it's the
+   first thing a user sees, styled distinctly (amber) from the
+   purple intro box below it so it reads as "action", not "info". */
+.j-ps-howto-feedback {
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:11.5px; color:rgba(255,255,255,.72); line-height:1.6;
+  background:rgba(245,158,11,.08);
+  border:.5px solid rgba(245,158,11,.25);
+  border-radius:8px; padding:10px 12px;
+}
+.j-ps-howto-feedback b { color:#fbbf24; }
+.j-ps-howto-feedback-ic { font-size:14px; flex-shrink:0; line-height:1.4; }
+.j-ps-howto-block { display:flex; flex-direction:column; gap:5px; }
+.j-ps-howto-block + .j-ps-howto-block { margin-top:12px; }
+.j-ps-howto-h {
+  font-size:12px; font-weight:700; color:rgba(255,255,255,.9);
+  display:flex; align-items:center; gap:6px;
+}
+.j-ps-howto-p {
+  font-size:11.5px; color:rgba(255,255,255,.62); line-height:1.6;
+}
+.j-ps-howto-p b, .j-ps-howto-list b { color:rgba(255,255,255,.88); }
+.j-ps-howto-list {
+  margin:0; padding-left:16px;
+  display:flex; flex-direction:column; gap:4px;
+  font-size:11.5px; color:rgba(255,255,255,.62); line-height:1.55;
+}
+.j-ps-howto-list li::marker { color:#a78bfa; }
+
+/* ── Master-lock full-screen card ── */
+.j-master-lock-wrap {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  z-index:50;
+}
+.j-master-lock-card {
+  width:min(360px, 86vw);
+  padding:32px 28px;
+  background:rgba(14,10,30,.97); backdrop-filter:blur(20px);
+  border:.5px solid rgba(251,191,36,.32);
+  border-radius:16px;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  text-align:center;
+}
+.j-master-lock-icon { font-size:42px; color:#fcd34d; line-height:1; }
+.j-master-lock-title { font-size:18px; font-weight:700; color:#fcd34d; }
+.j-master-lock-sub { font-size:12px; color:rgba(255,255,255,.6); margin-bottom:8px; }
+.j-master-lock-card .j-lock-modal-input { width:100%; max-width:240px; }
+.j-master-lock-forgot {
+  margin-top:14px;
+  background:transparent; border:none;
+  color:rgba(255,255,255,.45); font-size:11px;
+  cursor:pointer; font-family:inherit;
+  text-decoration:underline;
+  padding:4px 8px;
+}
+.j-master-lock-forgot:hover { color:#fca5a5; }
+
+/* ── Word-count target bar inside the entry editor ── */
+.j-wc-target {
+  display:flex; align-items:center; gap:8px;
+  font-size:10px; color:rgba(255,255,255,.5);
+  padding:4px 0;
+}
+.j-wc-track {
+  flex:1; height:4px;
+  background:rgba(255,255,255,.06);
+  border-radius:999px; overflow:hidden;
+}
+.j-wc-fill {
+  height:100%; background:#a78bfa;
+  border-radius:999px; transition:width .25s;
+}
+.j-wc-target.hit { color:#86efac; }
+.j-wc-target.hit .j-wc-fill { background:#22c55e; }
+
+/* ── Entry card density modes ── */
+.j-ecard.d-compact .j-ecard-actions { display:none; }
+.j-ecard.d-compact { padding:6px 9px; }
+.j-ecard.d-compact .j-ecard-title { font-size:12px; }
+.j-ecard.d-compact .j-ecard-date { font-size:10px; }
+.j-ecard.d-titleOnly { padding:5px 9px; }
+.j-ecard.d-titleOnly .j-ecard-actions,
+.j-ecard.d-titleOnly .j-ecard-date { display:none; }
+.j-ecard.d-titleOnly .j-ecard-title { font-size:12px; }
+.j-ecard-wc { opacity:.6; }
+
+/* ── Cover image modes (view) ── */
+.j-view-cover.cover-thumb {
+  width:140px; height:90px;
+  margin:14px auto 6px;
+  border-radius:10px; overflow:hidden;
+}
+.j-view-cover.cover-thumb .j-view-cover-img {
+  width:100%; height:100%; object-fit:cover;
+}
+
+/* ── Dashboard goal progress bars ── */
+.jd-goals-card {
+  background:rgba(140,100,255,.06);
+  border:.5px solid rgba(140,100,255,.2);
+  display:flex; flex-direction:column; gap:8px;
+}
+.jd-vacation-pill {
+  margin-left:auto; font-size:10px; padding:3px 9px;
+  border-radius:20px;
+  background:rgba(110,231,183,.18); border:.5px solid rgba(110,231,183,.36);
+  color:#6ee7b7; font-weight:700;
+}
+.jd-goal-row { display:flex; flex-direction:column; gap:4px; }
+.jd-goal-row.dim { opacity:.5; }
+.jd-goal-hd {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:11px;
+}
+.jd-goal-lbl { color:rgba(255,255,255,.6); font-weight:600; }
+.jd-goal-val { color:rgba(255,255,255,.8); font-weight:700; font-size:12px; }
+.jd-goal-check { color:#6ee7b7; }
+.jd-goal-track {
+  width:100%; height:8px;
+  background:rgba(255,255,255,.05);
+  border-radius:999px; overflow:hidden;
+}
+.jd-goal-fill {
+  height:100%; border-radius:999px;
+  transition:width .25s ease;
+}
+
+.j-tb-avatar {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg,#a78bfa,#c084fc);
+  border:.5px solid rgba(255,255,255,.18);
+  color:white;
+  font-size:12px; font-weight:700; letter-spacing:.04em;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+  box-shadow:0 2px 8px rgba(140,100,255,.32);
+}
+.j-tb-avatar:hover {
+  transform:scale(1.06);
+  box-shadow:0 4px 14px rgba(140,100,255,.5);
+}
+
+/* ── Profile modal (two tabs: Profile + Page Settings) ── */
+.j-profile-modal {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:min(620px, 94vw);
+  max-height:88vh;
+  display:flex; flex-direction:column;
+  background:rgba(14,10,30,.97); backdrop-filter:blur(20px);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  z-index:1000;
+  box-shadow:0 24px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(140,100,255,.08) inset;
+  animation:lockModalIn .18s ease-out;
+}
+.j-profile-modal-hd {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 0;
+  border-bottom:.5px solid rgba(255,255,255,.08);
+}
+.j-profile-tabs { display:flex; gap:4px; }
+.j-profile-tab {
+  position:relative;
+  padding:9px 14px;
+  background:transparent; border:none;
+  font-size:13px; font-weight:600;
+  color:rgba(255,255,255,.5);
+  cursor:pointer; font-family:inherit;
+  transition:color .15s;
+  border-bottom:2px solid transparent;
+}
+.j-profile-tab:hover { color:rgba(255,255,255,.78); }
+.j-profile-tab.active {
+  color:#c4b5fd;
+  border-bottom-color:#a78bfa;
+}
+
+.j-profile-body {
+  padding:14px 18px 18px;
+  overflow-y:auto;
+  display:flex; flex-direction:column; gap:11px;
+}
+.j-profile-loading {
+  text-align:center; padding:32px 0;
+  font-size:12px; color:rgba(255,255,255,.4); font-style:italic;
+}
+.j-profile-err {
+  font-size:11px; color:#fca5a5;
+  background:rgba(239,68,68,.1); border:.5px solid rgba(239,68,68,.25);
+  border-radius:6px; padding:6px 9px;
+}
+.j-profile-toast {
+  font-size:11px; color:#86efac;
+  background:rgba(34,197,94,.1); border:.5px solid rgba(34,197,94,.25);
+  border-radius:6px; padding:6px 9px;
+}
+
+/* Profile meta — avatar + email + key chip */
+.j-profile-meta {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px;
+  background:rgba(140,100,255,.07);
+  border:.5px solid rgba(140,100,255,.18);
+  border-radius:10px;
+}
+.j-profile-avatar-lg {
+  width:48px; height:48px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#a78bfa,#c084fc);
+  color:white; font-weight:700; font-size:16px;
+  flex-shrink:0;
+  box-shadow:0 2px 10px rgba(140,100,255,.4);
+}
+.j-profile-meta-text {
+  display:flex; flex-direction:column; gap:5px;
+  min-width:0; flex:1;
+}
+.j-profile-email {
+  font-size:12px; color:rgba(255,255,255,.7);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.j-profile-keychip {
+  display:inline-flex; align-items:center; gap:6px;
+  align-self:flex-start;
+  padding:4px 9px;
+  background:rgba(255,255,255,.05); border:.5px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  font-size:11px; color:rgba(255,255,255,.6);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.j-profile-keychip:hover { background:rgba(140,100,255,.14); border-color:rgba(140,100,255,.32); color:#c4b5fd; }
+.j-profile-keychip.copied { background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.36); color:#86efac; }
+.j-profile-keychip-lbl { opacity:.6; font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
+.j-profile-keychip-val { font-weight:600; letter-spacing:.04em; }
+.j-profile-keychip-act { font-size:13px; }
+
+.j-profile-toggle {
+  display:flex; align-items:center; gap:8px;
+  font-size:12px; color:rgba(255,255,255,.7);
+  cursor:pointer; user-select:none;
+}
+.j-profile-toggle input[type="checkbox"] {
+  accent-color:#a78bfa; width:14px; height:14px; cursor:pointer; margin:0;
+}
+
+.j-profile-field { display:flex; flex-direction:column; gap:5px; }
+.j-profile-lbl {
+  font-size:11px; font-weight:700; color:rgba(255,255,255,.5);
+  letter-spacing:.06em; text-transform:uppercase;
+}
+.j-profile-lbl-hint {
+  font-size:10px; font-weight:500; color:rgba(255,255,255,.32);
+  text-transform:none; letter-spacing:0;
+}
+.j-profile-input {
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:7px;
+  padding:8px 11px;
+  font-size:13px; color:#fff; font-family:inherit;
+  width:100%; box-sizing:border-box;
+}
+.j-profile-input:focus {
+  outline:none;
+  border-color:rgba(140,100,255,.5);
+  background:rgba(140,100,255,.06);
+}
+.j-profile-textarea { resize:vertical; min-height:64px; line-height:1.55; }
+
+/* Ministry logo uploader (Profile tab) */
+.j-profile-logo-row { display:flex; align-items:center; gap:12px; }
+.j-profile-logo-preview {
+  width:54px; height:54px; flex-shrink:0;
+  border-radius:12px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.14);
+}
+.j-profile-logo-preview img { width:100%; height:100%; object-fit:cover; }
+.j-profile-logo-placeholder { font-size:24px; opacity:.7; }
+.j-profile-logo-actions { display:flex; align-items:center; gap:10px; }
+.j-profile-logo-btn {
+  padding:7px 13px; border-radius:7px; cursor:pointer;
+  background:rgba(140,100,255,.16);
+  border:.5px solid rgba(140,100,255,.4);
+  font-size:12px; font-weight:600; color:#c4b5fd; font-family:inherit;
+}
+.j-profile-logo-btn:hover { background:rgba(140,100,255,.24); }
+.j-profile-logo-remove {
+  background:none; border:none; cursor:pointer; padding:0;
+  font-size:12px; font-weight:600; color:rgba(248,113,113,.9);
+}
+.j-profile-logo-remove:hover { color:#f87171; text-decoration:underline; }
+
+.j-profile-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.j-profile-chip {
+  padding:5px 10px; border-radius:20px;
+  background:rgba(255,255,255,.06); border:.5px solid rgba(255,255,255,.12);
+  font-size:11px; color:rgba(255,255,255,.65);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.j-profile-chip:hover { background:rgba(140,100,255,.14); border-color:rgba(140,100,255,.3); }
+.j-profile-chip.on {
+  background:rgba(140,100,255,.22);
+  border-color:rgba(140,100,255,.5);
+  color:#c4b5fd;
+}
+
+.j-profile-actions {
+  display:flex; justify-content:flex-end; gap:8px;
+  margin-top:6px; padding-top:12px;
+  border-top:.5px solid rgba(255,255,255,.06);
+}
+
+/* ── In-modal reminders list ──
+   (Was previously in the right sidebar; now lives in the modal.) */
+.j-rem-modal-list {
+  display:flex; flex-direction:column; gap:5px;
+  margin-bottom:4px;
+  max-height:180px; overflow-y:auto;
+}
+.j-rem-modal-divider {
+  height:1px; background:rgba(255,255,255,.08);
+  margin:12px 0 4px;
+}
+.j-rem-modal-section-title {
+  font-size:11px; font-weight:700;
+  color:rgba(255,255,255,.55);
+  letter-spacing:.08em; text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+/* ── Page Settings: Archived + Memorized verse lists ──
+   Mirrors the dashboard's inline archive but with a bit more
+   breathing room (this is a settings page, not a sidebar). */
+.j-ps-mv-list {
+  display:flex; flex-direction:column; gap:8px;
+  margin-top:8px;
+}
+.j-ps-mv-item {
+  display:flex; gap:10px; align-items:flex-start;
+  background:rgba(255,255,255,.04);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  padding:10px 12px;
+}
+.j-ps-mv-info { flex:1; display:flex; flex-direction:column; gap:3px; min-width:0; }
+.j-ps-mv-ref  { font-size:12px; font-weight:600; color:#c4b5fd; }
+.j-ps-mv-text {
+  font-size:12px; color:rgba(255,255,255,.55);
+  font-style:italic; line-height:1.5;
+  overflow-wrap:break-word;
+}
+.j-ps-mv-date { font-size:10px; color:rgba(255,255,255,.3); }
+.j-ps-mv-acts {
+  display:flex; flex-direction:column; gap:5px;
+  align-items:flex-end; flex-shrink:0;
+}
+.j-ps-mv-activate {
+  font-size:11px; color:#c4b5fd;
+  background:rgba(140,100,255,.12);
+  border:.5px solid rgba(140,100,255,.22);
+  border-radius:5px; padding:4px 9px;
+  cursor:pointer; font-family:inherit;
+  white-space:nowrap;
+  transition:all .15s;
+}
+.j-ps-mv-activate:hover {
+  background:rgba(140,100,255,.2);
+  border-color:rgba(140,100,255,.35);
+}
+.j-ps-mv-delete {
+  font-size:11px; color:rgba(239,68,68,.7);
+  background:rgba(239,68,68,.08);
+  border:.5px solid rgba(239,68,68,.18);
+  border-radius:5px; padding:4px 8px;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.j-ps-mv-delete:hover {
+  background:rgba(239,68,68,.18);
+  color:#fca5a5;
+}

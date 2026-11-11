@@ -102,6 +102,109 @@
   color: var(--text-primary);
 }
 
+/* ── Ministry filter sections (always-expanded, color-themed) ─── */
+.cal-filter-group {
+  --group-color: var(--tab-calendar);
+  background: var(--bg-glass);
+  /* Left strip in the ministry color visually anchors the whole
+     block — no chevron needed because the section never collapses. */
+  border: 0.5px solid var(--border);
+  border-left: 3px solid var(--group-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color var(--transition), opacity var(--transition);
+}
+.cal-filter-group.cal-filter-group-none {
+  opacity: 0.55;
+}
+
+/* Wrapper for the master checkbox + chevron so they share a row. */
+.cal-filter-group-hd {
+  display: flex;
+  align-items: stretch;
+  background: color-mix(in srgb, var(--group-color) 14%, var(--bg-glass-md));
+}
+.cal-filter-group-hd .cal-filter-group-master {
+  flex: 1;
+  background: transparent;  /* tint moved to .cal-filter-group-hd */
+}
+
+/* Chevron toggles the body open/closed. Rotates when open. */
+.cal-filter-group-chevron {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-left: 0.5px solid rgba(255,255,255,.06);
+  color: rgba(255,255,255,.55);
+  cursor: pointer;
+  padding: 0 12px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: transform .15s, color .15s, background .15s;
+  transform: rotate(-90deg);   /* points right when closed */
+}
+.cal-filter-group.open .cal-filter-group-chevron {
+  transform: rotate(0);        /* points down when open */
+}
+.cal-filter-group-chevron:hover {
+  color: rgba(255,255,255,.95);
+  background: rgba(255,255,255,.04);
+}
+
+.cal-filter-group-master {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  user-select: none;
+  /* Subtle tint of the ministry color in the header so it reads as
+     "this whole block belongs together" without being loud. */
+  background: color-mix(in srgb, var(--group-color) 14%, var(--bg-glass-md));
+  border-bottom: 0.5px solid color-mix(in srgb, var(--group-color) 18%, var(--border));
+  transition: background var(--transition);
+}
+.cal-filter-group-master:hover {
+  background: color-mix(in srgb, var(--group-color) 22%, var(--bg-glass-md));
+}
+.cal-filter-group-master input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--group-color);
+  cursor: pointer;
+}
+.cal-filter-group-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.cal-filter-group-label {
+  flex: 1;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+.cal-filter-group-count {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-glass);
+  padding: 1px 6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.cal-filter-group-body {
+  padding: 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* Tint the per-page checkbox accent to match the ministry color so
+   the whole block reads as a single visual cluster. */
+.cal-filter-group .cal-filter input { accent-color: var(--group-color); }
+
 .cal-error {
   padding: 8px 10px;
   background: rgba(239,68,68,0.12);
@@ -126,9 +229,12 @@
 .cal-grid-wrap {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  /* No `min-height: 0` here either — same reasoning as .cal-grid
+     below: this wrapper must keep its full content height (header +
+     weekday row + grid) so .cal-center's scroll area covers all of
+     it instead of getting squeezed to fit the visible viewport. */
+  flex: 1 0 auto;
   padding: 18px 24px 24px;
-  min-height: 0;
 }
 
 .cal-month-hd {
@@ -154,27 +260,73 @@
 
 .cal-weekday-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
   margin-bottom: 6px;
 }
 .cal-weekday {
-  text-align: center;
-  font-size: var(--fs-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  padding: 4px 0;
+  /* Playfair Display bold + a gradient-clipped shimmer that sweeps
+     across each name. Animation is staggered Sun→Sat so the
+     highlight ripples across the row like a wave. */
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 6px 0;
+  background: linear-gradient(
+    100deg,
+    var(--text-secondary) 30%,
+    #a78bfa 44%,
+    #f472b6 50%,
+    #fbbf24 56%,
+    var(--text-secondary) 70%
+  );
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: cal-weekday-shimmer 7s ease-in-out infinite;
+}
+.cal-weekday:nth-child(1) { animation-delay: 0s;    }
+.cal-weekday:nth-child(2) { animation-delay: 0.25s; }
+.cal-weekday:nth-child(3) { animation-delay: 0.5s;  }
+.cal-weekday:nth-child(4) { animation-delay: 0.75s; }
+.cal-weekday:nth-child(5) { animation-delay: 1s;    }
+.cal-weekday:nth-child(6) { animation-delay: 1.25s; }
+.cal-weekday:nth-child(7) { animation-delay: 1.5s;  }
+
+@keyframes cal-weekday-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal-weekday { animation: none; }
 }
 
 .cal-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* minmax(0, 1fr) — matches .cal-weekday-row so the columns
+     compute identically when sidebars open/close. Plain `1fr` lets
+     min-content win at narrow widths and would shift cells out of
+     phase with the headers. */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   grid-auto-rows: minmax(110px, 1fr);
   gap: 6px;
-  flex: 1;
-  min-height: 0;
+  /* flex-grow so the grid stretches to fill extra space on tall
+     screens, but no `min-height: 0` override — that would let the
+     grid get squeezed shorter than its own row minimums whenever
+     the viewport is short, silently clipping the bottom week(s)
+     instead of scrolling to them. Default min-height:auto keeps the
+     grid's true content height as a floor, so .cal-center (which
+     scrolls) always has the full height to scroll through. */
+  flex: 1 0 auto;
 }
 .cal-grid.week {
   grid-auto-rows: minmax(400px, 1fr);
@@ -191,7 +343,11 @@
   gap: 4px;
   cursor: pointer;
   transition: all var(--transition);
-  overflow: hidden;
+  /* Overflow visible so multi-day event bars can extend into the
+     6px grid gap and visually bridge to the next cell. Vertical
+     content is already bounded — .cal-day-events-mini limits to a
+     fixed number of items, and grid-auto-rows constrains the row. */
+  overflow: visible;
 }
 .cal-day:hover {
   background: var(--bg-glass-md);
@@ -226,11 +382,68 @@
   background: var(--tab-calendar);
   color: #0d0b1e;
 }
+/* "Day Is Planned" marker — shown on days the user pushed a plan
+   for from the Day Planner (via Sync). */
+.cal-day-planned {
+  align-self: flex-start;
+  margin: 2px 0 3px;
+  padding: 1px 7px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: 999px;
+}
 .cal-day-events-mini {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  /* Visible so multi-day bars can extend past the cell content edge
+     via negative horizontal margins. Single-day chips below already
+     truncate with ellipsis so they don't spill. */
+  overflow: visible;
+  min-width: 0;
+}
+
+/* ── Multi-day event bar ─────────────────────────────────────
+   One segment per day cell in the event's range. Borders and
+   rounding are set inline (depends on segment position), so the
+   class just handles layout and the arrow cap. */
+.cal-event-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  padding: 2px 6px;
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
   overflow: hidden;
+  font-weight: 600;
+}
+.cal-event-bar-emoji {
+  font-size: 10px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.cal-event-bar-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-event-bar-cap {
+  flex-shrink: 0;
+  font-size: 9px;
+  margin-left: auto;
+  opacity: 0.9;
+  letter-spacing: -1px;
 }
 .cal-event-chip {
   display: flex;
@@ -427,4 +640,226 @@
   border-top: 0.5px solid var(--border);
   background: rgba(13,11,30,0.6);
   backdrop-filter: blur(16px);
+}
+
+/* ── Notification bell (Calendar topbar) ─────────────────────
+   Wraps the bell button + the absolutely-positioned red dot
+   + the dropdown panel that opens on click. */
+.cal-notif-wrap {
+  position: relative;
+  display: inline-block;
+}
+.cal-notif-btn {
+  position: relative;
+  font-size: 16px;
+}
+.cal-notif-btn.has-unread {
+  /* Subtle wiggle when there's a pending request */
+  animation: cal-bell-wiggle 1.6s ease-in-out infinite;
+}
+@keyframes cal-bell-wiggle {
+  0%, 88%, 100% { transform: rotate(0); }
+  92%           { transform: rotate(-8deg); }
+  96%           { transform: rotate(8deg); }
+}
+/* The little red dot sits above-right of the bell glyph */
+.cal-notif-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border: 2px solid #161413;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.45);
+  pointer-events: none;
+}
+
+/* ── Dropdown panel ─────────────────────────────────────────── */
+.cal-notif-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1200;
+  width: 360px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  background: #161413;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  animation: cal-notif-pop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cal-notif-pop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+.cal-notif-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.22);
+  flex-shrink: 0;
+}
+.cal-notif-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f5f5f4;
+}
+.cal-notif-close {
+  background: transparent;
+  border: none;
+  color: #9a9aa6;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.cal-notif-close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f4;
+}
+.cal-notif-empty {
+  padding: 22px 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #9a9aa6;
+  font-style: italic;
+}
+.cal-notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cal-notif-reminders + .cal-notif-list {
+  border-top: 0.5px solid rgba(255,255,255,0.08);
+  padding-top: 8px;
+}
+.cal-notif-section {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: rgba(255,255,255,0.55);
+  padding: 4px 6px 2px;
+}
+/* Reminder note — visually distinct from the event description so
+   the user can tell a reminder-specific message from generic event
+   text at a glance. */
+.cal-notif-rnote {
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.30);
+  color: #fde68a !important;
+  border-radius: 6px;
+  padding: 6px 8px !important;
+  font-style: normal !important;
+}
+.cal-notif-item {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cal-notif-from {
+  font-size: 12px;
+  color: #cfcfd6;
+  line-height: 1.4;
+}
+.cal-notif-session {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f5f5f4;
+}
+.cal-notif-when {
+  font-size: 12px;
+  color: #fbbf24;
+  font-weight: 600;
+}
+.cal-notif-meta {
+  font-size: 11.5px;
+  color: #9a9aa6;
+}
+.cal-notif-notes {
+  font-size: 11.5px;
+  color: #cfcfd6;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+.cal-notif-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Calendar Page Settings — sub-tab pill bar (shared .pm-ps-*
+   classes from ProfileModal.css) + the "How to Use" guide body.
+   ───────────────────────────────────────────────────────────── */
+.cal-ps-root { /* hook for future overrides */ }
+
+.cal-ps-howto-intro {
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.6); line-height: 1.6;
+  background: rgba(140, 100, 255, 0.06);
+  border: .5px solid rgba(140, 100, 255, 0.16);
+  border-radius: 8px; padding: 10px 12px;
+}
+.cal-ps-howto-feedback {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.72); line-height: 1.6;
+  background: rgba(245, 158, 11, 0.08);
+  border: .5px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px; padding: 10px 12px;
+}
+.cal-ps-howto-feedback b { color: #fbbf24; }
+.cal-ps-howto-feedback-ic { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+.cal-ps-howto-block { display: flex; flex-direction: column; gap: 5px; }
+.cal-ps-howto-block + .cal-ps-howto-block { margin-top: 12px; }
+.cal-ps-howto-h {
+  font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, 0.9);
+  display: flex; align-items: center; gap: 6px;
+}
+.cal-ps-howto-p {
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.6;
+}
+.cal-ps-howto-p b, .cal-ps-howto-list b { color: rgba(255, 255, 255, 0.88); }
+.cal-ps-howto-list {
+  margin: 0; padding-left: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.55;
+}
+.cal-ps-howto-list li::marker { color: #a78bfa; }
+.cal-ps-howto-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 4px;
+}
+.cal-ps-howto-download {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px; font-weight: 700; color: #1a1206;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  transition: opacity .15s;
+}
+.cal-ps-howto-download:hover { opacity: .85; }
+@media (max-width: 640px) {
+  .cal-ps-howto-header { flex-direction: column; }
+  .cal-ps-howto-download { align-self: flex-start; }
 }

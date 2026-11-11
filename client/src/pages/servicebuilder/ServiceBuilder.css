@@ -1,0 +1,1010 @@
+/* ─────────────────────────────────────────────────────────────
+   ServiceBuilder — worship service order / timeline planner
+   Naming: .sb2-*
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout ────────────────────────────────────────────── */
+.sb2-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  background: var(--bg-deep);
+}
+
+/* ── Left sidebar ───────────────────────────────────────────── */
+.sb2-sidebar {
+  position: relative;
+  z-index: 1;
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.sb2-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 12px;
+  flex-shrink: 0;
+}
+
+.sb2-sidebar-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ── "+ New" button ─────────────────────────────────────────── */
+.sb2-new-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 0.5px solid rgba(99, 102, 241, 0.40);
+  border-radius: 6px;
+  color: #818cf8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sb2-new-btn:hover {
+  background: rgba(99, 102, 241, 0.26);
+  border-color: rgba(99, 102, 241, 0.65);
+  color: #a5b4fc;
+}
+
+/* ── New plan form ──────────────────────────────────────────── */
+.sb2-new-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 14px 14px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sb2-new-form-btns {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* ── Shared inputs ──────────────────────────────────────────── */
+.sb2-inp {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-primary);
+  font-size: 12px;
+  outline: none;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+}
+.sb2-inp:focus {
+  border-color: rgba(99, 102, 241, 0.50);
+}
+.sb2-inp option {
+  background: #111118;
+  color: var(--text-primary);
+}
+
+/* ── Shared buttons ─────────────────────────────────────────── */
+.sb2-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 0.5px solid transparent;
+  white-space: nowrap;
+}
+
+.sb2-btn-accent {
+  background: rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #818cf8;
+}
+.sb2-btn-accent:hover {
+  background: rgba(99, 102, 241, 0.28);
+  border-color: rgba(99, 102, 241, 0.70);
+  color: #a5b4fc;
+}
+.sb2-btn-accent:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sb2-btn-ghost {
+  background: var(--bg-glass);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+.sb2-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+}
+
+.sb2-btn-danger {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.30);
+  color: rgba(239, 68, 68, 0.75);
+}
+.sb2-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+}
+
+.sb2-btn-danger-armed {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #fca5a5;
+  animation: sb2-arm-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes sb2-arm-pulse {
+  from { background: rgba(239, 68, 68, 0.14); }
+  to   { background: rgba(239, 68, 68, 0.26); }
+}
+
+/* ── Plan list ──────────────────────────────────────────────── */
+.sb2-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sb2-list::-webkit-scrollbar { width: 4px; }
+.sb2-list::-webkit-scrollbar-track { background: transparent; }
+.sb2-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+/* ── Plan card ──────────────────────────────────────────────── */
+.sb2-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+}
+.sb2-card:hover {
+  background: var(--bg-glass);
+  border-color: var(--border);
+}
+.sb2-card.on {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: inset 2px 0 0 #6366f1;
+}
+
+.sb2-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.sb2-card.on .sb2-card-name {
+  color: #a5b4fc;
+}
+
+.sb2-card-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.sb2-card-type {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sb2-card-meta {
+  margin-top: 4px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sb2-card-count {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(99, 102, 241, 0.10);
+  border: 0.5px solid rgba(99, 102, 241, 0.25);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #818cf8;
+}
+
+.sb2-card-dur {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ── Main area ──────────────────────────────────────────────── */
+.sb2-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Empty state ────────────────────────────────────────────── */
+.sb2-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.sb2-empty-icon {
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 16px;
+  user-select: none;
+  opacity: 0.25;
+}
+
+.sb2-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.sb2-empty-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+/* ── Detail wrapper ─────────────────────────────────────────── */
+.sb2-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Detail header ──────────────────────────────────────────── */
+.sb2-detail-head {
+  flex-shrink: 0;
+  padding: 20px 28px 16px;
+  border-bottom: 0.5px solid var(--border);
+  background:
+    radial-gradient(580px 200px at 50% -30%, rgba(99, 102, 241, 0.10), transparent 65%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sb2-detail-head-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Plan name (editable) */
+.sb2-detail-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin-left: -4px;
+  transition: background var(--transition);
+}
+.sb2-detail-name:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sb2-edit-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition);
+  font-style: normal;
+  font-weight: 400;
+}
+.sb2-detail-name:hover .sb2-edit-hint {
+  opacity: 1;
+}
+
+.sb2-detail-name-inp {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(99, 102, 241, 0.50);
+  border-radius: 6px;
+  padding: 4px 10px;
+  outline: none;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Chips row */
+.sb2-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sb2-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.sb2-chip-date {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.sb2-chip-type {
+  background: rgba(99, 102, 241, 0.10);
+  border: 0.5px solid rgba(99, 102, 241, 0.28);
+  color: #a5b4fc;
+}
+
+/* Right side of header: start time + duration + actions */
+.sb2-detail-head-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* ── Start time "clock" widget ──────────────────────────────── */
+.sb2-start-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.sb2-start-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sb2-start-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, 'Courier New', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.10);
+  border: 0.5px solid rgba(99, 102, 241, 0.30);
+  border-radius: 8px;
+  padding: 5px 10px;
+  outline: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  /* Remove browser chrome */
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--transition), background var(--transition);
+}
+.sb2-start-time:focus {
+  border-color: rgba(99, 102, 241, 0.60);
+  background: rgba(99, 102, 241, 0.16);
+}
+.sb2-start-time::-webkit-datetime-edit { color: #a5b4fc; }
+.sb2-start-time::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) sepia(1) saturate(3) hue-rotate(205deg);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+/* ── Running total duration display ─────────────────────────── */
+.sb2-duration-total {
+  font-family: ui-monospace, SFMono-Regular, Menlo, 'Courier New', monospace;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #4ade80;
+  min-width: 80px;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+.sb2-duration-total.over {
+  color: #fbbf24;
+}
+
+/* ── Detail actions ─────────────────────────────────────────── */
+.sb2-detail-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Error banner ───────────────────────────────────────────── */
+.sb2-banner-error {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  background: rgba(239, 68, 68, 0.10);
+  border-bottom: 0.5px solid rgba(239, 68, 68, 0.30);
+  color: #fca5a5;
+  font-size: 12px;
+  gap: 10px;
+}
+
+.sb2-banner-dismiss {
+  background: none;
+  border: none;
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.sb2-banner-dismiss:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* ── Timeline container ─────────────────────────────────────── */
+.sb2-timeline {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.sb2-timeline::-webkit-scrollbar { width: 5px; }
+.sb2-timeline::-webkit-scrollbar-track { background: transparent; }
+.sb2-timeline::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+}
+
+/* ── Timeline empty state ───────────────────────────────────── */
+.sb2-timeline-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.sb2-timeline-empty-icon {
+  font-size: 38px;
+  opacity: 0.2;
+  margin-bottom: 12px;
+  user-select: none;
+}
+
+.sb2-timeline-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.sb2-timeline-empty-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+/* CTA button under empty-state message */
+.sb2-timeline-empty-cta {
+  margin-top: 16px;
+}
+
+/* ── Timeline item row ──────────────────────────────────────── */
+.sb2-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 0.5px solid var(--border);
+  border-left: 3px solid var(--item-color, #64748b);
+  border-radius: 0 6px 6px 0;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  transition: background var(--transition), border-left-color var(--transition);
+  background: transparent;
+}
+.sb2-item:last-of-type {
+  border-bottom: none;
+}
+.sb2-item:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+.sb2-item:hover .sb2-item-remove {
+  opacity: 1;
+}
+.sb2-item:active {
+  cursor: grabbing;
+}
+
+/* Drag-over highlight: pulse the left border */
+.sb2-item.drag-over {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.18);
+  animation: sb2-drag-pulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes sb2-drag-pulse {
+  from { border-left-color: var(--item-color, #64748b); }
+  to   { border-left-color: color-mix(in srgb, var(--item-color, #64748b) 60%, white); }
+}
+
+/* Drag handle */
+.sb2-item-handle {
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: grab;
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0.4;
+  transition: opacity var(--transition);
+}
+.sb2-item:hover .sb2-item-handle {
+  opacity: 0.9;
+}
+
+/* Timecode badge */
+.sb2-item-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* Live Worship group — digital/7-segment LED look for the running
+   timecodes, matching the shell's broadcast-booth theme. */
+.ws-page.ws-group-live .sb2-item-time {
+  font-weight: 800;
+  color: var(--ws-rose);
+  background: rgba(0,0,0,0.35);
+  border-color: var(--ws-border-hi);
+  text-shadow: 0 0 5px var(--ws-glow);
+  letter-spacing: 0.08em;
+}
+
+/* Item type icon */
+.sb2-item-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+  width: 24px;
+  text-align: center;
+}
+
+/* Body: title + leader */
+.sb2-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sb2-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: text;
+  border-radius: 3px;
+  padding: 1px 3px;
+  margin-left: -3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background var(--transition);
+  display: block;
+}
+.sb2-item-title:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sb2-item-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.sb2-item-title-inp {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(99, 102, 241, 0.45);
+  border-radius: 4px;
+  padding: 2px 6px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sb2-item-leader {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 3px;
+  margin-left: 0;
+  width: 100%;
+  cursor: text;
+  transition: color var(--transition);
+}
+.sb2-item-leader::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.sb2-item-leader:focus {
+  color: var(--text-primary);
+  border-bottom: 0.5px solid rgba(99, 102, 241, 0.40);
+}
+
+/* Notes — view mode: quiet, readable italic so it reads like a
+   margin annotation rather than a form field. Double-click to edit. */
+.sb2-item-notes {
+  margin: 2px 0 0;
+  padding: 1px 3px;
+  margin-left: -3px;
+  font-size: 11.5px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  cursor: text;
+  border-radius: 3px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  transition: background var(--transition);
+}
+.sb2-item-notes:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Notes — edit mode. No `required`/native validation is used on this
+   field, so it never falls into the browser's default red
+   invalid-state outline — border stays the same quiet indigo accent
+   used by every other inline editor on this row. */
+.sb2-item-notes-inp {
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(99, 102, 241, 0.45);
+  border-radius: 4px;
+  padding: 4px 6px;
+  outline: none;
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+  line-height: 1.4;
+}
+.sb2-item-notes-inp:invalid {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: none;
+}
+
+/* Duration display + edit */
+.sb2-item-dur-wrap {
+  flex-shrink: 0;
+  min-width: 56px;
+  text-align: right;
+}
+
+.sb2-item-dur {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: text;
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: background var(--transition);
+  white-space: nowrap;
+}
+.sb2-item-dur:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.sb2-item-dur-inp {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(99, 102, 241, 0.45);
+  border-radius: 4px;
+  padding: 2px 6px;
+  outline: none;
+  width: 60px;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+.sb2-item-dur-inp::-webkit-outer-spin-button,
+.sb2-item-dur-inp::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* Remove button — visible on row hover */
+.sb2-item-remove {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.sb2-item-remove:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.40);
+  color: #fca5a5;
+  opacity: 1 !important;
+}
+
+/* ── Add item row ───────────────────────────────────────────── */
+.sb2-add-row {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px 14px;
+  border-top: 0.5px solid var(--border);
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.sb2-add-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sb2-add-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.sb2-add-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each add-item pill */
+.sb2-add-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 0.5px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.sb2-add-pill:hover {
+  background: color-mix(in srgb, var(--pill-color, #64748b) 16%, transparent);
+  border-color: color-mix(in srgb, var(--pill-color, #64748b) 55%, transparent);
+  color: var(--pill-color, #64748b);
+  transform: translateY(-1px);
+}
+.sb2-add-pill:active {
+  transform: translateY(0);
+}
+
+.sb2-add-pill-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.sb2-add-pill-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Utility ────────────────────────────────────────────────── */
+.sb2-muted {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.sb2-error {
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.10);
+  border: 0.5px solid rgba(239, 68, 68, 0.35);
+  border-radius: 7px;
+  font-size: 12px;
+  color: #fca5a5;
+  line-height: 1.4;
+}
+
+/* ── Worship Ministry: re-tint the indigo accent ──────────────
+   This page's "+ New"/accent buttons, focused inputs, and info
+   chips use the app's default indigo brand color everywhere else
+   in the app. Inside WorshipShell, swap that indigo for the active
+   group's --ws-rose accent instead, so it doesn't sit as an
+   unrelated purple highlight in an otherwise themed page. */
+.ws-page .sb2-new-btn {
+  background: color-mix(in srgb, var(--ws-rose) 15%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 40%, transparent);
+  color: var(--ws-rose);
+}
+.ws-page .sb2-new-btn:hover {
+  background: color-mix(in srgb, var(--ws-rose) 26%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 65%, transparent);
+  color: var(--ws-ink);
+}
+.ws-page .sb2-inp:focus {
+  border-color: color-mix(in srgb, var(--ws-rose) 50%, transparent);
+}
+.ws-page .sb2-btn-accent {
+  background: color-mix(in srgb, var(--ws-rose) 16%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 45%, transparent);
+  color: var(--ws-rose);
+}
+.ws-page .sb2-btn-accent:hover {
+  background: color-mix(in srgb, var(--ws-rose) 28%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 70%, transparent);
+  color: var(--ws-ink);
+}
+.ws-page .sb2-card.on {
+  background: color-mix(in srgb, var(--ws-rose) 8%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 35%, transparent);
+  box-shadow: inset 2px 0 0 var(--ws-rose);
+}
+.ws-page .sb2-card.on .sb2-card-name { color: var(--ws-rose); }
+.ws-page .sb2-card-count {
+  background: color-mix(in srgb, var(--ws-rose) 10%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 25%, transparent);
+  color: var(--ws-rose);
+}
+.ws-page .sb2-detail-head {
+  background: radial-gradient(580px 200px at 50% -30%, color-mix(in srgb, var(--ws-rose) 10%, transparent), transparent 65%);
+}
+.ws-page .sb2-detail-name-inp {
+  border-color: color-mix(in srgb, var(--ws-rose) 50%, transparent);
+}
+.ws-page .sb2-chip-type {
+  background: color-mix(in srgb, var(--ws-rose) 10%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 28%, transparent);
+  color: var(--ws-rose);
+}
+.ws-page .sb2-start-time {
+  color: var(--ws-rose);
+  background: color-mix(in srgb, var(--ws-rose) 10%, transparent);
+  border-color: color-mix(in srgb, var(--ws-rose) 30%, transparent);
+}
+.ws-page .sb2-start-time:focus {
+  border-color: color-mix(in srgb, var(--ws-rose) 60%, transparent);
+  background: color-mix(in srgb, var(--ws-rose) 16%, transparent);
+}
+.ws-page .sb2-start-time::-webkit-datetime-edit { color: var(--ws-rose); }
+.ws-page .sb2-item-title-inp,
+.ws-page .sb2-item-dur-inp,
+.ws-page .sb2-item-notes-inp {
+  border-color: color-mix(in srgb, var(--ws-rose) 45%, transparent);
+}
+.ws-page .sb2-item-leader:focus {
+  border-bottom-color: color-mix(in srgb, var(--ws-rose) 40%, transparent);
+}
+
+/* ── Worship Ministry — Live group light theme ─────────────────
+   Same rationale as Setlist.css's equivalent block: most chrome
+   already re-tints via the shared tokens WorshipShell.css re-feeds
+   under .ws-group-live; these are the literal translucent-white
+   fills that don't reach, flipped to translucent-black. The LED-look
+   .sb2-item-time override above (black background, on-purpose) is
+   untouched — that's a deliberate readout style, not a leftover
+   dark-mode assumption. */
+.ws-page.ws-group-live .sb2-sidebar { background: rgba(15,23,42,0.025); }
+.ws-page.ws-group-live .sb2-inp,
+.ws-page.ws-group-live .sb2-card-dur,
+.ws-page.ws-group-live .sb2-detail-name-inp { background: rgba(15,23,42,0.04); }
+.ws-page.ws-group-live .sb2-inp option { background: #f2f4f6; color: #181c22; }
+.ws-page.ws-group-live .sb2-btn-ghost:hover { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sb2-detail-name:hover { background: rgba(15,23,42,0.04); }
+.ws-page.ws-group-live .sb2-chip-date { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sb2-item:hover { background: rgba(15,23,42,0.035); }
+.ws-page.ws-group-live .sb2-item.drag-over {
+  background: rgba(15,23,42,0.04);
+  border-bottom-color: rgba(15,23,42,0.18);
+}
+.ws-page.ws-group-live .sb2-item-title:hover,
+.ws-page.ws-group-live .sb2-item-title-inp,
+.ws-page.ws-group-live .sb2-item-dur:hover,
+.ws-page.ws-group-live .sb2-item-dur-inp,
+.ws-page.ws-group-live .sb2-item-notes:hover,
+.ws-page.ws-group-live .sb2-item-notes-inp { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sb2-add-row { background: rgba(15,23,42,0.02); }
+.ws-page.ws-group-live .sb2-add-pill {
+  background: rgba(15,23,42,0.04);
+  border-color: rgba(15,23,42,0.1);
+}

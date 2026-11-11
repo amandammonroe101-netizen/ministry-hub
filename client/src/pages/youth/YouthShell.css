@@ -1,0 +1,493 @@
+/* ─────────────────────────────────────────────────────────────
+   Youth Ministry — bespoke shell theme ("Heaven's Light")
+
+   Radiant gold light breaking through warm clouds — a bright,
+   sunlit parchment backdrop (not the app's default dark glass),
+   gold + a single ember-red touch carrying the shell's own chrome
+   (frame, blooms, trigger), deep warm-brown ink for text. Bold
+   shapes throughout, but no neon glow and no purple/pink.
+
+   Unlike the previous "Sunset Blaze" pass, this IS a full re-skin
+   (like WomensShell/ChildrensShell/WorshipShell's Live group): every
+   individual Youth page body was originally built against the app's
+   default *dark* theme tokens (--text-primary, --bg-glass, --border,
+   etc. from index.css) — rather than rewrite every hardcoded color
+   in every page file, this re-feeds those same global custom
+   properties with light-mode values right here on .yms-page. That
+   cascades down through .yps-root → every page's own token-based
+   styling automatically. Anything a page hardcodes instead of
+   tokenizing (rgba(255,255,255,x) card washes, literal near-white
+   text) still needs its own direct fix in that page's CSS — see the
+   per-page files for those. */
+
+.yms-picture-frame {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.4in;
+  background:
+    linear-gradient(115deg,
+      rgba(180,83,9,0) 0%,
+      rgba(180,83,9,0.22) 34%,
+      rgba(184,65,12,0.3) 48%,
+      rgba(180,83,9,0.22) 62%,
+      rgba(180,83,9,0) 100%
+    ),
+    linear-gradient(90deg,
+      #b8843a 0%, #d4b06a 30%, #e6cd93 50%, #d4b06a 70%, #b8843a 100%
+    );
+  box-shadow:
+    inset 0 0 2px 2px  #7a5a26,
+    inset 0 0 3px 4px  #f0e0b0,
+    inset 0 0 4px 8px  #c9a35c,
+    inset 0 0 6px 13px #a9803e,
+    inset 0 0 6px 18px #c9a35c,
+    inset 0 0 8px 24px #7a5a26,
+    0 16px 44px rgba(60,40,10,0.4);
+}
+
+.yms-picture-frame .yms-page {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 4px 14px rgba(80,55,20,0.18),
+    inset 0 0 0 1px rgba(80,55,20,0.14);
+}
+
+.yms-page {
+  /* Re-feed the app's shared dark-mode tokens with light-mode values
+     so every Youth page's own token-based styling (most of the
+     shared _YouthShell.css chrome, plus any page that already used
+     var(--text-primary)/var(--bg-glass)/etc.) goes light automatically
+     via cascade, without touching that CSS directly. */
+  --text-primary:   #2b2013;
+  --text-secondary: rgba(43,32,19,0.7);
+  --text-muted:     rgba(43,32,19,0.46);
+  --text-faint:     rgba(43,32,19,0.32);
+  --border:         rgba(43,32,19,0.13);
+  --border-hi:      rgba(43,32,19,0.24);
+  --bg-glass:       rgba(43,32,19,0.045);
+  --bg-glass-md:    rgba(43,32,19,0.08);
+  --bg-input:       rgba(43,32,19,0.05);
+  --bg-hover:       rgba(43,32,19,0.06);
+
+  --yms-ink:       var(--text-primary);
+  --yms-ink-soft:  var(--text-secondary);
+  --yms-ink-faint: var(--text-muted);
+  --yms-border:    var(--border);
+  --yms-border-hi: var(--border-hi);
+  --yms-gold:    #b45309;
+  --yms-ember:   #b8410c;
+  --yms-ink-on-accent: #fff7ed;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  background:
+    radial-gradient(900px 520px at 50% -8%, rgba(250,204,60,0.55), transparent 60%),
+    radial-gradient(700px 480px at 12% 92%, rgba(184,132,58,0.22), transparent 65%),
+    radial-gradient(700px 480px at 88% 88%, rgba(122,108,92,0.14), transparent 65%),
+    linear-gradient(180deg, #fdf6e6 0%, #f6e7c4 45%, #ecd9a8 100%);
+  color: var(--yms-ink);
+}
+
+.yms-page.yms-time-morning .yms-bloom.bloom-a { background: #fde68a; }
+.yms-page.yms-time-afternoon .yms-bloom.bloom-a { background: #f7c948; }
+.yms-page.yms-time-evening .yms-bloom.bloom-b { background: #c2610c; }
+.yms-page.yms-time-night .yms-bloom.bloom-a,
+.yms-page.yms-time-night .yms-bloom.bloom-b { opacity: 0.24; }
+
+.yms-bloom {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  animation: ymsBloomDrift 24s ease-in-out infinite;
+}
+.yms-bloom.bloom-a { width: 440px; height: 440px; top: -140px; left: -100px; background: #f7c948; }
+.yms-bloom.bloom-b { width: 400px; height: 400px; bottom: -120px; right: -80px; background: #b8410c; animation-delay: -12s; animation-direction: reverse; }
+
+@keyframes ymsBloomDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, 24px) scale(1.08); }
+}
+
+/* ── Drifting spark glyphs (subdued, decorative) ──────────────── */
+.yms-sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.yms-spark {
+  position: absolute;
+  font-size: 15px;
+  opacity: 0.22;
+  color: var(--yms-gold);
+  animation: ymsSparkFloat 16s ease-in-out infinite;
+}
+.yms-spark:nth-child(1) { top: 8%;  left: 6%;  animation-delay: 0s;   }
+.yms-spark:nth-child(2) { top: 18%; left: 88%; animation-delay: -3s;  color: var(--yms-ember); }
+.yms-spark:nth-child(3) { top: 42%; left: 3%;  animation-delay: -6s;  }
+.yms-spark:nth-child(4) { top: 58%; left: 92%; animation-delay: -9s;  color: var(--yms-ember); }
+.yms-spark:nth-child(5) { top: 74%; left: 12%; animation-delay: -2s;  }
+.yms-spark:nth-child(6) { top: 82%; left: 78%; animation-delay: -11s; color: var(--yms-ember); }
+.yms-spark:nth-child(7) { top: 30%; left: 50%; animation-delay: -5s;  }
+.yms-spark:nth-child(8) { top: 64%; left: 45%; animation-delay: -8s;  color: var(--yms-ember); }
+@keyframes ymsSparkFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-14px) rotate(8deg); }
+}
+
+.yms-page ::-webkit-scrollbar-thumb { background: rgba(43,32,19,0.18); }
+.yms-page ::-webkit-scrollbar-thumb:hover { background: rgba(43,32,19,0.3); }
+
+/* ── Nav (angular ⚡ dropdown trigger, left of the title) ───────── */
+.yms-nav-wrap {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.yms-nav-trigger {
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(255,247,237,0.4);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  font-family: inherit;
+  color: var(--yms-ink-on-accent);
+  background: linear-gradient(135deg, #b45309, #b8410c 70%);
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(120,60,10,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-radius .2s ease;
+}
+.yms-nav-trigger:hover {
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 8px 20px rgba(120,60,10,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.yms-nav-trigger.is-open {
+  transform: scale(0.94);
+  border-radius: 50%;
+}
+
+.yms-nav-dropdown {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  z-index: 9997;
+  width: 264px;
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(253,246,230,0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--yms-border-hi);
+  border-radius: 20px;
+  box-shadow: 0 20px 48px rgba(80,55,20,0.22);
+  padding: 14px 12px 16px;
+  animation: ymsDropdownIn .2s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes ymsDropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.yms-exit {
+  align-self: flex-start;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--yms-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 8px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.yms-exit:hover { background: rgba(43,32,19,0.08); color: var(--yms-ink); }
+
+.yms-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--yms-border);
+}
+.yms-brand-mark { font-size: 16px; color: var(--yms-ember); }
+.yms-brand-name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: var(--yms-ink);
+}
+
+.yms-nav-scroll {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 2px;
+}
+.yms-nav-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 2px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform .32s cubic-bezier(.34,1.56,.64,1), height .32s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+}
+.yms-nav-group { display: flex; flex-direction: column; gap: 2px; }
+.yms-nav-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--yms-ink-faint);
+  padding: 6px 8px 4px;
+}
+.yms-nav-link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--yms-ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.yms-nav-link:hover { background: rgba(43,32,19,0.06); color: var(--yms-ink); }
+.yms-nav-link.is-active {
+  color: var(--yms-link-accent, var(--yms-gold));
+  font-weight: 800;
+}
+.yms-nav-link-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.yms-nav-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.yms-nav-link.draggable { cursor: grab; }
+.yms-nav-link.draggable:active { cursor: grabbing; }
+
+.yms-drag-hint {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(180,83,9,0.95), rgba(184,65,12,0.92));
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 999px;
+  color: #fff7ed;
+  font-size: 13px; font-weight: 800; line-height: 1;
+  box-shadow: 0 6px 20px rgba(80,50,10,0.35);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* ── Header + content ───────────────────────────────────────── */
+.yms-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.yms-header {
+  flex-shrink: 0;
+  padding: 14px 32px 14px;
+  border-bottom: 1px solid var(--yms-border);
+  background: rgba(253,246,230,0.55);
+}
+.yms-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.yms-header-text {
+  flex: 1;
+  min-width: 0;
+}
+.yms-crumbs {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--yms-ink-faint);
+  margin-bottom: 3px;
+}
+.yms-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.yms-title-icon { font-size: 24px; line-height: 1; }
+.yms-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--yms-ink);
+}
+.yms-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.yms-subtitle {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--yms-ink-soft);
+  max-width: 680px;
+  line-height: 1.45;
+}
+.yms-stats { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; }
+.yms-stat { font-size: 12px; color: var(--yms-ink-soft); }
+.yms-stat b { color: var(--yms-gold); font-weight: 800; margin-right: 4px; font-variant-numeric: tabular-nums; }
+
+.yms-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--yms-gold), var(--yms-ember));
+  color: var(--yms-ink-on-accent);
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255,255,255,0.4);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.yms-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px 40px;
+  animation: ymsContentIn .32s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes ymsContentIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 860px) {
+  .yms-nav-dropdown { width: 224px; }
+  .yms-header { padding: 18px 20px 14px; }
+  .yms-content { padding: 18px 20px 32px; }
+  .yms-title { font-size: 22px; }
+}
+
+/* ── Lock screen ───────────────────────────────────────────────── */
+.yms-lock-wrap {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.yms-lock-card {
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  background: rgba(253,246,230,0.92);
+  border: 1px solid var(--yms-border-hi);
+  border-radius: 22px;
+  padding: 32px 28px;
+  box-shadow: 0 24px 60px rgba(80,55,20,0.28);
+}
+.yms-lock-icon { font-size: 34px; margin-bottom: 8px; }
+.yms-lock-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--yms-gold);
+  margin-bottom: 6px;
+}
+.yms-lock-title {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--yms-ink);
+}
+.yms-lock-sub { margin: 0 0 18px; color: var(--yms-ink-soft); font-size: 13px; }
+.yms-lock-input {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  letter-spacing: 0.3em;
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--yms-border-hi);
+  background: rgba(43,32,19,0.05);
+  color: var(--yms-ink);
+  outline: none;
+  margin-bottom: 8px;
+}
+.yms-lock-input:focus { border-color: var(--yms-gold); }
+.yms-lock-err { color: #b91c1c; font-size: 12.5px; margin-bottom: 8px; }
+.yms-lock-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--yms-gold), var(--yms-ember));
+  color: var(--yms-ink-on-accent);
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 4px;
+  box-shadow: 0 6px 16px rgba(120,60,10,0.35);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.yms-lock-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(120,60,10,0.45);
+}
+.yms-lock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.yms-lock-settings-link {
+  display: block;
+  margin: 14px auto 0;
+  background: none;
+  border: none;
+  color: var(--yms-ink-faint);
+  font-size: 11.5px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.yms-lock-settings-link:hover { color: var(--yms-ink-soft); }

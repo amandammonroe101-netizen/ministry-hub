@@ -1,0 +1,854 @@
+/* ─────────────────────────────────────────────────────────────
+   Hosting & Domain — single reference document
+   Naming: .ho-*
+   Accent: var(--wbs-accent-2, #1c5f8a) — Website Ministry "Blue Glass Over Water" theme
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout (CRITICAL: single outer scroller) ──────────── */
+.ho-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  background: transparent;
+}
+
+.ho-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 32px 40px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Page header ────────────────────────────────────────────── */
+.ho-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 0.5px solid var(--wbs-border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: linear-gradient(
+    to bottom,
+    var(--wbs-panel-strong) 0%,
+    var(--wbs-panel-strong) 70%,
+    rgba(238, 249, 252, 0) 100%
+  );
+  margin: -32px -40px 0;
+  padding: 32px 40px 18px;
+}
+
+.ho-page-head-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ho-eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--wbs-accent-2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ho-page-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  color: var(--wbs-ink);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.ho-page-sub {
+  font-size: var(--fs-md);
+  color: var(--wbs-ink-soft);
+  max-width: 64ch;
+}
+
+.ho-page-head-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.ho-last-updated {
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.ho-btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0.5px solid var(--wbs-border);
+  background: var(--wbs-panel);
+  color: var(--wbs-ink);
+  white-space: nowrap;
+  font-family: inherit;
+}
+.ho-btn:hover {
+  background: rgba(13, 52, 70, 0.08);
+  border-color: var(--wbs-border);
+}
+
+.ho-btn-ghost { background: rgba(13, 52, 70, 0.04); }
+.ho-btn-ghost:hover { background: rgba(13, 52, 70, 0.09); }
+
+.ho-btn-accent {
+  background: rgba(28, 95, 138, 0.16);
+  border-color: rgba(28, 95, 138, 0.40);
+  color: var(--wbs-accent-2);
+}
+.ho-btn-accent:hover {
+  background: rgba(28, 95, 138, 0.26);
+  border-color: rgba(28, 95, 138, 0.65);
+}
+
+.ho-btn-sm {
+  height: 26px;
+  padding: 0 9px;
+  font-size: var(--fs-xs);
+}
+.ho-btn-add { align-self: flex-start; }
+
+/* ── Inputs ─────────────────────────────────────────────────── */
+.ho-inp {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  background: rgba(13, 52, 70, 0.05);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 8px;
+  color: var(--wbs-ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  transition: border-color var(--transition), background var(--transition);
+  outline: none;
+}
+.ho-inp:focus {
+  border-color: rgba(28, 95, 138, 0.50);
+  background: rgba(13, 52, 70, 0.07);
+}
+.ho-inp::placeholder { color: var(--wbs-ink-faint); }
+.ho-inp option {
+  background: #ffffff;
+  color: var(--wbs-ink);
+}
+
+.ho-inp-lg {
+  height: 42px;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.ho-mono {
+  font-family: 'Menlo', 'Consolas', monospace;
+  font-size: var(--fs-sm);
+}
+
+.ho-textarea {
+  height: auto;
+  min-height: 60px;
+  padding: 10px;
+  line-height: 1.45;
+  resize: vertical;
+  font-family: var(--font-body);
+}
+
+.ho-records {
+  font-family: 'Menlo', 'Consolas', monospace;
+  font-size: var(--fs-sm);
+  white-space: pre;
+  min-height: 130px;
+}
+
+.ho-notes { min-height: 120px; }
+
+/* ── Field labels ───────────────────────────────────────────── */
+.ho-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.ho-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wbs-ink-soft);
+}
+
+.ho-hint {
+  font-size: var(--fs-xs);
+  color: var(--wbs-ink-faint);
+  margin-top: 4px;
+}
+
+.ho-muted {
+  color: var(--wbs-ink-faint);
+  font-size: var(--fs-sm);
+}
+
+/* ── Grids ──────────────────────────────────────────────────── */
+.ho-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.ho-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 820px) {
+  .ho-grid-2, .ho-grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ── Date row with pill ─────────────────────────────────────── */
+.ho-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ho-date-row .ho-inp { flex: 1; min-width: 150px; }
+
+/* ── Cost row ───────────────────────────────────────────────── */
+.ho-cost-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+.ho-cost-prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 8px;
+  background: rgba(13, 52, 70, 0.05);
+  color: var(--wbs-ink-faint);
+  font-size: var(--fs-md);
+  flex-shrink: 0;
+}
+.ho-cost-inp { flex: 1; min-width: 0; }
+.ho-cost-period { width: 110px; flex-shrink: 0; }
+
+@media (max-width: 460px) {
+  .ho-cost-row { flex-wrap: wrap; }
+  .ho-cost-period { width: 100%; }
+}
+
+/* ── Toggle switch ──────────────────────────────────────────── */
+.ho-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 10px;
+  background: rgba(13, 52, 70, 0.05);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--wbs-ink);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: border-color var(--transition);
+  align-self: flex-start;
+}
+.ho-toggle:hover { border-color: var(--wbs-border); }
+
+.ho-toggle-track {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(13, 52, 70, 0.12);
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.ho-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: all var(--transition);
+}
+
+.ho-toggle.on .ho-toggle-track {
+  background: rgba(28, 95, 138, 0.50);
+}
+.ho-toggle.on .ho-toggle-thumb {
+  left: 18px;
+  background: var(--wbs-accent-2);
+}
+
+.ho-toggle-label {
+  color: var(--wbs-ink-soft);
+  user-select: none;
+}
+.ho-toggle.on .ho-toggle-label { color: var(--wbs-accent-2); }
+
+/* ── Days-until / status pills ──────────────────────────────── */
+.ho-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 0.5px solid transparent;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.ho-pill-ok {
+  background: rgba(110, 231, 183, 0.22);
+  border-color: rgba(110, 231, 183, 0.45);
+  color: #0f7a4f;
+}
+.ho-pill-warning {
+  background: rgba(251, 191, 36, 0.20);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: #92400e;
+}
+.ho-pill-critical {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: rgba(239, 68, 68, 0.50);
+  color: #b91c1c;
+}
+.ho-pill-neutral {
+  background: rgba(13, 52, 70, 0.06);
+  border-color: var(--wbs-border);
+  color: var(--wbs-ink-soft);
+}
+.ho-pill-none { display: none; }
+
+/* ── Status banner ──────────────────────────────────────────── */
+.ho-banner {
+  flex-shrink: 0;
+  background: var(--wbs-panel);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ho-banner-ok {
+  border-color: rgba(110, 231, 183, 0.55);
+  background: linear-gradient(
+    180deg,
+    rgba(110, 231, 183, 0.20),
+    rgba(110, 231, 183, 0.06)
+  );
+}
+.ho-banner-warning {
+  border-color: rgba(251, 191, 36, 0.60);
+  background: linear-gradient(
+    180deg,
+    rgba(251, 191, 36, 0.20),
+    rgba(251, 191, 36, 0.06)
+  );
+}
+.ho-banner-critical {
+  border-color: rgba(239, 68, 68, 0.65);
+  background: linear-gradient(
+    180deg,
+    rgba(239, 68, 68, 0.20),
+    rgba(239, 68, 68, 0.06)
+  );
+}
+
+.ho-banner-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ho-banner-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.ho-banner-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--wbs-ink);
+}
+.ho-banner-ok .ho-banner-title       { color: #0f7a4f; }
+.ho-banner-warning .ho-banner-title  { color: #92400e; }
+.ho-banner-critical .ho-banner-title { color: #b91c1c; }
+
+.ho-banner-empty {
+  font-size: var(--fs-sm);
+  color: var(--wbs-ink-soft);
+}
+
+.ho-banner-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ho-banner-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  border: 0.5px solid var(--wbs-border);
+  flex-wrap: wrap;
+}
+.ho-banner-item-critical {
+  border-color: rgba(239, 68, 68, 0.40);
+}
+.ho-banner-item-warning {
+  border-color: rgba(251, 191, 36, 0.40);
+}
+
+.ho-banner-item-label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--wbs-ink);
+}
+.ho-banner-item-date {
+  font-size: var(--fs-xs);
+  color: var(--wbs-ink-faint);
+}
+
+/* ── Collapsible Section wrapper ────────────────────────────── */
+.ho-sec {
+  background: var(--wbs-panel);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: box-shadow 320ms ease, border-color 320ms ease;
+}
+
+/* Brief highlight pulse when arriving via Calendar deep-link (?section=). */
+.ho-sec.ho-sec-flash {
+  box-shadow: 0 0 0 1px rgba(28, 95, 138, 0.55), 0 0 28px rgba(28, 95, 138, 0.30);
+  border-color: rgba(28, 95, 138, 0.55);
+  animation: ho-sec-flash-pulse 1.6s ease-out;
+}
+@keyframes ho-sec-flash-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(28, 95, 138, 0.55), 0 0 0 0 rgba(28, 95, 138, 0.45); }
+  40%  { box-shadow: 0 0 0 4px rgba(28, 95, 138, 0.32), 0 0 36px rgba(28, 95, 138, 0.36); }
+  100% { box-shadow: 0 0 0 1px rgba(28, 95, 138, 0.55), 0 0 28px rgba(28, 95, 138, 0.30); }
+}
+
+.ho-sec-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--wbs-ink);
+  text-align: left;
+  transition: background var(--transition);
+  font-family: inherit;
+}
+.ho-sec-head:hover { background: rgba(13, 52, 70, 0.04); }
+
+.ho-sec-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ho-sec-label {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  flex: 1;
+  min-width: 0;
+}
+
+.ho-sec-caret {
+  font-size: 14px;
+  color: var(--wbs-ink-faint);
+}
+.ho-sec.open .ho-sec-caret { color: var(--wbs-accent-2); }
+
+.ho-sec-body {
+  padding: 4px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 0.5px solid var(--wbs-border);
+}
+
+/* ── Callout (e.g. "don't store passwords") ─────────────────── */
+.ho-callout {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--wbs-border);
+  color: var(--wbs-ink);
+}
+.ho-callout strong { color: var(--wbs-ink); }
+.ho-callout-warning {
+  background: rgba(251, 191, 36, 0.16);
+  border-color: rgba(251, 191, 36, 0.45);
+}
+.ho-callout-warning strong { color: #92400e; }
+
+/* ── Tech contacts ──────────────────────────────────────────── */
+.ho-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ho-empty {
+  font-size: var(--fs-sm);
+  color: var(--wbs-ink-faint);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.ho-contact {
+  background: rgba(13, 52, 70, 0.03);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ho-contact-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ho-contact-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.ho-contact-role {
+  width: 140px;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(13, 52, 70, 0.05);
+}
+
+.ho-contact-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ho-contact-line .ho-inp { flex: 1; min-width: 0; }
+
+/* ── Copy-text helper ───────────────────────────────────────── */
+.ho-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ho-copy-empty { color: var(--wbs-ink-faint); font-size: var(--fs-xs); }
+.ho-copy-link {
+  font-size: var(--fs-sm);
+  color: var(--wbs-accent-2);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(28, 95, 138, 0.4);
+}
+.ho-copy-link:hover { border-bottom-color: var(--wbs-accent-2); }
+.ho-copy-text {
+  font-size: var(--fs-sm);
+  color: var(--wbs-ink-soft);
+}
+.ho-copy-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(13, 52, 70, 0.05);
+  border: 0.5px solid var(--wbs-border);
+  color: var(--wbs-ink-faint);
+  cursor: pointer;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.ho-copy-btn:hover {
+  background: rgba(28, 95, 138, 0.12);
+  border-color: rgba(28, 95, 138, 0.45);
+  color: var(--wbs-accent-2);
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.ho-foot {
+  padding-top: 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.ho-foot code {
+  background: rgba(13, 52, 70, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.92em;
+  font-family: 'Menlo', 'Consolas', monospace;
+}
+
+/* ── Toast ──────────────────────────────────────────────────── */
+.ho-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 10px 18px;
+  background: var(--wbs-panel-strong);
+  backdrop-filter: blur(20px);
+  border: 0.5px solid rgba(28, 95, 138, 0.45);
+  border-radius: var(--radius-full);
+  color: var(--wbs-ink);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(10, 60, 80, 0.28);
+  pointer-events: none;
+  animation: ho-toast-in 0.2s ease-out;
+}
+
+@keyframes ho-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PRINT STYLES
+   ───────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide non-content chrome */
+  .app-bg,
+  .nav-rail,
+  .ho-page-head-actions,
+  .ho-toast,
+  .ho-btn,
+  .ho-btn-add,
+  .ho-sec-caret,
+  .ho-copy-btn {
+    display: none !important;
+  }
+
+  /* Reset chrome for paper */
+  html, body, #root, .ho-root {
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .ho-main {
+    overflow: visible !important;
+    padding: 24px !important;
+    height: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .ho-page-head {
+    position: static !important;
+    background: transparent !important;
+    margin: 0 0 18pt !important;
+    padding: 0 0 12pt !important;
+    border-bottom: 2pt solid #000 !important;
+  }
+
+  /* Force all sections expanded */
+  .ho-sec,
+  .ho-sec-body {
+    display: block !important;
+    background: transparent !important;
+    border-color: #999 !important;
+    page-break-inside: avoid;
+  }
+
+  .ho-sec {
+    margin-bottom: 18pt;
+    border: 1px solid #999 !important;
+    page-break-after: auto;
+  }
+
+  .ho-sec-head {
+    background: transparent !important;
+    border-bottom: 1px solid #999 !important;
+    color: #000 !important;
+    padding: 8pt 10pt !important;
+  }
+
+  .ho-sec-label,
+  .ho-page-title,
+  .ho-label,
+  .ho-page-sub,
+  .ho-eyebrow,
+  .ho-banner-title,
+  .ho-banner-item-label,
+  .ho-callout,
+  .ho-callout strong,
+  .ho-contact-name,
+  .ho-foot {
+    color: #000 !important;
+  }
+
+  .ho-page-title { font-size: 24pt !important; }
+  .ho-eyebrow    { color: #666 !important; }
+
+  .ho-banner,
+  .ho-sec,
+  .ho-contact,
+  .ho-callout {
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .ho-banner {
+    border: 1.5pt solid #000 !important;
+    page-break-inside: avoid;
+  }
+  .ho-banner-item {
+    background: transparent !important;
+    border: 1px solid #ccc !important;
+  }
+
+  .ho-callout-warning {
+    border: 1pt solid #b45309 !important;
+  }
+
+  /* Inputs/textareas as plain text on paper */
+  .ho-inp,
+  .ho-textarea,
+  .ho-cost-prefix,
+  .ho-toggle {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px dotted #888 !important;
+    border-radius: 0 !important;
+    color: #000 !important;
+    padding: 2pt 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    font-size: 11pt !important;
+  }
+  .ho-inp::placeholder { color: transparent !important; }
+
+  textarea.ho-inp,
+  textarea.ho-textarea {
+    overflow: visible !important;
+    border: 1px solid #ddd !important;
+    padding: 4pt 6pt !important;
+  }
+
+  /* Pills keep semantic color */
+  .ho-pill {
+    background: transparent !important;
+    border: 1pt solid currentColor !important;
+    padding: 1pt 6pt !important;
+  }
+  .ho-pill-ok       { color: #14532d !important; }
+  .ho-pill-warning  { color: #92400e !important; }
+  .ho-pill-critical { color: #991b1b !important; }
+  .ho-pill-neutral  { color: #444 !important; }
+
+  /* Toggle as plain text */
+  .ho-toggle-track,
+  .ho-toggle-thumb { display: none !important; }
+  .ho-toggle-label {
+    color: #000 !important;
+    font-size: 11pt !important;
+  }
+  .ho-toggle {
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .ho-contact {
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+    margin-bottom: 8pt;
+  }
+
+  .ho-copy-link {
+    color: #000 !important;
+    border-bottom: none !important;
+    text-decoration: underline;
+  }
+
+  .ho-foot { color: #666 !important; }
+  .ho-foot code {
+    background: transparent !important;
+    border: 1px solid #ccc !important;
+  }
+
+  /* Page break between major sections — break BEFORE each section
+     so the previous one's content stays whole, and the page is fresh. */
+  .ho-sec[data-section="hosting"],
+  .ho-sec[data-section="ssl"],
+  .ho-sec[data-section="backups"],
+  .ho-sec[data-section="contacts"],
+  .ho-sec[data-section="admin"],
+  .ho-sec[data-section="notes"] {
+    page-break-before: auto;
+  }
+}

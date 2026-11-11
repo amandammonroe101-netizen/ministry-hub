@@ -1,0 +1,81 @@
+/* ─────────────────────────────────────────────────────────────
+   Youth Ministry — "Customize Menu" page-settings content.
+   Rendered inside ProfileModal's dark .pm-body — follows the same
+   rgba(255,255,255,x) / accent conventions as ProfileModal.css,
+   since this content sits in the same modal regardless of which
+   page opened it.
+   ───────────────────────────────────────────────────────────── */
+
+.yms-set-body { display: flex; flex-direction: column; gap: 14px; }
+
+.yms-set-hint {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+
+.yms-set-bulk-row { display: flex; gap: 8px; }
+
+.yms-set-mini-btn {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04);
+  color: #f0c674;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.yms-set-mini-btn:hover {
+  background: rgba(180,83,9,0.18);
+  border-color: rgba(180,83,9,0.45);
+}
+
+.yms-set-group { display: flex; flex-direction: column; gap: 6px; }
+.yms-set-group-head { display: flex; align-items: center; gap: 10px; }
+.yms-set-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.55);
+}
+.yms-set-group-bulk { margin-left: auto; display: flex; gap: 6px; }
+
+.yms-set-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+@media (max-width: 480px) {
+  .yms-set-grid { grid-template-columns: 1fr; }
+}
+
+.yms-set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  transition: all .15s;
+}
+.yms-set-row:hover { border-color: rgba(255,255,255,0.18); }
+.yms-set-row.on { background: rgba(180,83,9,0.14); border-color: rgba(180,83,9,0.4); }
+.yms-set-checkbox { accent-color: #b45309; cursor: pointer; }
+.yms-set-row-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+.yms-set-row-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.yms-set-row.on .yms-set-row-label { color: #e5e7eb; }

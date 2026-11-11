@@ -1,0 +1,1214 @@
+/* ─────────────────────────────────────────────────────────────
+   AKAI Professional MPC controller page
+   Naming: .ak-*
+   ───────────────────────────────────────────────────────────── */
+
+.ak-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.ak-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 14px;
+  gap: 16px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Top bar — AKAI branding + LCD display
+   ════════════════════════════════════════════════════════════ */
+.ak-topbar {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+/* Branding block */
+.ak-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 10px 18px;
+  background: linear-gradient(160deg, #1c1c22, #131318);
+  border: 1px solid #28282f;
+  border-radius: 8px;
+  user-select: none;
+}
+
+.ak-brand-logo {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  /* AKAI red */
+  color: #dc2626;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+}
+
+.ak-brand-pro {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.45);
+  text-transform: lowercase;
+  margin-top: 1px;
+}
+
+.ak-brand-model {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.22);
+  text-transform: uppercase;
+}
+
+/* LCD display */
+.ak-lcd {
+  flex: 1;
+  padding: 3px;
+  background: #030305;
+  border: 1px solid #1c1c24;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 12px rgba(0,0,0,0.9);
+}
+
+.ak-lcd-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 16px;
+  gap: 4px;
+  background: #07080a;
+  border-radius: 5px;
+  /* green CRT scanline feel */
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.12) 3px,
+    rgba(0,0,0,0.12) 4px
+  );
+}
+
+.ak-lcd-bank {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  /* colour is set inline per bank */
+  text-shadow: 0 0 8px currentColor;
+}
+
+.ak-lcd-pad {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.ak-lcd-padnum {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.ak-lcd-padname {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ak-lcd-ready {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.12em;
+}
+
+.ak-lcd-tune {
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ak-lcd-tune span {
+  font-weight: 800;
+  color: rgba(255,255,255,0.5);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Middle — pad grid + right control panel
+   ════════════════════════════════════════════════════════════ */
+.ak-mid {
+  flex: 1;
+  display: flex;
+  gap: 18px;
+  min-height: 0;
+  align-items: stretch;
+}
+
+/* ── Pad zone ─────────────────────────────────────────────── */
+.ak-padzone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 4×4 grid */
+.ak-padgrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  /* Slight inset well — the pads sit in a recessed surface */
+  background: #060608;
+  border: 1px solid #1c1c22;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: inset 0 4px 20px rgba(0,0,0,0.85);
+}
+
+/* Individual pad */
+.ak-pad {
+  --color: #06b6d4;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  /* Layered dark gradient — MPC pads are subtly domed */
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.04) 0%,
+      rgba(255,255,255,0.00) 45%,
+      rgba(0,0,0,0.10) 100%
+    ),
+    linear-gradient(180deg, #1e1e26, #0e0e14);
+  border: 1.5px solid #2a2a34;
+  border-radius: 10px;
+  color: var(--color);
+  cursor: pointer;
+  overflow: hidden;
+  /* Ambient rim glow from pad colour */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px color-mix(in srgb, var(--color) 16%, transparent),
+    0 0 14px color-mix(in srgb, var(--color) 10%, transparent);
+  transition: transform 55ms ease, box-shadow 80ms ease, background 80ms ease;
+  user-select: none;
+}
+
+/* ── Horizontal ridge texture (AKAI MPC silicone surface) ─── */
+.ak-pad::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 2;
+  /* Tight horizontal stripes simulate the moulded ridges */
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,0.028) 0px,
+    rgba(255,255,255,0.028) 2px,
+    transparent           2px,
+    transparent           5px
+  );
+}
+
+.ak-pad:hover {
+  border-color: color-mix(in srgb, var(--color) 45%, #2a2a34);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 0 0 1px color-mix(in srgb, var(--color) 28%, transparent),
+    0 0 22px color-mix(in srgb, var(--color) 18%, transparent);
+}
+
+.ak-pad:active,
+.ak-pad.hit {
+  background:
+    linear-gradient(180deg, var(--color), color-mix(in srgb, var(--color) 50%, #000));
+  color: #05050a;
+  border-color: var(--color);
+  transform: translateY(2px) scale(0.968);
+  box-shadow:
+    0 0 30px var(--color),
+    0 0 60px color-mix(in srgb, var(--color) 40%, transparent),
+    inset 0 0 22px rgba(255,255,255,0.28);
+}
+
+/* Pad label (sound name) */
+.ak-pad-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+  position: relative;
+  z-index: 3;
+  line-height: 1;
+}
+
+/* Pad number badge — lower-right corner */
+.ak-pad-num {
+  position: absolute;
+  bottom: 5px;
+  right: 7px;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.ak-pad.hit .ak-pad-label,
+.ak-pad.hit .ak-pad-num { color: rgba(0,0,0,0.65); }
+
+/* Legend below grid: row ranges */
+.ak-pad-legend {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.ak-pad-legend-row {
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.12);
+}
+
+/* ── Right control panel ─────────────────────────────────── */
+.ak-panel {
+  width: 160px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: linear-gradient(180deg, #131318, #0d0d10);
+  border: 1px solid #1e1e26;
+  border-radius: 12px;
+  padding: 14px 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.ak-panel-div {
+  height: 1px;
+  background: #201b15;
+  border-radius: 1px;
+}
+
+/* ── Q-Link knobs ────────────────────────────────────────── */
+.ak-qlink-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  text-align: center;
+}
+
+.ak-knobs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ak-knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: ns-resize;
+  user-select: none;
+}
+
+.ak-knob:hover .ak-knob-svg circle:last-of-type { opacity: 0.9; }
+
+.ak-knob-svg {
+  width: 48px;
+  height: 48px;
+  /* Subtle knob body shadow */
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+}
+
+.ak-knob-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+}
+
+.ak-knob-val {
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Bank selector ───────────────────────────────────────── */
+.ak-bank-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ak-bank-lbl {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+}
+
+.ak-bank-btns {
+  display: flex;
+  gap: 5px;
+}
+
+.ak-bank-btn {
+  --bc: #06b6d4;
+  width: 30px;
+  height: 30px;
+  background: #1a1a22;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.ak-bank-btn:hover {
+  border-color: var(--bc);
+  color: var(--bc);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--bc) 35%, transparent);
+}
+
+.ak-bank-btn.on {
+  background: var(--bc);
+  border-color: var(--bc);
+  color: #050508;
+  box-shadow:
+    0 0 14px var(--bc),
+    0 0 28px color-mix(in srgb, var(--bc) 45%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.ak-bank-name {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* colour set inline */
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* ── Transport strip ─────────────────────────────────────── */
+.ak-transport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ak-transport-lbl {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+}
+
+.ak-transport-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.ak-tp-btn {
+  width: 34px;
+  height: 28px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 100ms;
+}
+
+.ak-tp-play {
+  background: #0d2b0f;
+  border-color: #16a34a;
+  color: #22c55e;
+}
+.ak-tp-play:hover {
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(34,197,94,0.5);
+}
+
+.ak-tp-stop {
+  background: #1a1a22;
+  border-color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+}
+.ak-tp-stop:hover {
+  background: #2a2a34;
+  color: #fff;
+}
+
+.ak-tp-rec {
+  background: #2a0d0d;
+  border-color: #dc2626;
+  color: #ef4444;
+  font-size: 12px;
+}
+.ak-tp-rec:hover {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(239,68,68,0.5);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Keyboard hint bar
+   ════════════════════════════════════════════════════════════ */
+.ak-hint {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.22);
+  flex-wrap: wrap;
+}
+
+.ak-hint kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #1e1812;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+}
+
+.ak-hint-sep {
+  color: rgba(255,255,255,0.12);
+  margin: 0 2px;
+}
+
+.ak-hint-long {
+  margin: 0 6px;
+}
+
+.ak-hint-text {
+  color: rgba(255,255,255,0.2);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Side panel — Settings + Saved Recordings
+   ════════════════════════════════════════════════════════════ */
+.ak-side {
+  position: relative;
+  z-index: 1;
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 14px 14px;
+  border-right: 1px solid rgba(255,255,255,0.04);
+  overflow-y: auto;
+}
+
+.ak-side-title {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  padding: 0 4px 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.ak-side-card {
+  background: #18120c;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ak-side-card.open {
+  border-color: rgba(220, 38, 38, 0.18);
+  box-shadow: 0 0 22px rgba(220, 38, 38, 0.05);
+}
+
+/* Section header */
+.ak-side-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.ak-side-head:hover {
+  background: #18120c;
+  color: rgba(255,255,255,0.9);
+}
+
+.ak-side-head-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ak-side-head-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 5px;
+  background: #36110c;
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.ak-side-head-caret {
+  color: rgba(255,255,255,0.35);
+  font-size: 10px;
+}
+
+.ak-side-body {
+  padding: 6px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ── Settings rows ── */
+.ak-set-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ak-set-row-inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ak-set-lbl {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+.ak-set-lbl-inline { letter-spacing: 0.12em; }
+
+.ak-set-val {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Slider */
+.ak-set-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #201b15;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.ak-set-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #dc2626;
+  border: 2px solid #1c1c22;
+  cursor: grab;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+}
+.ak-set-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #dc2626;
+  border: 2px solid #1c1c22;
+  cursor: grab;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+}
+
+/* Select */
+.ak-set-select {
+  background: #0c0804;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.85);
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  outline: none;
+}
+.ak-set-select:hover  { border-color: rgba(220, 38, 38, 0.4); }
+.ak-set-select:focus  { border-color: #dc2626; }
+
+/* Tap-tempo row */
+.ak-tap-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ak-tap-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: #2a0d0d;
+  border: 1.5px solid #dc2626;
+  border-radius: 5px;
+  color: #ef4444;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+.ak-tap-btn:hover {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+}
+.ak-tap-btn:active { transform: scale(0.96); }
+
+.ak-set-num {
+  flex: 1;
+  min-width: 0;
+  background: #0c0804;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px;
+  color: rgba(255,255,255,0.85);
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 8px;
+  outline: none;
+  text-align: center;
+}
+.ak-set-num:focus { border-color: #dc2626; }
+
+/* Toggle switch */
+.ak-toggle {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #0c0804;
+  cursor: pointer;
+  padding: 0;
+  transition: all 120ms ease;
+}
+.ak-toggle.on {
+  background: #44120e;
+  border-color: #dc2626;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+}
+.ak-toggle-dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f0ead9;
+  transition: all 120ms ease;
+}
+.ak-toggle.on .ak-toggle-dot {
+  left: 18px;
+  background: #dc2626;
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.7);
+}
+
+/* ── Saved Recordings ───────────────────────────────────────── */
+
+/* Controls bar (toggles + record button + note) */
+.ak-side-rec-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: #0e0904;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+
+.ak-side-rec-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ak-side-rec-tog {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ak-side-rec-tog-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+
+/* Record button */
+.ak-side-rec-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 10px;
+  background: #2a0d0d;
+  border: 1.5px solid #dc2626;
+  border-radius: 6px;
+  color: #ef4444;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 100ms ease;
+  font-variant-numeric: tabular-nums;
+}
+.ak-side-rec-btn:hover:not(:disabled) {
+  background: #3a1212;
+  color: #fca5a5;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.45);
+}
+.ak-side-rec-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ak-side-rec-btn.count-in {
+  background: #3a2a0d;
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.ak-side-rec-btn.recording {
+  background: #dc2626;
+  color: #fff;
+  border-color: #fca5a5;
+  box-shadow:
+    0 0 18px rgba(220, 38, 38, 0.7),
+    0 0 36px rgba(220, 38, 38, 0.3);
+  animation: ak-rec-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes ak-rec-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 18px rgba(220, 38, 38, 0.7),
+      0 0 36px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 24px rgba(220, 38, 38, 0.95),
+      0 0 56px rgba(220, 38, 38, 0.5);
+  }
+}
+
+.ak-side-rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+.ak-side-rec-btn.recording .ak-side-rec-dot {
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
+  animation: ak-rec-dot-blink 0.7s ease-in-out infinite;
+}
+@keyframes ak-rec-dot-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+.ak-side-rec-btn.count-in .ak-side-rec-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.ak-side-rec-note {
+  font-size: 9px;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+}
+
+/* Review form (save / discard) */
+.ak-side-rec-review {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px;
+  background: #220e09;
+  border: 1px dashed rgba(220, 38, 38, 0.4);
+  border-radius: 7px;
+}
+
+.ak-side-rec-review-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ak-side-rec-review-meta {
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.04em;
+}
+
+.ak-side-rec-input {
+  width: 100%;
+  background: #0b0704;
+  border: 1px solid #dc2626;
+  border-radius: 5px;
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 8px;
+  outline: none;
+}
+
+.ak-side-rec-review-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.ak-side-rec-save,
+.ak-side-rec-discard {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+.ak-side-rec-save {
+  background: #142813;
+  border: 1px solid #22c55e;
+  color: #22c55e;
+}
+.ak-side-rec-save:hover {
+  background: #22c55e;
+  color: #052e0f;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+.ak-side-rec-discard {
+  background: #0c0804;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.55);
+}
+.ak-side-rec-discard:hover {
+  background: #36110c;
+  border-color: #dc2626;
+  color: #ef4444;
+}
+
+/* Empty state */
+.ak-side-rec-empty {
+  padding: 14px 6px;
+  text-align: center;
+  font-size: 10.5px;
+  font-style: italic;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+/* List */
+.ak-side-rec-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ak-side-rec-item {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 5px;
+  background: #18120c;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 6px;
+}
+
+.ak-side-rec-play {
+  width: 28px;
+  flex-shrink: 0;
+  background: #0d2b0f;
+  border: 1px solid #16a34a;
+  border-radius: 5px;
+  color: #22c55e;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+.ak-side-rec-play:hover {
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.45);
+}
+.ak-side-rec-play.playing {
+  background: #22c55e;
+  color: #052e0f;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+
+.ak-side-rec-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+}
+
+.ak-side-rec-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.ak-side-rec-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ak-side-rec-dur,
+.ak-side-rec-bpm {
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.42);
+  letter-spacing: 0.04em;
+}
+
+.ak-side-rec-bank {
+  --bc: #06b6d4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 14px;
+  padding: 0 4px;
+  background: color-mix(in srgb, var(--bc) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bc) 55%, transparent);
+  border-radius: 3px;
+  color: var(--bc);
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--bc) 65%, transparent);
+}
+
+.ak-side-rec-del {
+  width: 26px;
+  flex-shrink: 0;
+  background: #0d0804;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 5px;
+  color: rgba(255,255,255,0.4);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+.ak-side-rec-del:hover {
+  background: #30100b;
+  border-color: rgba(220, 38, 38, 0.35);
+  color: #ef4444;
+}
+.ak-side-rec-del.armed {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+}
+
+/* ── Save to Stems Library button ────────────────────────── */
+.ak-side-rec-stems-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 7px;
+  background: #111d1b;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  border-radius: 5px;
+  color: #67e8f9;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 100ms ease;
+  white-space: nowrap;
+}
+.ak-side-rec-stems-btn:hover {
+  background: #0f3133;
+  border-color: rgba(6, 182, 212, 0.7);
+  color: #a5f3fc;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+}
+.ak-side-rec-stems-btn.saved {
+  background: #141f0f;
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #86efac;
+  box-shadow: none;
+}
+.ak-side-rec-stems-btn.saved:hover {
+  background: #152d16;
+  border-color: rgba(34, 197, 94, 0.65);
+  color: #bbf7d0;
+}
+.ak-side-rec-stems-btn.armed {
+  background: #453609;
+  border-color: rgba(250, 204, 21, 0.6);
+  color: #fde68a;
+}
+
+/* ── Stems-library feedback toast ────────────────────────── */
+.ak-stems-toast {
+  margin: 6px 0;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border-radius: 5px;
+  border: 1px solid;
+  text-align: center;
+  animation: ak-stems-toast-in 160ms ease-out;
+}
+.ak-stems-toast.success {
+  background: #142211;
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #86efac;
+}
+.ak-stems-toast.error {
+  background: #2d130d;
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+.ak-stems-toast.warn {
+  background: #2e2308;
+  border-color: rgba(250, 204, 21, 0.45);
+  color: #fde68a;
+}
+@keyframes ak-stems-toast-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

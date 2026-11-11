@@ -1,0 +1,628 @@
+/* ─────────────────────────────────────────────────────────────
+   Drums — full-screen drum pad page
+   Naming: .dr-*
+   ───────────────────────────────────────────────────────────── */
+
+.dr-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.dr-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px 20px;
+  overflow: hidden;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.dr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.dr-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dr-title-icon {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.dr-title-text {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary, #f0f0f5);
+  letter-spacing: -0.02em;
+}
+
+.dr-title-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-muted, #5a5a6a);
+}
+
+/* ── Side panel (Settings + Saved Tones) ─────────────────── */
+.dr-side {
+  position: relative;
+  z-index: 1;
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #18120c;
+  border-right: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dr-side-section {
+  border-bottom: 0.5px solid var(--border, rgba(255,255,255,0.08));
+}
+
+.dr-side-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary, #f0f0f5);
+  font-family: inherit;
+  text-align: left;
+  transition: background 120ms ease;
+}
+.dr-side-head:hover {
+  background: #19130d;
+}
+
+.dr-side-head-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #9a9aaa);
+}
+
+.dr-side-head-caret {
+  font-size: 11px;
+  color: var(--text-muted, #5a5a6a);
+}
+
+.dr-side-body {
+  padding: 4px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Field rows ──────────────────────────────────────────── */
+.dr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dr-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dr-field-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted, #5a5a6a);
+}
+
+.dr-field-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #9a9aaa);
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-range {
+  width: 100%;
+  accent-color: #ef4444;
+}
+
+.dr-select {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  background: #1b1610;
+  border: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  color: var(--text-primary, #f0f0f5);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.dr-select:hover  { border-color: var(--border-hi, rgba(255,255,255,0.16)); }
+.dr-select:focus  { outline: none; border-color: rgba(239,68,68,0.5); background: #201b15; }
+
+/* ── Inputs / buttons ────────────────────────────────────── */
+.dr-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  background: #1b1610;
+  border: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  color: var(--text-primary, #f0f0f5);
+  font-family: inherit;
+  font-size: 12px;
+}
+.dr-input:focus { outline: none; border-color: rgba(239,68,68,0.5); background: #201b15; }
+
+.dr-btn {
+  height: 30px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  background: #1b1610;
+  color: var(--text-primary, #f0f0f5);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.dr-btn:hover    { background: #231d17; border-color: var(--border-hi, rgba(255,255,255,0.16)); }
+.dr-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dr-btn.primary  { background: #ef4444; border-color: #ef4444; color: #fff; }
+.dr-btn.primary:hover { filter: brightness(1.08); }
+.dr-btn.ghost    { background: transparent; }
+.dr-btn.add {
+  width: 100%;
+  border-style: dashed;
+  color: var(--text-secondary, #9a9aaa);
+}
+.dr-btn.add:hover {
+  color: #ef4444;
+  border-color: rgba(239,68,68,0.5);
+}
+
+.dr-save-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: #19130d;
+  border: 0.5px solid var(--border-hi, rgba(255,255,255,0.16));
+  border-radius: 8px;
+}
+.dr-save-btns { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* ── Saved tone list ─────────────────────────────────────── */
+.dr-tone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.dr-tone-empty {
+  font-size: 11px;
+  color: var(--text-muted, #5a5a6a);
+  font-style: italic;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.dr-tone {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  background: #19130d;
+  border: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.dr-tone:hover {
+  background: #1e1812;
+  border-color: var(--border-hi, rgba(255,255,255,0.16));
+}
+
+.dr-tone-load {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 7px 9px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary, #f0f0f5);
+  font-family: inherit;
+  text-align: left;
+  min-width: 0;
+}
+
+.dr-tone-name {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.dr-tone-meta {
+  font-size: 10px;
+  color: var(--text-muted, #5a5a6a);
+  letter-spacing: 0.04em;
+}
+
+.dr-tone-del {
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-left: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  color: var(--text-muted, #5a5a6a);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.dr-tone-del:hover {
+  background: #2d130d;
+  color: #f87171;
+}
+.dr-tone-del.armed {
+  background: #3a1611;
+  color: #fca5a5;
+  font-weight: 700;
+}
+
+/* ── Saved recordings controls ───────────────────────────── */
+.dr-rec-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: #19130d;
+  border: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+}
+
+.dr-rec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dr-rec-bpm {
+  width: 64px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-rec-toggles {
+  display: flex;
+  gap: 6px;
+}
+
+.dr-rec-toggle {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #1b1610;
+  border: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 6px;
+  color: var(--text-muted, #5a5a6a);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.dr-rec-toggle:hover { color: var(--text-secondary, #9a9aaa); }
+.dr-rec-toggle:disabled { opacity: 0.45; cursor: not-allowed; }
+.dr-rec-toggle.on {
+  background: #31140f;
+  border-color: rgba(239,68,68,0.45);
+  color: #fca5a5;
+}
+.dr-rec-toggle-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.dr-rec-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: #28120c;
+  border: 1px solid rgba(239,68,68,0.45);
+  border-radius: 8px;
+  color: #fca5a5;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.dr-rec-btn:hover {
+  background: #3a1611;
+  color: #fff;
+}
+.dr-rec-btn.counting {
+  background: #322708;
+  border-color: rgba(250,204,21,0.45);
+  color: #fde68a;
+}
+.dr-rec-btn.recording {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(239,68,68,0.55);
+}
+
+.dr-rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+.dr-rec-dot.pulsing {
+  animation: dr-rec-pulse 1s ease-in-out infinite;
+}
+@keyframes dr-rec-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%      { opacity: 0.4; transform: scale(0.78); }
+}
+
+/* ── Saved recording item ────────────────────────────────── */
+.dr-rec-item {
+  align-items: center;
+}
+
+.dr-rec-play {
+  width: 28px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-right: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  color: var(--text-secondary, #9a9aaa);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.dr-rec-play:hover {
+  background: #2d130d;
+  color: #fca5a5;
+}
+
+.dr-rec-info {
+  /* Keep dr-tone-load behaviour but no hover affordance since play is the action */
+}
+
+.dr-rec-bpm-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  background: #31140f;
+  border: 0.5px solid rgba(239,68,68,0.35);
+  border-radius: 4px;
+  color: #fca5a5;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Save to Stems Library button ────────────────────────── */
+.dr-rec-stems-btn {
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 8px;
+  min-width: 56px;
+  background: #111d1b;
+  border: none;
+  border-left: 0.5px solid var(--border, rgba(255,255,255,0.08));
+  color: #67e8f9;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+.dr-rec-stems-btn:hover {
+  background: #102b2b;
+  color: #a5f3fc;
+}
+.dr-rec-stems-btn.saved {
+  background: #141f0f;
+  color: #86efac;
+  cursor: pointer;
+}
+.dr-rec-stems-btn.saved:hover {
+  background: #152d16;
+  color: #bbf7d0;
+}
+.dr-rec-stems-btn.armed {
+  background: #3c2f09;
+  color: #fde68a;
+  font-weight: 800;
+}
+
+/* ── Stems-library feedback toast ────────────────────────── */
+.dr-stems-toast {
+  margin-top: 6px;
+  padding: 6px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 6px;
+  border: 0.5px solid;
+  text-align: center;
+  animation: dr-stems-toast-in 160ms ease-out;
+}
+.dr-stems-toast.success {
+  background: #142211;
+  border-color: rgba(34,197,94,0.45);
+  color: #86efac;
+}
+.dr-stems-toast.error {
+  background: #2d130d;
+  border-color: rgba(239,68,68,0.45);
+  color: #fca5a5;
+}
+.dr-stems-toast.warn {
+  background: #2e2308;
+  border-color: rgba(250,204,21,0.45);
+  color: #fde68a;
+}
+@keyframes dr-stems-toast-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 4×4 pad grid — fills available height ───────────────── */
+.dr-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+
+/* Individual pad */
+.dr-pad {
+  --pad: #555;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #1a1a22, #0d0d12);
+  border: 1.5px solid #28282f;
+  border-radius: 14px;
+  color: #c8c8d8;
+  cursor: pointer;
+  /* Faint RGB rim from pad colour */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 0 0 1px color-mix(in srgb, var(--pad) 20%, transparent),
+    0 0 18px color-mix(in srgb, var(--pad) 14%, transparent);
+  transition: transform 60ms ease, box-shadow 90ms ease, background 90ms ease;
+  user-select: none;
+}
+
+.dr-pad:hover {
+  border-color: color-mix(in srgb, var(--pad) 50%, #2c2c34);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px color-mix(in srgb, var(--pad) 35%, transparent),
+    0 0 24px color-mix(in srgb, var(--pad) 22%, transparent);
+}
+
+.dr-pad.hit {
+  background: linear-gradient(180deg, var(--pad), color-mix(in srgb, var(--pad) 50%, #000));
+  color: #050508;
+  transform: translateY(3px) scale(0.965);
+  box-shadow:
+    0 0 32px var(--pad),
+    0 0 0 1.5px var(--pad),
+    inset 0 0 20px rgba(255,255,255,0.32);
+}
+
+/* Keyboard shortcut badge */
+.dr-pad-key {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--pad);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.dr-pad.hit .dr-pad-key {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* Pad name */
+.dr-pad-label {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ── Keyboard hint bar ───────────────────────────────────── */
+.dr-hint {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted, #5a5a6a);
+}
+
+.dr-hint kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #201b15;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary, #8a8a9a);
+  margin: 0 1px;
+}

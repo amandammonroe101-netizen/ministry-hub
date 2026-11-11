@@ -1,0 +1,589 @@
+/* ─────────────────────────────────────────────────────────────
+   Roster — worship/ministry team member manager
+   Naming: .rs-*
+   Accent: var(--accent-blue, #60a5fa)
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout ───────────────────────────────────────────────── */
+.rs-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+/* ── Left sidebar ──────────────────────────────────────────────── */
+.rs-sidebar {
+  position: relative;
+  z-index: 1;
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.rs-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 12px;
+  flex-shrink: 0;
+}
+
+.rs-sidebar-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ── "+ New" button ─────────────────────────────────────────────── */
+.rs-new-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: rgba(96, 165, 250, 0.15);
+  border: 0.5px solid rgba(96, 165, 250, 0.40);
+  border-radius: 6px;
+  color: var(--accent-blue, #60a5fa);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.rs-new-btn:hover {
+  background: rgba(96, 165, 250, 0.25);
+  border-color: rgba(96, 165, 250, 0.65);
+}
+
+/* ── Sidebar search + filter controls ───────────────────────────── */
+.rs-sidebar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 14px 12px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.rs-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.rs-pill {
+  flex: 1;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.rs-pill:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-primary);
+}
+.rs-pill.on {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: rgba(96, 165, 250, 0.45);
+  color: var(--accent-blue, #60a5fa);
+}
+
+/* ── Shared input ───────────────────────────────────────────────── */
+.rs-inp {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  outline: none;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.rs-inp:focus {
+  border-color: rgba(96, 165, 250, 0.50);
+}
+.rs-inp option {
+  background: #111118;
+  color: var(--text-primary);
+}
+
+.rs-textarea {
+  height: auto;
+  padding: 10px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 84px;
+}
+
+/* ── Shared buttons ─────────────────────────────────────────────── */
+.rs-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 0.5px solid transparent;
+  white-space: nowrap;
+}
+
+.rs-btn-accent {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.45);
+  color: var(--accent-blue, #60a5fa);
+}
+.rs-btn-accent:hover {
+  background: rgba(96, 165, 250, 0.28);
+  border-color: rgba(96, 165, 250, 0.70);
+}
+
+.rs-btn-ghost {
+  background: var(--bg-glass);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+.rs-btn-ghost:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-primary);
+}
+
+.rs-btn-danger {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.30);
+  color: rgba(239, 68, 68, 0.75);
+}
+.rs-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+}
+
+.rs-btn-danger-armed {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #fca5a5;
+  animation: rs-arm-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes rs-arm-pulse {
+  from { background: rgba(239, 68, 68, 0.14); }
+  to   { background: rgba(239, 68, 68, 0.26); }
+}
+
+/* ── Member list ────────────────────────────────────────────────── */
+.rs-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rs-list::-webkit-scrollbar {
+  width: 4px;
+}
+.rs-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rs-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+.rs-list-empty {
+  padding: 14px 6px;
+  font-style: italic;
+}
+
+/* ── Member card ───────────────────────────────────────────────── */
+.rs-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+}
+.rs-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: var(--border);
+}
+.rs-card.on {
+  background: var(--bg-glass-md);
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow: inset 2px 0 0 var(--accent-blue, #60a5fa);
+}
+
+.rs-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.rs-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rs-card.on .rs-card-name {
+  color: var(--accent-blue, #60a5fa);
+}
+
+.rs-card-role {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-left: 16px;
+}
+
+.rs-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+  margin-left: 16px;
+}
+
+.rs-card-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rs-card-chip-more {
+  color: var(--text-muted);
+  background: transparent;
+}
+
+/* ── Status dot ─────────────────────────────────────────────────── */
+.rs-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.rs-status-dot.on {
+  background: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.18);
+}
+.rs-status-dot.off {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Main area ─────────────────────────────────────────────────── */
+.rs-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Empty state ───────────────────────────────────────────────── */
+.rs-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.rs-empty-icon {
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 16px;
+  user-select: none;
+  filter: grayscale(0.2);
+  opacity: 0.85;
+}
+
+.rs-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.rs-empty-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: 380px;
+  line-height: 1.6;
+}
+
+.rs-empty-cta {
+  margin-top: 18px;
+}
+
+/* ── Detail container ───────────────────────────────────────────── */
+.rs-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Detail header ──────────────────────────────────────────────── */
+.rs-detail-head {
+  flex-shrink: 0;
+  padding: 22px 28px 16px;
+  border-bottom: 0.5px solid var(--border);
+  background:
+    radial-gradient(560px 180px at 40% -20%, rgba(96, 165, 250, 0.12), transparent 60%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rs-detail-head-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rs-name-inp {
+  width: 100%;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  outline: none;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.rs-name-inp:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: var(--border);
+}
+.rs-name-inp:focus {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(96, 165, 250, 0.45);
+}
+.rs-name-inp::placeholder {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.rs-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.rs-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* ── Pills / chips in header ───────────────────────────────────── */
+.rs-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.rs-chip-role {
+  background: rgba(96, 165, 250, 0.10);
+  border: 0.5px solid rgba(96, 165, 250, 0.28);
+  color: var(--accent-blue, #60a5fa);
+}
+
+.rs-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1;
+}
+.rs-status-pill.on {
+  background: rgba(52, 211, 153, 0.10);
+  border: 0.5px solid rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+.rs-status-pill.off {
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* ── Form body ──────────────────────────────────────────────────── */
+.rs-form {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rs-form::-webkit-scrollbar {
+  width: 5px;
+}
+.rs-form::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+}
+
+.rs-row {
+  display: flex;
+  gap: 14px;
+}
+.rs-row-2 > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.rs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.rs-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.rs-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── Chip input (instruments) ───────────────────────────────────── */
+.rs-chip-input {
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px 8px;
+  transition: border-color var(--transition);
+}
+.rs-chip-input:focus-within {
+  border-color: rgba(96, 165, 250, 0.45);
+}
+
+.rs-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.rs-instr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 10px;
+  background: rgba(96, 165, 250, 0.12);
+  border: 0.5px solid rgba(96, 165, 250, 0.30);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-blue, #60a5fa);
+  line-height: 1;
+}
+
+.rs-instr-chip-x {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: rgba(96, 165, 250, 0.7);
+  font-size: 9px;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+}
+.rs-instr-chip-x:hover {
+  background: rgba(239, 68, 68, 0.20);
+  color: #fca5a5;
+}
+
+.rs-chip-inp {
+  flex: 1;
+  min-width: 120px;
+  height: 24px;
+  padding: 0 6px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+}
+.rs-chip-inp::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Utility ───────────────────────────────────────────────────── */
+.rs-muted {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}

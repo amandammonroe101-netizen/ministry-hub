@@ -1,10 +1,27 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import NavRail from '../../components/layout/NavRail';
+import MinistryBrand from '../../components/layout/MinistryBrand';
+import { ProfileModal, useProfileTopbar } from '../../components/profile/ProfileModal';
 import { songService } from '../../services/songService';
-import { setlistService } from '../../services/setlistService';
+import { addStemFromRecording } from '../../utils/stemsLibrary';
 import { startMetronome, startPitchDrone, makeTapTempo } from './audio';
+import { useUserStoreKey } from '../../lib/userStore';
+import WorshipShell from '../worship/WorshipShell';
 import './Songs.css';
+
+/* localStorage key tracking which song recordings have been pushed to
+   the Stems Library — shape: { [recordingId]: stemId } */
+const REC_TO_STEMS_LS_KEY = 'songs:recordings-to-stems';
+const loadRecToStems = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(REC_TO_STEMS_LS_KEY) || '{}');
+    return raw && typeof raw === 'object' ? raw : {};
+  } catch { return {}; }
+};
+const saveRecToStems = (map) => {
+  try { localStorage.setItem(REC_TO_STEMS_LS_KEY, JSON.stringify(map)); } catch { /* ignore */ }
+};
 
 /* ─────────────────────────────────────────────────────────────
    Static config
@@ -243,89 +260,57 @@ const fetchWords = async (word, mode = 'rhy') => {
    Component
    ───────────────────────────────────────────────────────────── */
 export default function Songs() {
-  const [songs, setSongs]                       = useState([]);
-  const [setlists, setSetlists]                 = useState([]);
+  /* Live-synced via Firestore. */
+  const [songs, setSongs]                       = useUserStoreKey('songs', []);
+  const [searchParams, setSearchParams]         = useSearchParams();
+  const { avatarSourceName, initials } = useProfileTopbar();
+  const [showProfile, setShowProfile]           = useState(false);
   const [selected, setSelected]                 = useState(null);
-  const [selectedSetlist, setSelectedSetlist]   = useState(null);
   const [showForm, setShowForm]                 = useState(false);
-  const [showSetlistForm, setShowSetlistForm]   = useState(false);
   const [form, setForm]                         = useState(EMPTY_FORM);
-  const [setlistForm, setSetlistForm]           = useState({ name: '', occasion: '', event_date: '' });
   const [saving, setSaving]                     = useState(false);
   const [error, setError]                       = useState(null);
-  const [loading, setLoading]                   = useState(true);
+  const [loading, setLoading]                   = useState(false);
 
   const [search, setSearch]                     = useState('');
   const [activeSection, setActiveSection]       = useState('idea');
-  const [expandedSections, setExpandedSections] = useState({ idea: true, draft: true, setlists: true });
+  const [expandedSections, setExpandedSections] = useState({ idea: true, draft: true });
   const [activeTab, setActiveTab]               = useState('lyrics');
   const [leftCollapsed, setLeftCollapsed]       = useState(false);
   const [rightCollapsed, setRightCollapsed]     = useState(false);
-  const [performanceMode, setPerformanceMode]   = useState(null); // null | { type: 'song' } | { type: 'setlist' }
+  const [performanceMode, setPerformanceMode]   = useState(null); // null | 'song'
 
-  useEffect(() => { fetchAll(); }, []);
+  /* Re-sync the selected song when the live list changes. */
+  useEffect(() => {
+    if (selected) {
+      const fresh = songs.find(s => s.id === selected.id);
+      if (fresh && fresh !== selected) setSelected(fresh);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [songs]);
+
+  /* Deep-link support (e.g. ?id=s_123 from Meetings) — select the song
+     once the live list has loaded, then strip the param so refreshes
+     don't keep forcing the selection. */
+  useEffect(() => {
+    const fromUrl = searchParams.get('id');
+    if (!fromUrl || songs.length === 0) return;
+    const song = songs.find(s => s.id === fromUrl);
+    if (song) {
+      setSelected(song);
+      setActiveTab('lyrics');
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete('id');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [songs, searchParams]);
 
   const fetchAll = async () => {
     try {
-      setLoading(true);
-      const [sR, slR] = await Promise.all([songService.getAll(), setlistService.getAll()]);
+      const sR = await songService.getAll();
       setSongs(sR.data.data);
-      setSetlists(slR.data.data);
-      if (selected) {
-        const fresh = sR.data.data.find(s => s.id === selected.id);
-        if (fresh) setSelected(fresh);
-      }
-      if (selectedSetlist) {
-        const fresh = slR.data.data.find(x => x.id === selectedSetlist.id);
-        if (fresh) setSelectedSetlist(fresh);
-      }
     } catch { setError('Could not load.'); }
-    finally { setLoading(false); }
-  };
-
-  /* ── setlist mutations ───────────────────────────────────── */
-  const handleCreateSetlist = async () => {
-    if (!setlistForm.name.trim()) return;
-    try {
-      const res = await setlistService.create(setlistForm);
-      setSetlistForm({ name: '', occasion: '', event_date: '' });
-      setShowSetlistForm(false);
-      setSelectedSetlist(res.data.data);
-      setSelected(null);
-      await fetchAll();
-    } catch { setError('Failed to create setlist.'); }
-  };
-  const handleAddToSetlist = async (setlistId, songId) => {
-    try {
-      const res = await setlistService.addSong(setlistId, songId);
-      const updated = res.data.data;
-      setSetlists(prev => prev.map(x => x.id === updated.id ? updated : x));
-      if (selectedSetlist?.id === updated.id) setSelectedSetlist(updated);
-    } catch { setError('Failed to add to setlist.'); }
-  };
-  const handleRemoveFromSetlist = async (setlistId, linkId) => {
-    try {
-      const res = await setlistService.removeSong(setlistId, linkId);
-      const updated = res.data.data;
-      setSetlists(prev => prev.map(x => x.id === updated.id ? updated : x));
-      if (selectedSetlist?.id === updated.id) setSelectedSetlist(updated);
-    } catch { setError('Failed to remove from setlist.'); }
-  };
-  const handleReorderSetlist = async (setlistId, order) => {
-    try {
-      await setlistService.reorderSongs(setlistId, order);
-      const res = await setlistService.getOne(setlistId);
-      setSetlists(prev => prev.map(x => x.id === setlistId ? res.data.data : x));
-      if (selectedSetlist?.id === setlistId) setSelectedSetlist(res.data.data);
-    } catch { setError('Failed to reorder.'); }
-  };
-  const handleDeleteSetlist = async (setlistId) => {
-    if (!confirm('Delete this setlist? Songs stay in your library.')) return;
-    try {
-      await setlistService.delete(setlistId);
-      if (selectedSetlist?.id === setlistId) setSelectedSetlist(null);
-      await fetchAll();
-    } catch { setError('Failed to delete setlist.'); }
   };
 
   /* ── mutations ───────────────────────────────────────────── */
@@ -489,10 +474,11 @@ export default function Songs() {
     setActiveSection(key);
   };
 
-  const leftW  = leftCollapsed  ? 'var(--rail-w)' : '300px';
-  const rightW = rightCollapsed ? 'var(--rail-w)' : '240px';
+  const leftW  = leftCollapsed  ? '48px' : '300px';
+  const rightW = rightCollapsed ? '48px' : '240px';
 
   return (
+    <WorshipShell title="Songs" icon="🎵" subtitle="Full song library — keys, tempos, arrangements, and links.">
     <div className="sg-root">
       <div className="app-bg" aria-hidden="true">
         <div className="orb o1"/><div className="orb o2"/>
@@ -502,20 +488,24 @@ export default function Songs() {
       {/* TOPBAR */}
       <div className="app-topbar">
         <div className="app-logo">
-          <div className="app-logo-gem">✝</div>
-          <span className="app-logo-name">Elite Journal Hub</span>
-          <span className="app-logo-sep">·</span>
+          <MinistryBrand />
           <span className="app-tab-tag songs">Songs</span>
         </div>
         <div className="app-tb-actions">
           <button className="app-btn primary" onClick={() => { setForm(EMPTY_FORM); setShowForm(true); setSelected(null); }}>
             ✦ New Song
           </button>
+          <button
+            className="pm-tb-avatar"
+            onClick={() => setShowProfile(true)}
+            title={avatarSourceName || 'Profile'}
+            aria-label="Open profile"
+          >{initials}</button>
         </div>
       </div>
+      <ProfileModal open={showProfile} onClose={() => setShowProfile(false)} />
 
-      <div className="sg-body" style={{ gridTemplateColumns: `var(--rail-w) ${leftW} 1fr ${rightW}` }}>
-        <NavRail />
+      <div className="sg-body" style={{ gridTemplateColumns: `${leftW} 1fr ${rightW}` }}>
 
         {/* LEFT: smart sections */}
         <aside className={`sg-left ${leftCollapsed ? 'collapsed' : ''}`}>
@@ -575,8 +565,8 @@ export default function Songs() {
                               song={s}
                               selected={selected?.id === s.id}
                               onClick={() => {
-                                setSelected(s); setSelectedSetlist(null);
-                                setShowForm(false); setShowSetlistForm(false);
+                                setSelected(s);
+                                setShowForm(false);
                                 setActiveTab('lyrics');
                               }}
                             />
@@ -586,58 +576,6 @@ export default function Songs() {
                     </div>
                   );
                 })}
-
-                {/* Setlists section */}
-                <div className="sg-sec sg-sec-setlists">
-                  <button
-                    className={`sg-sec-header ${activeSection === 'setlists' ? 'on' : ''}`}
-                    onClick={() => toggleSection('setlists')}
-                    title="Grouped sets of songs — rehearsal, Sunday, gig"
-                  >
-                    <span className="sg-sec-emoji">📋</span>
-                    <span className="sg-sec-label">Setlists</span>
-                    <span className="sg-sec-count">{setlists.length}</span>
-                    <span className="sg-sec-chevron">{(expandedSections.setlists ?? true) ? '▾' : '▸'}</span>
-                  </button>
-                  {(expandedSections.setlists ?? true) && (
-                    <>
-                      <div className="sg-sec-subtitle">Group songs for a Sunday, gig, or rehearsal.</div>
-                      <div className="sg-sec-list">
-                        {setlists.map(sl => (
-                          <button
-                            key={sl.id}
-                            className={`sg-row ${selectedSetlist?.id === sl.id ? 'sel' : ''}`}
-                            onClick={() => {
-                              setSelectedSetlist(sl); setSelected(null);
-                              setShowForm(false); setShowSetlistForm(false);
-                            }}
-                          >
-                            <span className="sg-row-emoji">📋</span>
-                            <div className="sg-row-info">
-                              <div className="sg-row-title">{sl.name}</div>
-                              <div className="sg-row-meta">
-                                {(sl.songs || []).length} song{(sl.songs || []).length === 1 ? '' : 's'}
-                                {sl.event_date && <> · {sl.event_date}</>}
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                        <button
-                          className="sg-row sg-row-add"
-                          onClick={() => {
-                            setShowSetlistForm(true);
-                            setSelected(null); setSelectedSetlist(null); setShowForm(false);
-                          }}
-                        >
-                          <span className="sg-row-emoji">+</span>
-                          <div className="sg-row-info">
-                            <div className="sg-row-title">New setlist</div>
-                          </div>
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
               </div>
             </>
           )}
@@ -652,27 +590,6 @@ export default function Songs() {
               saving={saving}
               onSave={handleCreate}
               onCancel={() => { setShowForm(false); setForm(EMPTY_FORM); }}
-            />
-          ) : showSetlistForm ? (
-            <NewSetlistForm
-              form={setlistForm}
-              setForm={setSetlistForm}
-              onSave={handleCreateSetlist}
-              onCancel={() => { setShowSetlistForm(false); setSetlistForm({ name: '', occasion: '', event_date: '' }); }}
-            />
-          ) : selectedSetlist ? (
-            <SetlistDetail
-              setlist={selectedSetlist}
-              allSongs={songs}
-              onAddSong={(songId) => handleAddToSetlist(selectedSetlist.id, songId)}
-              onRemoveSong={(linkId) => handleRemoveFromSetlist(selectedSetlist.id, linkId)}
-              onReorder={(order) => handleReorderSetlist(selectedSetlist.id, order)}
-              onDelete={() => handleDeleteSetlist(selectedSetlist.id)}
-              onPerform={() => setPerformanceMode('setlist')}
-              onOpenSong={(songId) => {
-                const s = songs.find(x => x.id === songId);
-                if (s) { setSelected(s); setSelectedSetlist(null); setActiveTab('lyrics'); }
-              }}
             />
           ) : selected ? (
             <SongDetail
@@ -754,14 +671,8 @@ export default function Songs() {
       {performanceMode === 'song' && selected && (
         <PerformanceMode song={selected} onExit={() => setPerformanceMode(null)} />
       )}
-      {performanceMode === 'setlist' && selectedSetlist && (
-        <PerformanceMode
-          song={(selectedSetlist.songs || []).map(s => songs.find(x => x.id === s.id)).filter(Boolean)[0]}
-          songs={(selectedSetlist.songs || []).map(s => songs.find(x => x.id === s.id)).filter(Boolean)}
-          onExit={() => setPerformanceMode(null)}
-        />
-      )}
     </div>
+    </WorshipShell>
   );
 }
 
@@ -1110,10 +1021,7 @@ function buildPlainText(song) {
 /* ─────────────────────────────────────────────────────────────
    Performance Mode — full-screen overlay + auto-scroll at BPM
    ───────────────────────────────────────────────────────────── */
-function PerformanceMode({ song, songs, onExit }) {
-  // If `songs` is provided we're in setlist mode; otherwise single song
-  const songList = songs && songs.length > 0 ? songs : [song];
-  const [idx, setIdx]               = useState(0);
+function PerformanceMode({ song, onExit }) {
   const [autoScroll, setAutoScroll] = useState(false);
   const [speed, setSpeed]           = useState(1.0);
   const [fontSize, setFontSize]     = useState(28);
@@ -1125,30 +1033,28 @@ function PerformanceMode({ song, songs, onExit }) {
   const metroStopRef = useRef(null);
   const droneStopRef = useRef(null);
 
-  const current = songList[idx] || song;
+  const current = song;
   const bpm = current.tempo || 90;
   const pxPerSecond = (bpm / 60) * 0.85 * speed;
 
-  // ESC closes; arrows navigate setlist; Space toggles auto-scroll
+  // ESC closes; Space toggles auto-scroll
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onExit();
       if (e.key === ' ')                   { e.preventDefault(); setAutoScroll(v => !v); }
       if (e.key === '+' || e.key === '=')  setFontSize(s => Math.min(64, s + 2));
       if (e.key === '-' || e.key === '_')  setFontSize(s => Math.max(16, s - 2));
-      if (e.key === 'ArrowRight' && idx < songList.length - 1) setIdx(i => i + 1);
-      if (e.key === 'ArrowLeft'  && idx > 0)                   setIdx(i => i - 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onExit, idx, songList.length]);
+  }, [onExit]);
 
-  // Reset scroll, stop audio when changing songs
+  // Reset audio state when song changes
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
     metroStopRef.current?.(); metroStopRef.current = null; setMetroOn(false);
     droneStopRef.current?.(); droneStopRef.current = null; setDroneOn(false);
-  }, [idx]);
+  }, [song]);
 
   // Cleanup on unmount
   useEffect(() => () => {
@@ -1201,7 +1107,6 @@ function PerformanceMode({ song, songs, onExit }) {
             <span className="sg-perf-sub">
               {current.song_key && <>Key {current.song_key} · </>}
               {bpm} BPM · {current.time_signature || '4/4'}
-              {songList.length > 1 && <> · Song {idx + 1} of {songList.length}</>}
             </span>
           </div>
         </div>
@@ -1280,35 +1185,8 @@ function PerformanceMode({ song, songs, onExit }) {
         </div>
       </div>
 
-      {/* Setlist nav */}
-      {songList.length > 1 && (
-        <div className="sg-perf-nav">
-          <button
-            className="sg-perf-nav-btn"
-            onClick={() => setIdx(i => Math.max(0, i - 1))}
-            disabled={idx === 0}
-          >‹ Prev song</button>
-          <div className="sg-perf-nav-dots">
-            {songList.map((s, i) => (
-              <button
-                key={s.id}
-                className={`sg-perf-nav-dot ${i === idx ? 'on' : ''}`}
-                onClick={() => setIdx(i)}
-                title={s.title}
-              />
-            ))}
-          </div>
-          <button
-            className="sg-perf-nav-btn"
-            onClick={() => setIdx(i => Math.min(songList.length - 1, i + 1))}
-            disabled={idx === songList.length - 1}
-          >Next song ›</button>
-        </div>
-      )}
-
       <div className="sg-perf-hint">
         <kbd>Esc</kbd> exit · <kbd>Space</kbd> auto-scroll · <kbd>+</kbd>/<kbd>−</kbd> resize
-        {songList.length > 1 && <> · <kbd>←</kbd>/<kbd>→</kbd> change song</>}
       </div>
     </div>
   );
@@ -2031,11 +1909,64 @@ function RecordingsTab({ song, onRefresh, setSelected, setError }) {
   const [elapsed, setElapsed]         = useState(0);
   const [label, setLabel]             = useState('');
   const [audioUrls, setAudioUrls]     = useState({}); // id → blob url cache
+  const [recToStems, setRecToStems]   = useState(() => loadRecToStems());
+  const [stemsToast, setStemsToast]   = useState(null); // { kind: 'ok'|'err'|'warn', msg }
+  const toastTimerRef                 = useRef(null);
   const recRef = useRef(null);
   const chunksRef = useRef([]);
   const startRef = useRef(0);
   const timerRef = useRef(null);
   const streamRef = useRef(null);
+
+  // Auto-clear the local stems toast after 2.5s
+  const flashToast = (kind, msg) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setStemsToast({ kind, msg });
+    toastTimerRef.current = setTimeout(() => setStemsToast(null), 2500);
+  };
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
+
+  const handleSaveToStems = async (rec) => {
+    try {
+      // Ensure we have the audio data (recordings list may not include audio_data blob)
+      let dataUrl = rec.audio_data;
+      if (!dataUrl) {
+        dataUrl = await loadAudio(rec);
+      }
+      if (!dataUrl) {
+        flashToast('err', 'Could not load recording audio.');
+        return;
+      }
+      /* If the recording already lives in Firebase Storage (new format),
+         pass through audioUrl + storagePath. Otherwise fall back to the
+         data URL we just resolved — the helper will upload it. */
+      const result = await addStemFromRecording({
+        name: rec.label || `${song.title} take`,
+        audioUrl: rec.audio_url || '',
+        storagePath: rec.storage_path || '',
+        audioDataUrl: dataUrl,
+        type: 'other',
+        duration: rec.duration,
+        songId: song.id,
+        songTitle: song.title,
+        songKey: song.song_key || '',
+        bpm: song.tempo || null,
+        source: 'Songs',
+        timeSignature: song.time_signature || '',
+      });
+      if (!result.ok) {
+        flashToast('err', result.error || 'Failed to save to Stems Library.');
+        return;
+      }
+      const nextMap = { ...recToStems, [rec.id]: result.stem.id };
+      setRecToStems(nextMap);
+      saveRecToStems(nextMap);
+      flashToast(result.warning ? 'warn' : 'ok',
+        result.warning ? `Saved — ${result.warning}` : 'Saved to Stems Library');
+    } catch (err) {
+      flashToast('err', err?.message || 'Failed to save to Stems Library.');
+    }
+  };
 
   const start = async () => {
     try {
@@ -2139,6 +2070,12 @@ function RecordingsTab({ song, onRefresh, setSelected, setError }) {
         )}
       </div>
 
+      {stemsToast && (
+        <div className={`sg-rec-stems-toast sg-rec-stems-toast-${stemsToast.kind}`}>
+          {stemsToast.msg}
+        </div>
+      )}
+
       {recordings.length === 0 ? (
         <div className="sg-rec-empty">
           No takes yet. Hit record and sing — voice memos save with the song.
@@ -2151,6 +2088,8 @@ function RecordingsTab({ song, onRefresh, setSelected, setError }) {
               rec={rec}
               onLoad={() => loadAudio(rec)}
               onRemove={() => remove(rec)}
+              onSaveToStems={() => handleSaveToStems(rec)}
+              savedToStems={Boolean(recToStems[rec.id])}
               fmtTime={fmtTime}
             />
           ))}
@@ -2160,15 +2099,22 @@ function RecordingsTab({ song, onRefresh, setSelected, setError }) {
   );
 }
 
-function RecordingCard({ rec, onLoad, onRemove, fmtTime }) {
+function RecordingCard({ rec, onLoad, onRemove, onSaveToStems, savedToStems, fmtTime }) {
   const [src, setSrc] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [savingStems, setSavingStems] = useState(false);
   const play = async () => {
     if (src) return;
     setLoading(true);
     const url = await onLoad();
     setSrc(url);
     setLoading(false);
+  };
+  const saveStems = async () => {
+    if (savedToStems || savingStems) return;
+    setSavingStems(true);
+    try { await onSaveToStems(); }
+    finally { setSavingStems(false); }
   };
   return (
     <div className="sg-rec-card">
@@ -2187,6 +2133,14 @@ function RecordingCard({ rec, onLoad, onRemove, fmtTime }) {
           {loading ? 'Loading…' : '▶ Load'}
         </button>
       )}
+      <button
+        className={`app-btn ghost sg-rec-stems-btn${savedToStems ? ' is-saved' : ''}`}
+        onClick={saveStems}
+        disabled={savedToStems || savingStems}
+        title={savedToStems ? 'Already in Stems Library' : 'Save to Stems Library'}
+      >
+        {savedToStems ? '✓ In Library' : (savingStems ? 'Saving…' : '💾 Stems')}
+      </button>
       <button className="app-btn ghost icon-only" onClick={onRemove} title="Delete take">🗑</button>
     </div>
   );
@@ -2442,192 +2396,3 @@ function NewSongForm({ form, setForm, saving, onSave, onCancel }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Setlist detail view
-   ───────────────────────────────────────────────────────────── */
-function SetlistDetail({ setlist, allSongs, onAddSong, onRemoveSong, onReorder, onDelete, onPerform, onOpenSong }) {
-  const [showPicker, setShowPicker] = useState(false);
-  const [dragId, setDragId] = useState(null);
-
-  const songs = setlist.songs || [];
-  const linkedIds = new Set(songs.map(s => s.id));
-  const available = allSongs.filter(s => !linkedIds.has(s.id));
-
-  const totalDuration = songs.reduce((sum, s) => {
-    const fullSong = allSongs.find(x => x.id === s.id);
-    return sum + (songDurationSeconds(fullSong) || 0);
-  }, 0);
-
-  const handleDrop = (targetLinkId) => {
-    if (!dragId || dragId === targetLinkId) { setDragId(null); return; }
-    const order = songs.map(s => s.link_id);
-    const fromIdx = order.indexOf(dragId);
-    const toIdx   = order.indexOf(targetLinkId);
-    if (fromIdx < 0 || toIdx < 0) { setDragId(null); return; }
-    order.splice(fromIdx, 1);
-    order.splice(toIdx, 0, dragId);
-    onReorder(order);
-    setDragId(null);
-  };
-
-  return (
-    <div className="sg-setlist">
-      <header className="sg-detail-hd">
-        <div className="sg-detail-hd-top">
-          <div className="sg-detail-name-block">
-            <h1 className="sg-setlist-title">📋 {setlist.name}</h1>
-            <div className="sg-detail-meta">
-              {setlist.occasion && <span>{setlist.occasion}</span>}
-              {setlist.event_date && <><span>·</span><span>{setlist.event_date}</span></>}
-              <span>·</span>
-              <span>{songs.length} song{songs.length === 1 ? '' : 's'}</span>
-              {totalDuration > 0 && <><span>·</span><span>~{fmtDuration(totalDuration)}</span></>}
-            </div>
-          </div>
-          <div className="sg-detail-actions">
-            <button
-              className="app-btn primary"
-              onClick={onPerform}
-              disabled={songs.length === 0}
-              title="Perform this setlist in order"
-            >
-              🎤 Perform Setlist
-            </button>
-            <button className="app-btn ghost icon-only" onClick={onDelete} title="Delete setlist">🗑</button>
-          </div>
-        </div>
-      </header>
-
-      <div className="sg-setlist-body">
-        {songs.length === 0 ? (
-          <div className="sg-setlist-empty">
-            <div className="sg-setlist-empty-title">Empty setlist</div>
-            <div className="sg-setlist-empty-sub">Add songs from your library below.</div>
-          </div>
-        ) : (
-          <ol className="sg-setlist-songs">
-            {songs.map((s, idx) => (
-              <li
-                key={s.link_id}
-                className={`sg-setlist-row ${dragId === s.link_id ? 'is-dragging' : ''}`}
-                draggable
-                onDragStart={() => setDragId(s.link_id)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(s.link_id)}
-              >
-                <span className="sg-setlist-drag">⋮⋮</span>
-                <span className="sg-setlist-num">{idx + 1}</span>
-                <div className="sg-setlist-info">
-                  <button className="sg-setlist-title-link" onClick={() => onOpenSong(s.id)}>
-                    {s.title}
-                  </button>
-                  <div className="sg-setlist-meta">
-                    {s.song_key && <span>Key {s.song_key}</span>}
-                    {s.tempo && <span>· {s.tempo} BPM</span>}
-                    {s.time_signature && <span>· {s.time_signature}</span>}
-                    {s.artist && <span>· {s.artist}</span>}
-                  </div>
-                </div>
-                <button
-                  className="sg-setlist-remove"
-                  onClick={() => onRemoveSong(s.link_id)}
-                  title="Remove from setlist"
-                >✕</button>
-              </li>
-            ))}
-          </ol>
-        )}
-
-        <div className="sg-setlist-add">
-          {showPicker ? (
-            <div className="sg-setlist-picker">
-              <div className="sg-setlist-picker-hd">
-                <span>Add a song to this setlist</span>
-                <button className="app-btn ghost" onClick={() => setShowPicker(false)}>Cancel</button>
-              </div>
-              {available.length === 0 ? (
-                <div className="sg-setlist-picker-empty">All your songs are in this setlist.</div>
-              ) : (
-                <div className="sg-setlist-picker-list">
-                  {available.map(s => (
-                    <button
-                      key={s.id}
-                      className="sg-setlist-picker-row"
-                      onClick={() => { onAddSong(s.id); }}
-                    >
-                      <span className="sg-row-emoji">{getStatus(s.status).emoji}</span>
-                      <div className="sg-row-info">
-                        <div className="sg-row-title">{s.title}</div>
-                        <div className="sg-row-meta">
-                          {s.song_key && <span>Key {s.song_key}</span>}
-                          {s.tempo && <span>· {s.tempo} BPM</span>}
-                        </div>
-                      </div>
-                      <span className="sg-setlist-add-icon">+</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <button className="app-btn primary" onClick={() => setShowPicker(true)}>
-              + Add a song
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   New Setlist form (inline)
-   ───────────────────────────────────────────────────────────── */
-function NewSetlistForm({ form, setForm, onSave, onCancel }) {
-  return (
-    <div className="sg-form">
-      <header className="sg-form-hd">
-        <div className="sg-form-title">📋 New Setlist</div>
-        <button className="app-btn ghost icon-only" onClick={onCancel} title="Cancel">✕</button>
-      </header>
-      <div className="sg-form-body">
-        <div className="sg-form-section">
-          <label className="sg-form-lbl">Name *</label>
-          <input
-            className="sg-inp sg-inp-title"
-            placeholder='e.g. "Sunday May 18 — 9am service" or "Open mic — Friday"'
-            value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            autoFocus
-          />
-        </div>
-        <div className="sg-form-section">
-          <label className="sg-form-lbl">Occasion (optional)</label>
-          <input
-            className="sg-inp"
-            placeholder="Worship · Gig · Rehearsal · Recording session"
-            value={form.occasion}
-            onChange={e => setForm(f => ({ ...f, occasion: e.target.value }))}
-          />
-        </div>
-        <div className="sg-form-section">
-          <label className="sg-form-lbl">Date (optional)</label>
-          <input
-            className="sg-inp"
-            type="date"
-            value={form.event_date}
-            onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))}
-          />
-        </div>
-      </div>
-      <footer className="sg-form-ft">
-        <button className="app-btn ghost" onClick={onCancel}>Cancel</button>
-        <button
-          className="app-btn primary"
-          onClick={onSave}
-          disabled={!form.name.trim()}
-        >📋 Create Setlist</button>
-      </footer>
-    </div>
-  );
-}

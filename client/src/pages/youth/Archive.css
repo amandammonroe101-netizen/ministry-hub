@@ -1,0 +1,33 @@
+/* Youth → Archive — .ya-* */
+
+.ya-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.ya-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ya-row {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.ya-row:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--yps-accent) 30%, var(--border));
+}
+.ya-row-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.ya-row-sub { font-size: var(--fs-sm); color: var(--text-secondary); margin-top: 2px; }
+.ya-row-meta { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 4px; }
+.ya-row-go { color: var(--text-muted); font-size: 18px; }

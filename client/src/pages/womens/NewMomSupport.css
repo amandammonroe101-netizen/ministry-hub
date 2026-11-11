@@ -1,0 +1,232 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Care → New Mom Support
+   Reuses the shared page shell (.wa-slide/.wa-comm-list/
+   .wa-search-wrap) from AllWomen.css, the .ys-* form primitives
+   from youth/AllStudents.css, and the rose-gold embossed sidebar/
+   panel/stat/roster/transitions system (.wls-*, .wls-root) defined
+   by LifeStages.css — same visual language, same panel/row shapes,
+   just for postpartum stages instead of life stages. Only what's
+   unique to this page (the timeline, tone colors, check-in extras)
+   is scoped here, prefix .nm-*.
+   ───────────────────────────────────────────────────────────── */
+
+/* Muted/accent-tint modifiers for p/span/label/li/button/a elements,
+   which .wls-root otherwise forces to full-strength ink at 700
+   weight. The override selector has to be the *compound* pairing
+   used in the JSX (base-class + modifier chained, no space) so its
+   specificity (0,2,0) outranks that single descendant-plus-type rule
+   (0,1,1) — same trick Life Stages already uses for e.g.
+   .wls-leader-chip.empty. A bare `.nm-muted { … }` alone would still
+   lose to `.wls-root span`. */
+.nm-avatar-dot.nm-avatar-fallback { color: white; }
+.nm-open-woman.nm-accent-text { color: var(--wms-rose-deep, #c2426a); }
+.nm-suggest-btn.nm-accent-solid { color: #fff; }
+
+/* ── Dashboard stat row — 4 stats instead of Life Stages' 5 ───── */
+.nm-stat-row { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 860px) {
+  .nm-stat-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── "Needs attention" banners — reuse Life Stages' own
+   .wls-unassigned bar recipe verbatim (one bar per reason); only
+   the chip's tone coloring is unique to this page, layered on top
+   of .wls-unassigned-chip via the same compound-selector trick as
+   the rest of this file. ────────────────────────────────────────── */
+.nm-attn-chip.tone-overdue { color: var(--wms-red, #c4133c); }
+.nm-attn-chip.tone-soon    { color: #8a6a10; }
+.nm-attn-chip.tone-pending { color: var(--wms-rose-deep, #c2426a); }
+
+/* ── Mentor matching list — reuses Life Stages'
+   .wls-transitions/.wls-transition-row recipe; the only addition
+   is the inline assign <select>, styled like the roster's own
+   group-assign select. ─────────────────────────────────────────── */
+.wls-transition-actions select {
+  font-size: 14px;
+  padding: 8px 10px;
+  min-width: 200px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wls-3d-shadow-sm);
+}
+
+/* ── Whole-journey timeline (Due→Birth→2wk→6wk→3mo→6mo→Graduated) —
+   reused compact on cards, full-size in the detail header. Dot
+   color encodes state: done (rose), overdue (red), upcoming
+   (hollow/muted), pending (faint, not reached yet). ─────────────── */
+.nm-timeline {
+  display: flex;
+  align-items: center;
+}
+.nm-timeline-step {
+  display: flex;
+  align-items: center;
+}
+.nm-timeline:not(.compact) {
+  gap: 0;
+  padding: 4px 2px 10px;
+}
+.nm-timeline:not(.compact) .nm-timeline-step {
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.nm-timeline-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--wms-border, rgba(196,19,60,0.14));
+  border: 1px solid transparent;
+}
+.nm-timeline:not(.compact) .nm-timeline-dot { width: 13px; height: 13px; }
+.nm-timeline-dot.state-done {
+  background: linear-gradient(145deg, #ff9bb3, #e8749a 60%, #c2426a);
+  box-shadow: 0 0 0 2px #fff5f8;
+}
+.nm-timeline-dot.state-overdue {
+  background: var(--wms-red, #c4133c);
+  box-shadow: 0 0 0 2px #fff5f8;
+}
+.nm-timeline-dot.state-upcoming {
+  background: transparent;
+  border-color: var(--wms-border-hi, rgba(196,19,60,0.3));
+}
+.nm-timeline-dot.state-pending {
+  background: rgba(61,23,40,0.08);
+}
+.nm-timeline-line {
+  flex: 1;
+  height: 2px;
+  min-width: 6px;
+  background: var(--wms-border, rgba(196,19,60,0.14));
+}
+.nm-timeline-line.state-done,
+.nm-timeline-line.state-overdue {
+  background: var(--wms-rose-deep, #c2426a);
+}
+.nm-timeline.compact .nm-timeline-line { min-width: 4px; }
+.nm-timeline-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  white-space: nowrap;
+}
+
+.nm-avatar-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.nm-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--wms-rose-deep, #c2426a), #e8749a);
+  font-size: 13px;
+  font-weight: 700;
+  /* color: white — see .nm-avatar-dot.nm-avatar-fallback above; a
+     single-class rule here would lose to .wls-root span's forced
+     ink color. */
+}
+
+/* ── Roster row extras — avatar sits inline before the name/meta,
+   same top-row shape as .wls-roster-top, just with a photo. ───── */
+.wls-roster-top .nm-avatar-dot { margin-right: 2px; }
+
+/* ── Detail slide-over extras ───────────────────────────────── */
+.nm-detail-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.nm-open-woman {
+  appearance: none;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.nm-open-woman:hover {
+  text-decoration: underline;
+}
+
+.nm-hint {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  margin-top: 4px;
+}
+
+.nm-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(196,19,60,0.05);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 9px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.nm-sync-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  margin-top: 4px;
+  background: rgba(196,19,60,0.04);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 9px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.nm-sync-row.disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+.nm-sync-row .nm-sync-label {
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.nm-sync-row.active .nm-sync-label {
+  color: var(--wms-rose-deep, #c2426a);
+}
+
+.nm-suggest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 12px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-radius: 10px;
+  box-shadow: var(--wls-3d-shadow-sm);
+  font-size: 12.5px;
+}
+.nm-suggest-btn {
+  appearance: none;
+  padding: 6px 13px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #ff9bb3, #e8749a 60%, #c2426a);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.nm-suggest-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}

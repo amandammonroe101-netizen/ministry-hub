@@ -1,0 +1,1728 @@
+/* Youth → Lessons & Series — .ylsn-* */
+
+.ylsn-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.ylsn-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 760px)  { .ylsn-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .ylsn-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.ylsn-card {
+  --series-color: var(--yps-accent);
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--series-color) 18%, transparent), transparent 60%),
+    var(--bg-glass);
+  border: 0.5px solid color-mix(in srgb, var(--series-color) 30%, var(--border));
+  border-left: 3px solid var(--series-color);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ylsn-card:hover { background-color: var(--bg-glass-md); }
+.ylsn-card-hd { display: flex; justify-content: space-between; align-items: center; }
+.ylsn-card-hd h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ylsn-card-theme { font-size: var(--fs-sm); color: var(--text-secondary); }
+.ylsn-card-stats {
+  display: flex; gap: 14px;
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+
+/* Modal */
+.ylsn-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(43,32,19,0.35);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.ylsn-modal {
+  width: 100%; max-width: 860px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(253,246,230,0.97);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+}
+.ylsn-modal-hd {
+  position: sticky; top: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+}
+.ylsn-modal-hd h2 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+.ylsn-modal-crumb {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.ylsn-grid-form { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ylsn-field { display: flex; flex-direction: column; gap: 4px; }
+.ylsn-field.full { grid-column: 1 / -1; }
+.ylsn-field-label {
+  font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);
+}
+.ylsn-color { height: 38px; padding: 4px; cursor: pointer; }
+
+.ylsn-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.ylsn-toggle input { accent-color: var(--yps-accent); }
+
+.ylsn-section { padding: 12px 20px; }
+.ylsn-section-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ylsn-section-hd h3 { margin: 0; font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+.ylsn-section-empty { font-size: var(--fs-sm); padding: 10px 12px; background: rgba(43,32,19,0.03); border-radius: var(--radius-md); }
+
+.ylsn-lesson-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ylsn-lesson-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(43,32,19,0.03);
+  border-radius: var(--radius-md);
+}
+.ylsn-lesson-row.taught .ylsn-lesson-title { color: var(--text-muted); text-decoration: line-through; }
+.ylsn-lesson-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--yps-accent) 22%, transparent);
+  color: var(--yps-accent);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: var(--fs-sm);
+}
+.ylsn-lesson-main {
+  appearance: none; border: 0; background: transparent;
+  text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px;
+  color: var(--text-primary);
+}
+.ylsn-lesson-title { font-weight: 600; }
+.ylsn-lesson-idea, .ylsn-lesson-scripture {
+  font-size: var(--fs-sm); color: var(--text-secondary);
+}
+
+.ylsn-q-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ylsn-q-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 32px;
+  gap: 8px;
+  align-items: center;
+}
+.ylsn-q-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: rgba(43,32,19,0.06);
+  color: var(--text-muted);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--fs-xs); font-weight: 700;
+}
+
+.ylsn-modal-ft {
+  position: sticky; bottom: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.ylsn-modal-ft-right { display: flex; gap: 8px; }
+
+.ylsn-modal-hd-main { flex: 1; min-width: 0; }
+
+/* ── Toolbar (search + filter chip rows) ───────────────────── */
+.ylsn-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.ylsn-search { font-size: var(--fs-md); }
+.ylsn-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.ylsn-chip-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.ylsn-result-count {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Series card upgrades (cover color, progress bar) ──────── */
+.ylsn-card {
+  --series-color: #9f1239;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.ylsn-card:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--series-color) 40%, var(--border));
+  transform: translateY(-1px);
+}
+.ylsn-card-cover {
+  height: 10px;
+  background: linear-gradient(90deg, var(--series-color), color-mix(in srgb, var(--series-color) 50%, #fff));
+  flex-shrink: 0;
+}
+.ylsn-card-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.ylsn-card-hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.ylsn-card-hd h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ylsn-card-theme {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.ylsn-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.ylsn-card-progress-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(43,32,19,0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.ylsn-card-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--series-color), color-mix(in srgb, var(--series-color) 50%, #fff));
+  transition: width 0.3s ease;
+}
+.ylsn-card-progress-n {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--series-color);
+  font-variant-numeric: tabular-nums;
+}
+.ylsn-card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ylsn-card-foot {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+/* Series-level progress strip inside the SeriesDetail modal */
+.ylsn-series-progress {
+  --series-color: #9f1239;
+  margin: 0 20px 12px;
+  padding: 10px 14px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.ylsn-series-progress-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(43,32,19,0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.ylsn-series-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--series-color), color-mix(in srgb, var(--series-color) 50%, #fff));
+  transition: width 0.3s ease;
+}
+
+/* ── Lesson row meta (schedule + last-taught badges) ───────── */
+.ylsn-lesson-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.ylsn-lesson-sched   { color: var(--yps-accent); }
+.ylsn-lesson-taught-meta { color: #15803d; }
+
+/* ── Tag editor ────────────────────────────────────────────── */
+.ylsn-tag-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ylsn-tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  min-height: 36px;
+  align-items: center;
+}
+.ylsn-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: color-mix(in srgb, var(--yps-accent) 22%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 40%, transparent);
+  color: var(--yps-accent);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 2px 4px 2px 10px;
+  border-radius: var(--radius-full);
+}
+.ylsn-tag-chip button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ylsn-tag-chip button:hover { background: rgba(0,0,0,0.18); }
+.ylsn-tag-input {
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 140px;
+  font-size: var(--fs-md);
+  padding: 4px 6px;
+}
+.ylsn-tag-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 4px;
+}
+
+/* ── Taught log ────────────────────────────────────────────── */
+.ylsn-teaching-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ylsn-teaching-row {
+  padding: 12px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ylsn-teaching-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.ylsn-teaching-grid .ylsn-field.full { grid-column: 1 / -1; }
+@media (min-width: 720px) {
+  .ylsn-teaching-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* ── Rating stars ──────────────────────────────────────────── */
+.ylsn-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+.ylsn-rating-star {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  color: rgba(43,32,19,0.18);
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color var(--transition), transform 80ms ease;
+}
+.ylsn-rating-star:hover { transform: scale(1.1); }
+.ylsn-rating-star.on { color: var(--accent-amber, #92400e); }
+
+/* ── Series / All-Lessons view toggle ─────────────────────── */
+.ylsn-view-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+/* ── All-Lessons grid ──────────────────────────────────────── */
+.ylsn-lib-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 780px) {
+  .ylsn-lib-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1200px) {
+  .ylsn-lib-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.ylsn-lib-card {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+.ylsn-lib-card:hover {
+  background: var(--bg-glass-md);
+  border-color: var(--border-hi);
+  transform: translateY(-1px);
+}
+.ylsn-lib-card-hd {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ylsn-lib-card-hd h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ylsn-lib-card-taught {
+  font-size: var(--fs-xs);
+  color: #15803d;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ylsn-lib-card-idea,
+.ylsn-lib-card-scripture {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.ylsn-lib-card-series {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+.ylsn-lib-card-series-pill {
+  --series-color: #9f1239;
+  background: color-mix(in srgb, var(--series-color) 22%, transparent);
+  color: var(--series-color);
+  border: 0.5px solid color-mix(in srgb, var(--series-color) 40%, transparent);
+}
+.ylsn-lib-card-unfiled {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ylsn-lib-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── "Appears in" pill row on the lesson editor ────────────── */
+.ylsn-appears-in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba(43,32,19,0.03);
+  border-bottom: 0.5px solid var(--border);
+  font-size: var(--fs-sm);
+}
+.ylsn-appears-in-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.ylsn-appears-pill {
+  --series-color: #9f1239;
+  background: color-mix(in srgb, var(--series-color) 22%, transparent);
+  color: var(--series-color);
+  border: 0.5px solid color-mix(in srgb, var(--series-color) 40%, transparent);
+}
+.ylsn-appears-warn {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--accent-amber, #92400e);
+  font-style: italic;
+}
+
+/* ── Drag-and-drop lesson rows ─────────────────────────────── */
+.ylsn-lesson-row {
+  cursor: grab;
+  position: relative;
+  transition: background var(--transition), border-color var(--transition), transform 80ms ease;
+}
+.ylsn-lesson-row:active { cursor: grabbing; }
+.ylsn-lesson-row.dragging {
+  opacity: 0.45;
+  transform: scale(0.98);
+}
+.ylsn-lesson-row.drag-over {
+  border-color: color-mix(in srgb, var(--yps-accent) 60%, var(--border));
+  box-shadow: 0 -2px 0 0 var(--yps-accent);
+}
+.ylsn-lesson-drag {
+  font-size: 14px;
+  letter-spacing: -2px;
+  color: var(--text-muted);
+  cursor: grab;
+  padding: 0 4px;
+  user-select: none;
+}
+.ylsn-lesson-drag:active { cursor: grabbing; }
+
+/* Section header actions row */
+.ylsn-section-hd-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ── Attach-from-library picker ─────────────────────────────── */
+.ylsn-picker { max-width: 720px; }
+.ylsn-picker-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 0.5px solid var(--border);
+}
+.ylsn-picker-count {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.ylsn-picker-list {
+  list-style: none;
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ylsn-picker-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.ylsn-picker-row:hover {
+  background: var(--bg-glass-md);
+  border-color: var(--border-hi);
+}
+.ylsn-picker-row.on {
+  background: color-mix(in srgb, var(--yps-accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--yps-accent) 40%, transparent);
+}
+.ylsn-picker-row.already {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ylsn-picker-row input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--yps-accent);
+}
+.ylsn-picker-info { flex: 1; min-width: 0; }
+.ylsn-picker-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.ylsn-picker-idea {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.ylsn-picker-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 4px;
+  align-items: center;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Lesson Page — full-window document-style editor
+   ───────────────────────────────────────────────────────────── */
+.ylsn-page-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.ylsn-page-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 0 24px 80px;
+}
+
+/* Slim sticky top bar */
+.ylsn-page-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 4px;
+  background: linear-gradient(180deg, rgba(253,246,230,0.92) 70%, rgba(253,246,230,0));
+  backdrop-filter: blur(8px);
+}
+.ylsn-page-back {
+  appearance: none;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  color: var(--text-primary);
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.ylsn-page-back:hover { background: var(--bg-glass-md); border-color: var(--border-hi); }
+.ylsn-page-crumb {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ylsn-page-topbar-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* The "paper" — an elevated dark surface that feels document-like */
+.ylsn-page-paper {
+  max-width: 860px;
+  margin: 8px auto 60px;
+  padding: 56px 64px;
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(43,32,19,0.045), transparent 60%),
+    linear-gradient(180deg, rgba(43,32,19,0.05) 0%, rgba(43,32,19,0.025) 100%);
+  border: 0.5px solid var(--border-hi);
+  border-radius: 14px;
+  box-shadow:
+    0 32px 80px -20px rgba(0,0,0,0.55),
+    0 8px 24px -8px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+@media (max-width: 780px) {
+  .ylsn-page-paper {
+    padding: 28px 22px;
+    border-radius: 10px;
+  }
+}
+
+/* Inline title — big, no chrome */
+.ylsn-page-title {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  padding: 6px 0;
+  border-bottom: 1px dashed transparent;
+  transition: border-color var(--transition);
+}
+.ylsn-page-title::placeholder { color: var(--text-faint); font-style: italic; }
+.ylsn-page-title:hover { border-bottom-color: rgba(43,32,19,0.12); }
+.ylsn-page-title:focus { border-bottom-color: var(--yps-accent); }
+
+/* Series row + chips */
+.ylsn-page-series-row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 10px;
+  border-bottom: 0.5px solid rgba(43,32,19,0.08);
+}
+.ylsn-page-series-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.ylsn-page-series-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.ylsn-page-series-empty { font-size: var(--fs-sm); font-style: italic; }
+.ylsn-page-series-chip {
+  --series-color: #9f1239;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: color-mix(in srgb, var(--series-color) 22%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--series-color) 40%, transparent);
+  color: var(--series-color);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  padding: 3px 4px 3px 12px;
+  border-radius: var(--radius-full);
+}
+.ylsn-page-series-chip-x {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity var(--transition), background var(--transition);
+}
+.ylsn-page-series-chip-x:hover { opacity: 1; background: rgba(0,0,0,0.18); }
+.ylsn-page-series-add-btn {
+  appearance: none;
+  background: transparent;
+  border: 0.5px dashed var(--border-hi);
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.ylsn-page-series-add-btn:hover {
+  background: var(--bg-glass);
+  border-color: var(--yps-accent);
+  color: var(--yps-accent);
+}
+
+/* Series picker dropdown menu */
+.ylsn-page-series-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(253,246,230,0.98);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+}
+.ylsn-page-series-menu-hd {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.ylsn-page-series-menu-empty {
+  padding: 12px;
+  font-size: var(--fs-sm);
+}
+.ylsn-page-series-menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ylsn-page-series-menu-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+  transition: background var(--transition), color var(--transition);
+}
+.ylsn-page-series-menu-opt:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.ylsn-page-series-menu-opt.on { color: var(--text-primary); background: var(--bg-glass); }
+.ylsn-page-series-menu-opt input { accent-color: var(--yps-accent); }
+.ylsn-page-series-menu-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ylsn-page-series-menu-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ylsn-page-series-menu-create {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 0.5px solid var(--border);
+}
+.ylsn-page-series-menu-ft {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 0.5px solid var(--border);
+}
+
+/* Field labels — small caps style */
+.ylsn-page-field-label {
+  display: block;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* Generic field row */
+.ylsn-page-field { display: flex; flex-direction: column; min-width: 0; }
+.ylsn-page-field.full { grid-column: 1 / -1; }
+
+/* Two-column rows for related fields */
+.ylsn-page-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 640px) {
+  .ylsn-page-row-2 { grid-template-columns: 1fr; }
+}
+
+/* Document-style inputs — minimal chrome, focus underline */
+.ylsn-page-input,
+.ylsn-page-textarea {
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding: 6px 2px;
+  transition: border-color var(--transition);
+}
+.ylsn-page-input:hover,
+.ylsn-page-textarea:hover  { border-bottom-color: var(--border-hi); }
+.ylsn-page-input:focus,
+.ylsn-page-textarea:focus  { border-bottom-color: var(--yps-accent); }
+.ylsn-page-input::placeholder,
+.ylsn-page-textarea::placeholder { color: var(--text-faint); }
+.ylsn-page-textarea { resize: vertical; }
+.ylsn-page-textarea-muted { color: var(--text-secondary); font-size: 14px; }
+
+/* Big-idea callout — quote style */
+.ylsn-page-bigidea-wrap { display: flex; flex-direction: column; gap: 4px; }
+.ylsn-page-bigidea {
+  appearance: none;
+  background: rgba(43,32,19,0.03);
+  border: 0;
+  border-left: 3px solid var(--yps-accent);
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  line-height: 1.4;
+  font-style: italic;
+  padding: 14px 18px;
+  border-radius: 6px;
+  resize: vertical;
+  width: 100%;
+}
+.ylsn-page-bigidea::placeholder { color: var(--text-faint); }
+.ylsn-page-bigidea:focus {
+  background: rgba(43,32,19,0.05);
+  border-left-color: var(--yps-accent);
+}
+
+/* Section blocks */
+.ylsn-page-section {
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ylsn-page-section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ylsn-page-section-title {
+  margin: 0;
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
+}
+.ylsn-page-section-count {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 16px;
+}
+.ylsn-page-section-empty {
+  font-size: var(--fs-md);
+  padding: 12px 0;
+  line-height: 1.55;
+}
+
+/* Discussion questions — large numbered list */
+.ylsn-page-qlist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ylsn-page-qrow {
+  display: grid;
+  grid-template-columns: 32px 1fr 36px;
+  gap: 8px;
+  align-items: center;
+}
+.ylsn-page-qnum {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  color: var(--yps-accent);
+  text-align: right;
+  font-weight: 700;
+}
+.ylsn-page-qinput {
+  font-size: 16px;
+}
+
+/* Schedule toggle styling */
+.ylsn-page-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+}
+
+/* Bottom action bar inside the paper */
+.ylsn-page-foot {
+  margin-top: 10px;
+  padding-top: 18px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.ylsn-page-foot-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+/* Slightly bigger primary action in the foot so it can't get lost. */
+.ylsn-page-foot .yps-add-btn {
+  padding: 10px 18px;
+  font-size: var(--fs-md);
+  box-shadow: 0 6px 18px -4px color-mix(in srgb, var(--yps-accent) 60%, transparent);
+}
+
+/* Mode badge shown in the top-bar crumb */
+.ylsn-page-mode-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--yps-accent) 18%, transparent);
+  color: var(--yps-accent);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ylsn-page-crumb-sep { margin: 0 6px; color: var(--text-faint); }
+
+/* ─────────────────────────────────────────────────────────────
+   View mode — read-only document presentation
+   ───────────────────────────────────────────────────────────── */
+.ylsn-page-view {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ylsn-page-title-static {
+  margin: 0;
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+.ylsn-page-muted { color: var(--text-faint); font-style: italic; font-weight: 400; }
+
+.ylsn-page-series-row-view { border-bottom: 0; padding-bottom: 0; }
+
+.ylsn-page-bigidea-static {
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--text-primary);
+  background: rgba(43,32,19,0.03);
+  border-left: 3px solid var(--yps-accent);
+  padding: 14px 18px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}
+
+.ylsn-page-section-static {
+  margin-top: 4px;
+  padding-top: 18px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ylsn-page-text-static {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+.ylsn-page-leader-notes-static {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Scripture passages — view mode */
+.ylsn-page-passages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ylsn-page-passage {
+  background: rgba(43,32,19,0.025);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Collapsible reference toggle */
+.ylsn-page-passage-ref-btn {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition: background var(--transition);
+}
+.ylsn-page-passage-ref-btn:hover {
+  background: rgba(43,32,19,0.04);
+}
+.ylsn-page-passage-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  color: var(--yps-accent);
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+.ylsn-page-passage-ref {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--yps-accent);
+}
+
+/* Verse numbers — small superscript like a real Bible */
+.ylsn-page-passage-text {
+  margin: 0;
+  padding: 0 16px 14px 32px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  border-left: 2px solid var(--yps-accent);
+  margin-left: 16px;
+  white-space: normal;
+  font-style: normal;
+}
+.ylsn-page-verse {
+  display: inline;
+}
+.ylsn-page-verse-num {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--yps-accent);
+  margin-right: 3px;
+  vertical-align: super;
+  line-height: 0;
+  font-style: normal;
+}
+.ylsn-page-verse-text { font-style: italic; }
+
+.ylsn-page-passage-empty {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  padding: 0 16px 14px 32px;
+  border-left: 2px solid var(--border);
+  margin-left: 16px;
+}
+
+/* Tools cluster (Collapse all / Expand all + add) */
+.ylsn-page-passage-tools {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Discussion list — view mode */
+.ylsn-page-qlist-static {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ylsn-page-qlist-static li {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text-primary);
+  padding-left: 8px;
+}
+.ylsn-page-qnum-static {
+  font-family: 'Playfair Display', Georgia, serif;
+  color: var(--yps-accent);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.ylsn-page-media-link {
+  color: var(--yps-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--yps-accent) 40%, transparent);
+  word-break: break-all;
+}
+
+.ylsn-page-teaching-static-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ylsn-page-teaching-static {
+  padding: 10px 14px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+}
+.ylsn-page-teaching-static-hd { font-size: var(--fs-md); color: var(--text-primary); }
+.ylsn-page-teaching-static-debrief {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+.ylsn-page-empty {
+  padding: 36px 20px;
+  text-align: center;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px dashed var(--border-hi);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Edit mode — scripture passages editor
+   ───────────────────────────────────────────────────────────── */
+.ylsn-page-passages-edit {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ylsn-page-passage-edit {
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ylsn-page-passage-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.ylsn-page-passage-toggle {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--yps-accent);
+  font-size: 14px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background var(--transition);
+}
+.ylsn-page-passage-toggle:hover { background: rgba(43,32,19,0.06); }
+.ylsn-page-passage-ref-input {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom-color: var(--border-hi);
+}
+.ylsn-page-passage-text-input {
+  font-size: 15px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--text-primary);
+  border-bottom: 1px dashed var(--border);
+}
+@media (max-width: 600px) {
+  .ylsn-page-passage-row { grid-template-columns: 1fr; }
+}
+
+/* Edit-mode passage body wrapper — adds a touch of spacing so the
+   shared PassageBody's blockquote sits nicely inside the row card. */
+.ylsn-page-passage-edit-body {
+  margin-top: 6px;
+}
+.ylsn-page-passage-edit-body .ylsn-page-passage-text {
+  margin-left: 8px;
+  padding: 4px 12px 4px 16px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Three-select Time Picker (Hours / Minutes / AM-PM)
+   ───────────────────────────────────────────────────────────── */
+.ylsn-tp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ylsn-tp-sel {
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  padding: 6px 8px;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.ylsn-tp-sel:focus { border-color: var(--yps-accent); }
+.ylsn-tp-hh, .ylsn-tp-mm { width: 60px; }
+.ylsn-tp-ap             { width: 66px; }
+.ylsn-tp-sep {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Schedules list — edit mode
+   ───────────────────────────────────────────────────────────── */
+.ylsn-page-schedules-edit {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ylsn-page-schedule-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 170px) auto auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+}
+.ylsn-page-schedule-date {
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  border-bottom: 0.5px solid var(--border);
+}
+.ylsn-page-schedule-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(43,32,19,0.04);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.ylsn-page-schedule-sync:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.ylsn-page-schedule-sync input { accent-color: var(--yps-accent); cursor: pointer; }
+.ylsn-page-schedule-sync:has(input:checked) {
+  background: color-mix(in srgb, var(--yps-accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--yps-accent) 40%, transparent);
+  color: var(--yps-accent);
+}
+@media (max-width: 760px) {
+  .ylsn-page-schedule-row { grid-template-columns: 1fr; }
+}
+
+/* Schedules list — view mode */
+.ylsn-page-schedules-static {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ylsn-page-schedule-static {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  flex-wrap: wrap;
+}
+.ylsn-page-schedule-static-date { font-weight: 600; }
+.ylsn-page-schedule-static-time { color: var(--text-secondary); }
+
+/* ─────────────────────────────────────────────────────────────
+   Media links — edit + view modes
+   ───────────────────────────────────────────────────────────── */
+.ylsn-page-medialinks-edit {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ylsn-page-medialink-row {
+  display: grid;
+  grid-template-columns: 1fr minmax(140px, 220px) auto;
+  gap: 8px;
+  align-items: center;
+}
+.ylsn-page-medialink-url {
+  font-family: var(--font-body);
+}
+.ylsn-page-medialink-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+@media (max-width: 640px) {
+  .ylsn-page-medialink-row { grid-template-columns: 1fr; }
+}
+
+/* View-mode media links — pretty chips that open on click. */
+.ylsn-page-medialinks-static {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ylsn-page-medialink-static {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: color-mix(in srgb, var(--yps-accent) 12%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 30%, transparent);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--fs-md);
+  font-weight: 500;
+  transition: all var(--transition);
+  max-width: 100%;
+}
+.ylsn-page-medialink-static:hover {
+  background: color-mix(in srgb, var(--yps-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--yps-accent) 55%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--yps-accent) 50%, transparent);
+}
+.ylsn-page-medialink-static-icon { font-size: 16px; }
+.ylsn-page-medialink-static-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+.ylsn-page-medialink-static-open {
+  color: var(--yps-accent);
+  font-weight: 600;
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Series Page additions — full-window builder styled like
+   LessonPage. Inherits .ylsn-page-* utilities; extends with
+   the series cover strip + meta/edit layouts.
+   ───────────────────────────────────────────────────────────── */
+
+/* Color-tinted top strip across the paper, like a journal cover. */
+.ylsn-page-series-cover {
+  --series-color: #9f1239;
+  height: 8px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(90deg, var(--series-color), color-mix(in srgb, var(--series-color) 55%, #fff));
+  margin: -56px -64px 18px;
+  flex-shrink: 0;
+}
+@media (max-width: 780px) {
+  .ylsn-page-series-cover { margin: -28px -22px 14px; }
+}
+
+/* Meta row (audience pill + tag pills + archived) in view mode. */
+.ylsn-page-series-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Theme line in view mode — italic display serif under the title. */
+.ylsn-page-series-theme {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Edit-mode form grid for the series metadata. */
+.ylsn-page-series-edit-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 60px 1fr 1fr;
+  gap: 14px 18px;
+  align-items: end;
+}
+@media (max-width: 760px) {
+  .ylsn-page-series-edit-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .ylsn-page-series-edit-grid { grid-template-columns: 1fr; }
+}
+
+/* Color swatch as a square in the edit grid */
+.ylsn-page-color-swatch {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 38px;
+  padding: 0;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+}
+.ylsn-page-color-swatch::-webkit-color-swatch-wrapper { padding: 4px; }
+.ylsn-page-color-swatch::-webkit-color-swatch { border-radius: 6px; border: 0; }
+
+/* Dropdowns in the document style — match input look. */
+.ylsn-page-select {
+  appearance: none;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: 8px 10px;
+  font-size: var(--fs-md);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.ylsn-page-select:focus { border-color: var(--yps-accent); }
+
+/* Series progress strip flows naturally inside the paper */
+.ylsn-page-paper .ylsn-series-progress {
+  margin: 0;
+}
+
+/* ── Audience row (view mode) ────────────────────────────────── */
+.ylsn-page-audience-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 2px;
+}
+.ylsn-page-audience-edit { max-width: 320px; }
+
+/* ── Linked Games (view mode, clickable cards) ───────────────── */
+.ylsn-page-linkedgames .ylsn-page-linkedgames-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ylsn-page-linkedgame-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.ylsn-page-linkedgame-btn:hover {
+  border-color: color-mix(in srgb, var(--yps-accent) 50%, var(--border));
+  background: var(--bg-glass-md);
+}
+.ylsn-page-linkedgame-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.ylsn-page-linkedgame-meta {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+.ylsn-page-linkedgame-open {
+  font-size: 14px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+/* ── Linked Games picker (edit mode) ─────────────────────────── */
+.ylsn-page-linkedgames-edit { position: relative; }
+.ylsn-page-linkedgames-edit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ylsn-page-linkedgame-edit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+.ylsn-page-linkedgame-edit.ylsn-page-linkedgame-missing {
+  border-color: color-mix(in srgb, #a16207 50%, var(--border));
+  background: color-mix(in srgb, #a16207 8%, var(--bg-glass));
+}
+.ylsn-page-linkedgame-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 240px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.ylsn-page-linkedgame-toggle {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.ylsn-page-linkedgames-picker {
+  margin-top: 10px;
+  background: var(--bg-glass-md);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.ylsn-page-linkedgames-picker-hd {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.ylsn-page-linkedgames-picker-hd .yps-input { flex: 1 1 auto; }
+
+.ylsn-page-linkedgames-picker-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.ylsn-page-linkedgames-picker-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  flex-wrap: wrap;
+}
+.ylsn-page-linkedgames-picker-row:hover {
+  background: var(--bg-glass);
+  border-color: color-mix(in srgb, var(--yps-accent) 40%, var(--border));
+}

@@ -1,0 +1,34 @@
+/* Children's → All Kids — page-specific add-ons on top of the
+   reused .ys-* styles from AllStudents.css. Prefix .ck-* so they
+   don't collide with the shared layout classes. */
+
+/* "💡 Suggest: <band>" chip below the Age band dropdown. */
+.ck-suggest {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 5px 10px;
+  background: color-mix(in srgb, var(--ys-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ys-accent) 40%, transparent);
+  color: var(--ys-accent);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 100ms ease;
+}
+.ck-suggest:hover { background: color-mix(in srgb, var(--ys-accent) 24%, transparent); }
+
+/* "Needs band" warning hint when the kid's stored ageBand is
+   not in the current bands list. */
+.ck-orphan-hint {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, #fbbf24 16%, transparent);
+  border: 0.5px solid color-mix(in srgb, #fbbf24 50%, transparent);
+  border-radius: 6px;
+  color: #92400e;
+  font-size: 12px;
+}

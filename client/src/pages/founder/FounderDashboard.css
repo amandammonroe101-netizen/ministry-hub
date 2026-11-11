@@ -1,0 +1,1247 @@
+/* ─────────────────────────────────────────────────────────────
+   Founder Dashboard — founder-only page for tracking every
+   registered user (roster, activity, usage counts).
+
+   Bespoke shell theme: a light, airy Teal / Aqua / White / Gold
+   look, deliberately unlike the rest of the app's dark-glass
+   purple theme — same scoping technique as the ministry shells
+   (WomensShell.css, ChildrensShell.css): local ink/accent tokens
+   defined on .fd-root, then the shared dark-theme surface tokens
+   (--bg-glass, --border, --text-primary, etc.) are overridden to
+   point at them. Every rule below still just reads those shared
+   tokens, so recoloring happened almost entirely at the top —
+   only the handful of hardcoded (non-token) purple/green/red/gold
+   literals further down needed a direct swap.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Dark-teal / gold-shimmer picture frame ──────────────────
+   Wraps the whole dashboard in a carved bezel, 0.5in on all four
+   sides — same layered-inset construction as the ministry shells'
+   picture frames (WomensShell.css, ChildrensShell.css): a raised
+   bevel just inside the outer edge, a shadowed groove caving
+   inward, then a slim inner lip above the recessed "canvas". A
+   diagonal gold gloss streak glazes across a dark teal base to
+   read as polished metal rather than flat paint. */
+.fd-picture-frame {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.5in;
+  background:
+    linear-gradient(115deg,
+      rgba(234,179,8,0) 0%,
+      rgba(234,179,8,0.28) 34%,
+      rgba(250,204,21,0.6) 48%,
+      rgba(234,179,8,0.28) 62%,
+      rgba(234,179,8,0) 100%
+    ),
+    linear-gradient(90deg,
+      #041f1d 0%, #0d3d38 30%, #1a6659 50%, #0d3d38 70%, #041f1d 100%
+    );
+  box-shadow:
+    inset 0 0 2px 2px  #021110,
+    inset 0 0 3px 4px  #eab308,
+    inset 0 0 4px 8px  #14746a,
+    inset 0 0 6px 13px #0a3d38,
+    inset 0 0 6px 18px #145c53,
+    inset 0 0 8px 24px #021110,
+    inset 0 0 4px 29px #eab308,
+    inset 0 0 3px 32px #145c53,
+    0 16px 44px rgba(0,0,0,0.5);
+}
+
+.fd-picture-frame .fd-root {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.42),
+    inset 0 0 0 1px rgba(0,0,0,0.25);
+}
+
+.fd-root {
+  --fd-ink:        #0b3d3d;
+  --fd-ink-soft:   rgba(11,61,61,0.72);
+  --fd-ink-faint:  rgba(11,61,61,0.50);
+  --fd-teal:       #0d9488;
+  --fd-teal-deep:  #0f766e;
+  --fd-aqua:       #06b6d4;
+  --fd-aqua-soft:  #22d3ee;
+  --fd-gold:       #b45309;
+  --fd-gold-soft:  #eab308;
+  --fd-border:     rgba(13,148,136,0.16);
+  --fd-border-hi:  rgba(13,148,136,0.34);
+  --fd-display:    'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+
+  /* "Widget" gradients for the stat tiles + user detail panel —
+     same two-tier technique as LifeStages.css (.wls-panel / .wls-stat):
+     a big diagonal teal→gold-cream→teal shimmer for the one major
+     panel, a lighter version for the small repeated tiles, both
+     paired with an embossed inset+drop shadow stack. */
+  --fd-shimmer-big:  linear-gradient(100deg, #3d8f83 0%, #57a89b 16%, #8cc9bd 32%, #f7e7b4 46%, #8cc9bd 60%, #57a89b 76%, #3d8f83 100%);
+  --fd-shimmer-tile: linear-gradient(150deg, #fefbf0 0%, #f3d98a 65%, #6fae9f 100%);
+  --fd-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(6,45,42,0.38),
+    inset 0 0 0 1px rgba(180,131,9,0.20),
+    0 10px 22px rgba(6,45,42,0.30),
+    0 2px 6px rgba(6,45,42,0.20);
+  --fd-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(6,45,42,0.34),
+    inset 0 0 0 1px rgba(180,131,9,0.18),
+    0 6px 14px rgba(6,45,42,0.26);
+
+  /* Overriding the app's dark-glass surface tokens here (scoped to
+     .fd-root) flips every rule below that reads var(--bg-glass)/
+     var(--text-primary)/etc. from the app-wide dark theme to this
+     light one, without touching index.css or any other page. */
+  --bg-glass:       #ffffff;
+  --bg-hover:       rgba(13,148,136,0.06);
+  --border:         var(--fd-border);
+  --border-hi:      var(--fd-border-hi);
+  --border-sel:     var(--fd-teal);
+  --text-primary:   var(--fd-ink);
+  --text-secondary: var(--fd-ink-soft);
+  --text-muted:     var(--fd-ink-faint);
+  --accent-purple:  var(--fd-teal);
+  --tab-contacts:   var(--fd-aqua);
+  --font-display:   var(--fd-display);
+
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, #ffffff 0%, #eefbfa 38%, #e2f5f2 64%, #fdf6e3 100%);
+  color: var(--fd-ink);
+}
+
+/* Soft blurred accent shapes drifting behind the content — the
+   "light decorative touch" analog of the ministry shells' bloom
+   circles, re-toned to teal/gold and kept subtle rather than a
+   literal copy of any one ministry's motif. */
+.fd-bloom {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: fdBloomDrift 26s ease-in-out infinite;
+}
+.fd-bloom-a {
+  top: -120px;
+  right: -100px;
+  width: 380px;
+  height: 380px;
+  background: var(--fd-aqua-soft);
+}
+.fd-bloom-b {
+  bottom: -140px;
+  left: -120px;
+  width: 420px;
+  height: 420px;
+  background: var(--fd-gold-soft);
+  opacity: 0.22;
+  animation-duration: 32s;
+  animation-direction: reverse;
+}
+@keyframes fdBloomDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(24px, -28px) scale(1.08); }
+}
+
+.fd-body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+.fd-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.fd-title {
+  font-family: var(--fd-display);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+  background: linear-gradient(100deg, var(--fd-teal-deep) 0%, var(--fd-teal) 25%, var(--fd-aqua) 50%, var(--fd-gold) 75%, var(--fd-teal-deep) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: fdShine 7s linear infinite;
+}
+@keyframes fdShine {
+  to { background-position: 200% center; }
+}
+
+.fd-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.fd-refresh {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(13,148,136,0.08);
+  transition: border-color var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+.fd-refresh:hover:not(:disabled) { color: var(--text-primary); border-color: var(--border-hi); }
+.fd-refresh:disabled { opacity: 0.5; cursor: default; }
+
+.fd-error {
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 0.5px solid rgba(220, 38, 38, 0.32);
+  border-radius: 10px;
+  color: #dc2626;
+  font-size: var(--fs-sm);
+}
+
+.fd-loading, .fd-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: var(--fs-md);
+}
+
+/* ── Summary cards ───────────────────────────────────────────── */
+.fd-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.fd-card {
+  background: var(--fd-shimmer-tile);
+  border: none;
+  border-top: 3px solid var(--fd-teal-deep);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow: var(--fd-3d-shadow-sm);
+}
+
+.fd-card-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.fd-card-label {
+  margin-top: 6px;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* Stat cards that double as click-to-filter toggles (Prayer Insights) —
+   same look as a plain .fd-card, just rendered as a <button>. */
+.fd-card-clickable {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.fd-card-clickable:hover { border-color: var(--border-hi); }
+.fd-card-active {
+  border-top-color: var(--fd-gold-soft);
+  background:
+    linear-gradient(rgba(13,148,136,0.20), rgba(13,148,136,0.20)),
+    var(--fd-shimmer-tile);
+}
+
+/* Period-over-period delta badge next to a stat card's headline number. */
+.fd-delta {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.fd-delta-up { color: #059669; }
+.fd-delta-down { color: #dc2626; }
+
+/* ── Growth chart ────────────────────────────────────────────── */
+.fd-chart-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(13,148,136,0.07);
+}
+
+.fd-chart-title {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.fd-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 110px;
+}
+
+.fd-chart-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+}
+
+.fd-chart-bar-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.fd-chart-bar {
+  width: 100%;
+  min-height: 2px;
+  background: linear-gradient(180deg, var(--fd-teal), var(--fd-aqua));
+  border-radius: 3px 3px 0 0;
+}
+
+.fd-chart-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.fd-chart-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transform: rotate(-40deg);
+  transform-origin: top center;
+  margin-top: 6px;
+}
+
+/* ── Journal Insights ────────────────────────────────────────
+   Multi-chart layout for the Journal category tab — a full-width
+   time-series card plus rows of smaller cards, reusing .fd-chart-card
+   for a consistent look with the existing Signups chart. */
+.fd-insights-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.fd-insights-row-2 {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+.fd-insights-row .fd-chart-card {
+  margin-bottom: 0;
+}
+.fd-chart-card-flush {
+  padding-bottom: 18px;
+}
+
+.fd-chart-subtitle {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  margin-left: 8px;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Day × hour heatmap — all-users aggregate, teal intensity matching
+   the new light theme, rebuilt here as a 7×24 grid instead of a
+   30-day strip. */
+.fd-heatgrid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.fd-heatgrid-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fd-heatgrid-daylabel {
+  width: 30px;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.fd-heatgrid-cells {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+}
+.fd-heatgrid-cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  cursor: default;
+  transition: transform 0.1s;
+}
+.fd-heatgrid-cell:hover { transform: scale(1.4); }
+.fd-heatgrid-hourlabels {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.fd-heatgrid-spacer { width: 30px; flex-shrink: 0; }
+.fd-heatgrid-hourlabel {
+  font-size: 9px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ── Segment filter chips ────────────────────────────────────── */
+.fd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.fd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+.fd-chip:hover { color: var(--text-primary); border-color: var(--border-hi); }
+.fd-chip-on {
+  color: var(--text-primary);
+  border-color: var(--fd-teal);
+  background: rgba(13, 148, 136, 0.12);
+}
+
+.fd-chip-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(13, 148, 136, 0.08);
+  border-radius: var(--radius-full);
+  padding: 1px 6px;
+}
+.fd-chip-on .fd-chip-count { color: var(--text-primary); }
+
+/* ── Toolbar: search + export ───────────────────────────────── */
+.fd-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.fd-search {
+  flex: 1;
+  height: 40px;
+  padding: 0 14px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.fd-search:focus { border-color: var(--border-sel); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.16); }
+.fd-search::placeholder { color: var(--text-muted); }
+
+.fd-export {
+  flex-shrink: 0;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  padding: 0 16px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+.fd-export:hover:not(:disabled) { color: var(--text-primary); border-color: var(--border-hi); }
+.fd-export:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Risk / power-user badges ───────────────────────────────── */
+.fd-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.fd-badge-risk {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.10);
+  border: 0.5px solid rgba(220, 38, 38, 0.32);
+}
+.fd-badge-power {
+  color: var(--fd-gold);
+  background: rgba(180, 83, 9, 0.12);
+  border: 0.5px solid rgba(180, 83, 9, 0.32);
+}
+
+.fd-row-badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* ── Table ───────────────────────────────────────────────────── */
+.fd-table-wrap {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  box-shadow: 0 2px 12px rgba(13,148,136,0.07);
+}
+
+.fd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.fd-table thead th {
+  text-align: left;
+  padding: 12px 14px;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.fd-th-sortable { cursor: pointer; user-select: none; }
+.fd-th-sortable:hover { color: var(--text-primary); }
+
+.fd-th-count { text-align: right; }
+
+.fd-sort-icon { margin-left: 4px; font-size: 10px; }
+.fd-sort-idle { opacity: 0.4; }
+
+.fd-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+.fd-table tbody tr:last-child td { border-bottom: none; }
+.fd-table tbody tr:hover { background: var(--bg-hover); }
+.fd-row-clickable { cursor: pointer; }
+
+.fd-user-name { font-weight: 600; color: var(--text-primary); }
+.fd-user-email { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
+
+/* Expandable per-user drill-down row (Prayer Insights table) — a
+   category breakdown mini-chart rendered inline below the clicked row. */
+.fd-table-expand-row td {
+  background: rgba(13, 148, 136, 0.04);
+  padding: 12px 14px 16px;
+}
+.fd-table-expand-row .fd-modal-bars { padding: 0 0 10px; }
+.fd-table-expand-row .fd-mini-btn { margin-top: 2px; }
+
+.fd-cell-date { white-space: nowrap; color: var(--text-secondary); }
+
+.fd-cell-total { font-weight: 700; color: var(--text-primary); }
+
+/* ── Per-user drill-down page ─────────────────────────────────
+   Full-page replacement for the users table (not a modal overlay) —
+   gives room for the usage breakdown plus the chat-history section
+   without cramming everything into a small popup. */
+.fd-detail {
+  background: var(--fd-shimmer-big);
+  border: none;
+  border-radius: 14px;
+  padding: 20px 22px 24px;
+  box-shadow: var(--fd-3d-shadow);
+}
+
+.fd-detail-back {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  transition: color var(--transition);
+}
+.fd-detail-back:hover { color: var(--text-primary); }
+
+.fd-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.fd-detail-name { font-family: var(--fd-display); font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.fd-detail-email { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.fd-detail-section-title {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 18px 0 10px;
+}
+
+.fd-modal-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.fd-modal-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0;
+}
+
+.fd-modal-meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.fd-modal-meta-label { font-size: 12px; color: var(--text-muted); }
+.fd-modal-meta-value { font-size: 13px; color: var(--text-primary); font-weight: 600; text-align: right; }
+.fd-modal-meta-sub { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+.fd-modal-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 0 8px;
+}
+
+.fd-modal-bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.fd-modal-bar-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fd-modal-bar-track {
+  height: 8px;
+  background: rgba(13, 148, 136, 0.10);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.fd-modal-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fd-teal), var(--fd-aqua));
+  border-radius: var(--radius-full);
+}
+
+.fd-modal-bar-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+/* ── Danger zone: permanent account deletion ────────────────── */
+.fd-danger {
+  margin: 18px 0 0;
+  padding: 14px 16px 16px;
+  background: rgba(220, 38, 38, 0.05);
+  border: 0.5px solid rgba(220, 38, 38, 0.28);
+  border-radius: var(--radius-md);
+}
+
+.fd-danger-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+.fd-danger-text {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.fd-danger-label {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.fd-danger-label strong { color: var(--text-primary); }
+
+.fd-danger-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  background: rgba(220, 38, 38, 0.04);
+  border: 1px solid rgba(220, 38, 38, 0.32);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-family: var(--font-body);
+  outline: none;
+  margin-bottom: 10px;
+  transition: border-color var(--transition);
+}
+.fd-danger-input:focus { border-color: #dc2626; }
+.fd-danger-input:disabled { opacity: 0.5; }
+
+.fd-danger-error {
+  font-size: 11.5px;
+  color: #dc2626;
+  margin-bottom: 10px;
+}
+
+.fd-danger-btn {
+  width: 100%;
+  height: 38px;
+  background: rgba(220, 38, 38, 0.10);
+  border: 0.5px solid rgba(220, 38, 38, 0.42);
+  border-radius: var(--radius-md);
+  color: #dc2626;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.fd-danger-btn:hover:not(:disabled) { background: #dc2626; color: #fff; }
+.fd-danger-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Tabs ─────────────────────────────────────────────────────
+   Switches the body between the Users roster and the Requests
+   panel — same visual language as the segment chips, but a
+   persistent top-level nav rather than a filter. */
+.fd-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fd-tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 10px 4px;
+  margin-bottom: -1px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+.fd-tab + .fd-tab { margin-left: 8px; }
+.fd-tab:hover { color: var(--text-primary); }
+.fd-tab-on {
+  color: var(--text-primary);
+  border-color: var(--fd-teal);
+}
+
+.fd-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--fd-teal);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+/* ── Requests panel ──────────────────────────────────────────
+   Bug / feature / add-on requests filed from the Settings page's
+   "Send a Request" button. */
+.fd-requests {
+  margin-bottom: 24px;
+}
+
+.fd-requests-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fd-requests-title {
+  font-family: var(--fd-display);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.fd-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Priority sub-tabs — only shown under the In Progress status filter,
+   indented slightly to read as nested under it rather than a sibling
+   of the status chips above. */
+.fd-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -4px 0 14px 4px;
+}
+
+.fd-subtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+.fd-subtab:hover { color: var(--text-primary); border-color: var(--border-hi); }
+.fd-subtab-on {
+  color: var(--text-primary);
+  border-color: var(--fd-teal);
+  background: rgba(13, 148, 136, 0.12);
+}
+
+.fd-request-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: 0 2px 10px rgba(13,148,136,0.06);
+}
+
+.fd-request-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fd-request-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fd-request-meta {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.fd-request-badges {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.fd-request-status {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 0.5px solid;
+  white-space: nowrap;
+}
+
+.fd-request-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+}
+
+.fd-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.fd-request-priority-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 0.5px solid var(--border);
+}
+
+.fd-request-priority-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+/* ── Due dates: the sender's own optional pick (underlined, so it's
+   legible at a glance which date is theirs) vs. the founder's own
+   assigned date, shown as a small inline date input right next to it. */
+.fd-due-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.fd-due-user {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fd-due-founder-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.fd-due-input {
+  appearance: none;
+  background: rgba(13, 148, 136, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 2px 6px;
+  color-scheme: light;
+}
+.fd-due-input:hover { border-color: var(--border-hi); }
+
+/* ── Two-way chat status badges ─────────────────────────────── */
+.fd-twoway-requested {
+  color: var(--fd-teal);
+  background: rgba(13, 148, 136, 0.14);
+  border-color: rgba(13, 148, 136, 0.38);
+}
+.fd-twoway-accepted {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.14);
+  border-color: rgba(5, 150, 105, 0.38);
+}
+
+/* ── Per-request chat modal ──────────────────────────────────── */
+.fd-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(11, 61, 61, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.fd-chat-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 16px 44px rgba(11,61,61,0.22);
+}
+
+.fd-chat-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fd-chat-modal-title {
+  font-family: var(--fd-display);
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fd-chat-modal-sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.fd-chat-modal-close {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 120ms ease, color 120ms ease;
+}
+.fd-chat-modal-close:hover {
+  background: rgba(220, 38, 38, 0.10);
+  color: #dc2626;
+}
+
+.fd-two-way-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.26);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.fd-two-way-banner-on {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.26);
+}
+
+.fd-two-way-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.fd-chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.fd-chat-bubble {
+  max-width: 82%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.fd-chat-bubble-founder {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--fd-teal) 18%, transparent);
+  color: var(--text-primary);
+}
+.fd-chat-bubble-user {
+  align-self: flex-start;
+  background: rgba(13, 148, 136, 0.07);
+  color: var(--text-primary);
+}
+
+.fd-chat-bubble-time {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.fd-chat-form {
+  display: flex;
+  gap: 8px;
+}
+
+.fd-chat-input {
+  flex: 1;
+  appearance: none;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(13, 148, 136, 0.05);
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+}
+.fd-chat-input:focus { border-color: var(--fd-teal); }
+
+.fd-chat-send-btn {
+  flex-shrink: 0;
+}
+
+.fd-mini-btn {
+  appearance: none;
+  background: rgba(13, 148, 136, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.fd-mini-btn:hover:not(:disabled) {
+  background: rgba(13, 148, 136, 0.14);
+  color: var(--text-primary);
+  border-color: var(--border-hi);
+}
+.fd-mini-btn:disabled { opacity: 0.4; cursor: default; }
+
+.fd-mini-btn-danger {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.32);
+}
+.fd-mini-btn-danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}
+
+/* ── Chat Log ─────────────────────────────────────────────────
+   Whole-chat moderation view (Chat Log tab) and the per-user chat
+   history section on the user detail page — both render the same
+   message-row list, just fed by a different filtered slice. */
+.fd-chat-log { margin-bottom: 24px; }
+
+.fd-detail-chat {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 0.5px solid var(--border);
+}
+
+.fd-detail-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fd-detail-chat-head .fd-detail-section-title { margin: 0; }
+
+.fd-detail-chat-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 4px 0 12px;
+}
+
+.fd-chat-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.fd-chat-log-row {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  box-shadow: 0 1px 6px rgba(13,148,136,0.05);
+}
+
+.fd-chat-log-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.fd-chat-log-channel {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--fd-teal);
+}
+
+.fd-chat-log-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fd-chat-log-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.fd-chat-log-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

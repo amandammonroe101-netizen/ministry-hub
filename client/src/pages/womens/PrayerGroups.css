@@ -1,0 +1,488 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Prayer Groups
+   Reuses the shared page shell from AllWomen.css (.wa-root, .wa-body,
+   .wa-center, .wa-card-grid, .wa-slide), the .wls-roster and .wls-
+   unassigned bits from LifeStages.css, and the .ys- form
+   primitives from youth/AllStudents.css. Only the group card,
+   detail, and prayer-request bits below are scoped to this page,
+   prefix .pg-
+
+   Rose-gold pass: mirrors Retreats' (.wr-root) treatment verbatim —
+   every card/panel is a raised, embossed rose-gold surface (gradient
+   fill + inset highlight/shadow + drop shadow), cursive gradient
+   headings, and bold sans running text — so this page reads as the
+   same "sanctuary dashboard" as Retreats instead of the older dark-
+   glass card look. Detail stays a slide-over (not a full drill-in
+   view) since the content here — leader/day/roster/request log —
+   is far lighter than a retreat's seven tabs.
+   ───────────────────────────────────────────────────────────── */
+
+.pg-root {
+  --pg-accent: var(--wms-rose-deep, #c2426a);
+  --pg-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --pg-3d-card: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  --pg-3d-chip: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  --pg-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --pg-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --pg-cursive: 'Dancing Script', 'Caveat', cursive;
+  --pg-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--pg-sans);
+}
+.pg-root, .pg-root button { font-family: var(--pg-sans); }
+.pg-root h1, .pg-root h2, .pg-root h3, .pg-root h4 {
+  font-family: var(--pg-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.pg-root p, .pg-root span, .pg-root label, .pg-root li,
+.pg-root button, .pg-root a {
+  font-family: var(--pg-sans);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+.pg-root input, .pg-root textarea, .pg-root select, .pg-root option {
+  font-family: var(--pg-sans);
+  font-weight: 500;
+  background-image: none;
+  -webkit-text-fill-color: initial;
+  color: var(--wms-ink, #3d1728);
+  animation: none;
+}
+
+/* ── Directory panels — same stacked-panel dashboard feel as
+   Retreats' .wr-panel, instead of floating stat bar / search / grid
+   chrome directly on the page background. */
+.pg-panel {
+  background: var(--pg-3d-bg);
+  border: none;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--pg-3d-shadow);
+}
+.pg-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pg-root .pg-panel-subtitle {
+  margin: 0;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  -webkit-text-fill-color: var(--wms-ink, #3d1728);
+  background: none;
+  text-shadow: none;
+  animation: none;
+}
+
+/* ── Directory chrome (stats bar / search / filters / grid) ───── */
+.pg-root .wa-stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.pg-root .wa-stat {
+  background: var(--pg-3d-card);
+  border: none;
+  border-top: 3px solid var(--pg-accent);
+  border-radius: 12px;
+  box-shadow: var(--pg-3d-shadow-sm);
+}
+.pg-root .wa-stat-n {
+  font-family: var(--pg-sans);
+  font-weight: 800;
+  color: var(--wms-ink, #3d1728);
+}
+.pg-root .wa-stat-lbl {
+  font-family: var(--pg-sans);
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.pg-root .wa-search-wrap {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--pg-3d-shadow-sm);
+}
+.pg-root .wa-search-wrap input { color: var(--wms-ink, #3d1728); }
+.pg-root .wa-search-wrap input::placeholder { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.pg-root .wa-search-clear { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.pg-root .wa-search-clear:hover { color: var(--wms-ink, #3d1728); }
+.pg-root .wa-filter-chip {
+  background: var(--pg-3d-chip);
+  border: none;
+  box-shadow: var(--pg-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+  transition: all .15s;
+}
+.pg-root .wa-filter-chip:hover { transform: translateY(-1px); filter: brightness(1.05); color: var(--wms-ink, #3d1728); }
+.pg-root .wa-filter-chip.on {
+  background: var(--pg-3d-bg);
+  box-shadow: var(--pg-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+  color: var(--wms-ink, #3d1728);
+}
+.pg-root .wa-directory-empty { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+/* ── Form primitives (Section/Field, reused from Youth roster) —
+   raised embossed cards + cream inputs, matching Retreats. ──── */
+.pg-root .ys-section {
+  background: var(--pg-3d-card);
+  border: none;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: var(--pg-3d-shadow-sm);
+}
+.pg-root .ys-section-title {
+  font-family: var(--pg-cursive);
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.pg-root .ys-field-lbl {
+  font-family: var(--pg-sans);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.pg-root .ys-inp {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--pg-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+}
+.pg-root .ys-inp:focus { border-color: var(--wms-gold, #e8b3ae); }
+.pg-root .app-btn {
+  font-family: var(--pg-sans);
+  background: var(--pg-3d-chip);
+  border: none;
+  box-shadow: var(--pg-3d-shadow-sm);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.pg-root .app-btn:hover { filter: brightness(1.05); }
+.pg-root .app-btn.primary {
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  color: #fff;
+}
+.pg-root .app-btn.ghost { background: transparent; box-shadow: none; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.pg-root .app-btn.ghost:hover { background: rgba(196,19,60,0.06); color: var(--wms-ink, #3d1728); }
+.pg-root .ys-del-btn { font-family: var(--pg-sans); }
+
+/* ── Directory card ──────────────────────────────────────────── */
+.pg-root .pg-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  padding: 16px 16px 14px;
+  background: var(--pg-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--wms-ink, #3d1728);
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--pg-3d-shadow-sm);
+}
+.pg-root .pg-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+  box-shadow: var(--pg-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+
+.pg-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.pg-root .pg-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+
+.pg-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--pg-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.pg-badge.is-open   { background: rgba(74,222,128,.28); color: #14532d; }
+.pg-badge.is-closed { background: rgba(61,23,40,.08); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.pg-root .pg-card-line {
+  font-size: 12.5px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.pg-root .pg-card-focus {
+  font-size: 12.5px;
+  color: var(--wms-ink, #3d1728);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.pg-root .pg-card-foot {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pg-root .pg-card-roster {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.pg-card-reqs {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pg-accent, #c2426a);
+}
+
+.pg-detail-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.pg-title-inp {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.pg-root .pg-title-inp:focus {
+  background: rgba(255,255,255,.5);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.pg-root .pg-title-inp { color: var(--wms-ink, #3d1728); }
+
+/* ── Prayer request log ─────────────────────────────────────── */
+.pg-req-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pg-root .pg-req-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--pg-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  box-shadow: var(--pg-3d-shadow-sm);
+}
+.pg-root .pg-req-row.is-answered {
+  box-shadow: var(--pg-3d-shadow-sm), 0 0 0 1px rgba(74,222,128,.35);
+}
+
+.pg-req-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pg-root .pg-req-meta {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.pg-req-sensitive-tag {
+  color: #b91c1c;
+}
+
+.pg-root .pg-req-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--wms-ink, #3d1728);
+}
+.pg-root .pg-req-text.is-blurred {
+  filter: blur(5px);
+  cursor: pointer;
+  user-select: none;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+}
+.pg-root .pg-req-text.is-blurred:hover {
+  filter: blur(3px);
+}
+
+.pg-req-praise {
+  font-size: 12.5px;
+  color: #14532d;
+  font-style: italic;
+}
+
+.pg-answer-btn {
+  align-self: flex-start;
+  appearance: none;
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(74,222,128,.22);
+  border: none;
+  color: #14532d;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--pg-3d-shadow-sm, none);
+}
+.pg-answer-btn.ghost {
+  background: var(--pg-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.pg-answer-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pg-answer-form .ys-inp {
+  flex: 1;
+}
+
+.pg-root .pg-answered-wrap {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.pg-root .pg-answered-toggle {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 0;
+}
+
+/* ── Read-only view rows (GroupView) — .wa-view-lbl/.wa-view-val's
+   text color is already overridden by the ".pg-root span" rule above
+   (higher specificity than AllWomen.css's base rule), but the row
+   divider is still AllWomen's barely-visible white hairline — give it
+   a rose-gold-appropriate one here. ─────────────────────────────── */
+.pg-root .wa-view-row { border-bottom-color: rgba(61,23,40,0.12); }
+
+/* ── Empty-state notes (roster / requests) ──────────────────── */
+.pg-root .pg-empty-note {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+
+/* ── Leader cross-reference row (leader linked to an All Women
+   record and/or found in the Leaders registry) ─────────────── */
+.pg-root .pg-leader-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: -4px;
+}
+.pg-root .pg-leader-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(196,19,60,0.12);
+  color: var(--pg-accent, #c2426a);
+}
+
+/* ── Roster capacity indicator (min/max + below-min/full badges) ── */
+.pg-root .pg-roster-capacity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  margin-bottom: 4px;
+}
+
+/* ── Roster search-and-add row ────────────────────────────────── */
+.pg-root .pg-roster-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.pg-root .pg-roster-add .ys-inp { flex: 1; }
+
+/* ── Roster search results — live substring matches, each with its
+   own explicit "+ Add" button so linking a woman never depends on
+   typing her exact full name. ─────────────────────────────────── */
+.pg-root .pg-roster-results {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pg-root .pg-roster-result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.35);
+}
+.pg-root .pg-roster-result-row .wls-roster-name { flex: 1; }
+.pg-root .pg-roster-results-empty {
+  padding: 6px 2px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}

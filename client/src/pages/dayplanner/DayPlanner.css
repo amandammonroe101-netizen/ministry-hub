@@ -1,0 +1,1539 @@
+/* ─────────────────────────────────────────────────────────────
+   Day Planner
+   Namespace: .dp-*
+   Accent: #f59e0b (amber — calendar-ish vibe)
+   ───────────────────────────────────────────────────────────── */
+
+.dp-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  /* Topbar above + (rail · main) below. The rail is fixed-positioned
+     (slide-out drawer), so it doesn't take a flex slot — column
+     layout stacks the topbar over the main scroll area. */
+  flex-direction: column;
+  overflow: hidden;
+  /* transparent so the global .app-bg orbs show through */
+  background: transparent;
+  color: var(--text, #e5e7eb);
+  --dp-accent: #f59e0b;
+}
+
+.dp-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dp-shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 28px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.dp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.dp-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dp-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dp-title-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+.dp-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.dp-date-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dp-date-btn {
+  appearance: none;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text, #e5e7eb);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.dp-date-btn:hover { background: rgba(255, 255, 255, 0.10); }
+.dp-date-today {
+  color: var(--dp-accent);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+.dp-date-input {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text, #e5e7eb);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  margin-left: 4px;
+  color-scheme: dark;
+}
+
+/* "Sync Schedule" button — pushes every block on the current
+   day to the Calendar at once and lights up an amber color so
+   it stands out from the muted date-stepper buttons. */
+.dp-sync-btn {
+  appearance: none;
+  margin-left: 8px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.50);
+  color: var(--dp-accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.dp-sync-btn:hover { background: rgba(245, 158, 11, 0.28); }
+
+/* Inline status banner for sync feedback ("Synced 5 blocks…"). */
+.dp-sync-msg {
+  margin: 4px 0 0;
+  font-size: 12px;
+  padding: 7px 12px;
+  border-radius: 8px;
+}
+.dp-sync-msg-ok {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.40);
+  color: #86efac;
+}
+.dp-sync-msg-busy {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.40);
+  color: #93c5fd;
+  font-style: italic;
+}
+.dp-sync-msg-err {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.dp-header-meta {
+  align-items: baseline;
+}
+.dp-date-pretty {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+.dp-stats {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.dp-stat {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+.dp-stat b {
+  color: var(--dp-accent);
+  font-weight: 800;
+}
+
+.dp-theme {
+  appearance: none;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-left: 3px solid var(--dp-accent);
+  color: var(--text, #e5e7eb);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+}
+.dp-theme:focus { outline: 2px solid rgba(245, 158, 11, 0.40); outline-offset: 1px; }
+.dp-theme::placeholder { color: rgba(255, 255, 255, 0.40); font-style: italic; }
+
+/* View-mode display: bigger, prettier, NO BOX. Pure centered
+   serif-style text using Georgia (a system serif available on
+   nearly every platform) so the day theme reads as a real title
+   instead of a form value. Double-click anywhere to edit again. */
+.dp-theme-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px 2px;
+  cursor: text;
+  user-select: none;
+}
+.dp-theme-text {
+  font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
+  font-size: 30px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--text, #e5e7eb);
+  word-break: break-word;
+  line-height: 1.2;
+  /* subtle gradient pulls the eye toward the accent color
+     without needing a surrounding box */
+  background: linear-gradient(180deg, #fff 0%, #fde68a 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.dp-theme-placeholder {
+  font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.01em;
+}
+
+/* ── Body grid ───────────────────────────────────────────── */
+.dp-body {
+  display: grid;
+  grid-template-columns: 280px 1fr 260px;
+  gap: 16px;
+  min-height: 0;
+}
+@media (max-width: 1180px) {
+  .dp-body { grid-template-columns: 240px 1fr; }
+  .dp-right { display: none; }
+}
+@media (max-width: 900px) {
+  .dp-body { grid-template-columns: 1fr; }
+  .dp-left { display: none; }
+}
+
+.dp-left, .dp-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ── Card primitive ──────────────────────────────────────── */
+.dp-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dp-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.dp-card-head-collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+.dp-card-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.75);
+}
+.dp-card-empty {
+  margin: 0;
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+}
+.dp-chevron {
+  color: rgba(255, 255, 255, 0.55);
+}
+.dp-mini-btn {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.80);
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dp-mini-btn:hover { background: rgba(255, 255, 255, 0.12); color: white; }
+
+/* ── Priorities ──────────────────────────────────────────── */
+.dp-priorities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dp-priority {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.dp-priority.done .dp-priority-text,
+.dp-priority.done .dp-priority-words {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.45);
+}
+/* Read-only display of a priority — double-click to edit. */
+.dp-priority-display {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text, #e5e7eb);
+  cursor: text;
+  user-select: none;
+  min-width: 0;
+  word-break: break-word;
+}
+.dp-priority-placeholder {
+  color: rgba(255, 255, 255, 0.40);
+  font-style: italic;
+}
+.dp-priority-cb {
+  width: 16px; height: 16px;
+  accent-color: var(--dp-accent);
+  flex-shrink: 0;
+}
+.dp-priority-text {
+  flex: 1;
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text, #e5e7eb);
+  font-size: 13px;
+  font-family: inherit;
+}
+.dp-priority-text:focus { outline: none; }
+
+.dp-row-x {
+  appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dp-row-x:hover {
+  background: rgba(239, 68, 68, 0.40);
+  color: white;
+}
+
+/* ── Notes ───────────────────────────────────────────────── */
+.dp-textarea {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--text, #e5e7eb);
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+.dp-textarea:focus { outline: 2px solid rgba(245, 158, 11, 0.32); outline-offset: 1px; }
+
+/* ── Categories ──────────────────────────────────────────── */
+.dp-cats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.dp-cat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+}
+.dp-cat-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+.dp-cat-label {
+  color: rgba(255, 255, 255, 0.80);
+  font-weight: 600;
+}
+
+/* ── Templates ───────────────────────────────────────────── */
+.dp-templates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dp-template {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dp-template-name {
+  flex: 1;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--text, #e5e7eb);
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.dp-template-name:hover {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.40);
+  color: var(--dp-accent);
+}
+
+/* ── Timeline ────────────────────────────────────────────── */
+.dp-tl-wrap {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dp-tl-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.dp-tl {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.dp-tl-hours {
+  position: relative;
+}
+.dp-tl-hour {
+  position: relative;
+  cursor: pointer;
+  padding-left: 64px;
+}
+.dp-tl-hour:hover { background: rgba(255, 255, 255, 0.02); }
+.dp-tl-hour-lbl {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 56px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: right;
+  padding-right: 8px;
+}
+.dp-tl-hour-line {
+  position: absolute;
+  left: 64px;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Block (user-defined) ────────────────────────────────── */
+.dp-block {
+  position: absolute;
+  /* Default: full width within the timeline gutter (70px left
+     label + 110px right ghost-overlay margin). Overridden below
+     for laned (overlapping) and editing blocks. */
+  left: 70px;
+  right: 110px;
+  border-radius: 8px;
+  border-left: 3px solid;
+  padding: 6px 10px;
+  cursor: grab;
+  overflow: hidden;
+  z-index: 2;
+  transition: filter 100ms ease, box-shadow 100ms ease;
+  user-select: none;
+}
+.dp-block:hover { filter: brightness(1.15); }
+.dp-block:active { cursor: grabbing; }
+
+/* When overlapping with other blocks, split the row horizontally
+   into evenly-sized columns. The CSS variables come from inline
+   styles set by the renderer (computeLanes provides lane + totalLanes).
+   We use a 6px gap between columns. */
+.dp-block.laned {
+  --gap: 6px;
+  --col-width: calc((100% - 70px - 110px - (var(--total-lanes) - 1) * var(--gap)) / var(--total-lanes));
+  left:  calc(70px + var(--lane) * (var(--col-width) + var(--gap)));
+  right: auto;
+  width: var(--col-width);
+}
+
+.dp-block.editing {
+  right: 14px;
+  left: 70px;
+  width: auto;
+  z-index: 5;
+  cursor: default;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  overflow: visible;
+}
+
+/* Always-visible × delete button in the top-right corner of
+   every block. Click to delete; mousedown is stopped so it
+   doesn't initiate a drag. */
+.dp-block-del {
+  position: absolute;
+  top: 3px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 5px; border: none;
+  background: rgba(0,0,0,0.30);
+  color: rgba(255,255,255,0.70);
+  font-size: 13px; font-weight: 800; line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 80ms ease, color 80ms ease;
+}
+.dp-block-del:hover {
+  background: rgba(239, 68, 68, 0.65);
+  color: #fff;
+}
+
+/* Bottom-edge resize handle for blocks. Sits on top of the block,
+   takes the bottom 6px, gives a ns-resize cursor and a faint
+   visual hint on hover. */
+.dp-block-resize {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 6px;
+  cursor: ns-resize;
+  z-index: 1;
+}
+.dp-block:hover .dp-block-resize {
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.18));
+}
+.dp-block-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  pointer-events: none;
+  /* Base reserve: just the × button (22px wide, 4px from edge,
+     4px gap from text). Long titles get ellipsis instead of
+     running underneath the corner controls. */
+  padding-right: 30px;
+}
+/* When category chips are present, widen the right reserve to
+   account for their width too:
+       has-routine-chip → 💪 Routine (~80px) + ×
+       has-prayer-chips → 🙏 Prayers + 📖 Journal (~150px) + × */
+.dp-block.has-routine-chip   .dp-block-view { padding-right: 110px; }
+.dp-block.has-prayer-chips   .dp-block-view { padding-right: 180px; }
+.dp-block.has-friends-chip   .dp-block-view { padding-right: 110px; }
+.dp-block.has-devotions-chip .dp-block-view { padding-right: 120px; }
+
+/* On laned (narrow / side-by-side) blocks, the chip labels are
+   hidden so each chip shrinks to just its emoji. That keeps the
+   block legible when 2+ events overlap in the same time slot. */
+.dp-block.laned.has-routine-chip   .dp-block-view { padding-right: 60px; }
+.dp-block.laned.has-prayer-chips   .dp-block-view { padding-right: 90px; }
+.dp-block.laned.has-friends-chip   .dp-block-view { padding-right: 60px; }
+.dp-block.laned.has-devotions-chip .dp-block-view { padding-right: 60px; }
+.dp-block.laned .dp-chip-label { display: none; }
+.dp-block.laned .dp-block-chip { padding: 0 5px; }
+.dp-block-time {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+}
+.dp-block-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dp-block-cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+/* Inline editor inside a block */
+.dp-block-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0;
+}
+.dp-edit-title {
+  appearance: none;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--text, #e5e7eb);
+  padding: 6px 9px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+}
+.dp-edit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 6px;
+}
+.dp-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dp-edit-field span {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.50);
+}
+.dp-edit-time, .dp-edit-cat {
+  appearance: none;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: var(--text, #e5e7eb);
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  color-scheme: dark;
+}
+.dp-edit-notes {
+  appearance: none;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: var(--text, #e5e7eb);
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.4;
+  resize: vertical;
+}
+/* Sync to Calendar + reminder controls inside the editor. */
+.dp-edit-syncbox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+.dp-edit-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #e5e7eb);
+  cursor: pointer;
+}
+.dp-edit-toggle input[type="checkbox"] {
+  width: 14px; height: 14px;
+  accent-color: #f59e0b;
+  flex-shrink: 0;
+}
+.dp-edit-rem-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 2px;
+  padding-left: 22px;
+}
+
+.dp-edit-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dp-edit-del, .dp-edit-done {
+  appearance: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.dp-edit-del {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.40);
+  color: #fca5a5;
+}
+.dp-edit-del:hover { background: rgba(239, 68, 68, 0.25); }
+.dp-edit-done {
+  background: rgba(245, 158, 11, 0.20);
+  border-color: rgba(245, 158, 11, 0.55);
+  color: var(--dp-accent);
+}
+.dp-edit-done:hover { background: rgba(245, 158, 11, 0.32); }
+
+/* Category-specific corner chips. Sits in the top-right corner
+   immediately to the LEFT of the × delete button (which is at
+   right: 4px / 22px wide), so the layout reads:
+     [chip] [chip] [×]
+   for prayer blocks, or [chip] [×] for exercise blocks. Flex
+   container handles spacing so the chip widths can vary. */
+.dp-block-corner-extras {
+  position: absolute;
+  top: 3px;
+  right: 30px;                   /* 4px (× right offset) + 22px (× width) + 4px gap */
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  z-index: 3;
+}
+.dp-block-chip {
+  appearance: none;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 3px;                      /* spacing between emoji + label */
+  white-space: nowrap;
+  line-height: 1;
+  border: 1px solid transparent;
+  transition: background 100ms ease, color 100ms ease;
+}
+.dp-chip-emoji { font-size: 11px; line-height: 1; }
+.dp-chip-label { font-size: 10px; line-height: 1; }
+
+/* Exercise → red, matching #ef4444. */
+.dp-chip-routine {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fecaca;
+}
+.dp-chip-routine:hover {
+  background: rgba(239, 68, 68, 0.40);
+  color: #fff;
+}
+
+/* Prayer "Prayers" → violet, matching the prayer category
+   color #8b5cf6. */
+.dp-chip-prayers {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: rgba(139, 92, 246, 0.60);
+  color: #ddd6fe;
+}
+.dp-chip-prayers:hover {
+  background: rgba(139, 92, 246, 0.42);
+  color: #fff;
+}
+
+/* Prayer "Journal" → indigo so the two prayer chips are
+   visually distinct from each other. */
+.dp-chip-journal {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.60);
+  color: #c7d2fe;
+}
+.dp-chip-journal:hover {
+  background: rgba(99, 102, 241, 0.42);
+  color: #fff;
+}
+
+/* Outreach "Friends" → lime green, matching the outreach
+   category color #84cc16. */
+.dp-chip-friends {
+  background: rgba(132, 204, 22, 0.22);
+  border-color: rgba(132, 204, 22, 0.60);
+  color: #d9f99d;
+}
+.dp-chip-friends:hover {
+  background: rgba(132, 204, 22, 0.42);
+  color: #fff;
+}
+
+/* Bible Study "Devotions" → warm amber so it's visually
+   distinct from the blue study category tint underneath. */
+.dp-chip-devotions {
+  background: rgba(251, 146, 60, 0.22);
+  border-color: rgba(251, 146, 60, 0.60);
+  color: #fed7aa;
+}
+.dp-chip-devotions:hover {
+  background: rgba(251, 146, 60, 0.42);
+  color: #fff;
+}
+
+.dp-edit-routine {
+  appearance: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.dp-edit-routine:hover { background: rgba(239, 68, 68, 0.32); }
+
+/* ── Calendar event ghost overlays ───────────────────────── */
+.dp-cal-ghost {
+  position: absolute;
+  right: 14px;
+  width: 90px;
+  border-radius: 8px;
+  border: 1px dashed;
+  padding: 4px 6px;
+  font-size: 10px;
+  z-index: 1;
+  opacity: 0.85;
+  pointer-events: auto;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+.dp-cal-ghost-time {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.75);
+}
+.dp-cal-ghost-title {
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Bible Study meeting overlay ─────────────────────────
+   Same shape as the calendar ghost but with a distinct color
+   (blue) + 📖 icon. Shows even when the study isn't synced to
+   the Calendar — pulled directly from youth:bible-studies. */
+.dp-bs-ghost {
+  position: absolute;
+  left: 70px;
+  right: 110px;
+  border-radius: 8px;
+  border: 1px dashed rgba(96, 165, 250, 0.60);
+  background: rgba(96, 165, 250, 0.10);
+  padding: 4px 9px;
+  font-size: 11px;
+  z-index: 1;
+  opacity: 0.85;
+  cursor: help;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+.dp-bs-ghost-time {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #93c5fd;
+}
+.dp-bs-ghost-title {
+  font-weight: 700;
+  color: rgba(255,255,255,0.90);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dp-bs-ghost-meta {
+  font-size: 10px;
+  color: rgba(255,255,255,0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Now marker ───────────────────────────────────────────
+   Horizontal red line + chip on the right showing the current
+   time. Only rendered when the selected date is today. */
+.dp-now-marker {
+  position: absolute;
+  left: 64px;
+  right: 0;
+  height: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.dp-now-line {
+  display: block;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    rgba(239, 68, 68, 0.85),
+    rgba(239, 68, 68, 0.45)
+  );
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.55);
+  border-radius: 2px;
+}
+.dp-now-chip {
+  position: absolute;
+  right: 0;
+  top: -10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #ef4444;
+  padding: 2px 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.55);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Added features — bell · profile · prayer focus · reach-out ·
+   guardrail · week strip · split · recurring · view toggle ·
+   done checkbox · print sheet
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Topbar notification bell ────────────────────────────────── */
+.dp-tb-bell-wrap { position: relative; display: inline-flex; }
+.dp-tb-bell {
+  appearance: none;
+  position: relative;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 100ms ease;
+}
+.dp-tb-bell:hover { background: rgba(255, 255, 255, 0.12); }
+.dp-tb-bell-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  min-width: 16px; height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.dp-notif-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: rgba(20, 22, 30, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  padding: 12px;
+}
+.dp-notif-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.dp-notif-hd-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.75); }
+.dp-notif-dismiss-all {
+  appearance: none; background: none; border: none;
+  color: var(--dp-accent); font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.dp-notif-empty { font-size: 13px; color: rgba(255,255,255,0.55); padding: 12px 4px; text-align: center; }
+.dp-notif-list { display: flex; flex-direction: column; gap: 6px; }
+.dp-notif-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.dp-notif-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.dp-notif-title { font-size: 13px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-notif-body { font-size: 11px; color: rgba(255,255,255,0.55); }
+.dp-notif-dismiss {
+  appearance: none; width: 20px; height: 20px; flex-shrink: 0;
+  border-radius: 5px; border: none;
+  background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.55);
+  font-size: 11px; cursor: pointer;
+}
+.dp-notif-dismiss:hover { background: rgba(239,68,68,0.4); color: #fff; }
+
+/* ── Card CTA button (Open Prayers / Open Friends) ───────────── */
+.dp-card-cta {
+  appearance: none;
+  margin-top: 2px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(245, 158, 11, 0.30);
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--dp-accent);
+  font-size: 12px; font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: background 100ms ease;
+}
+.dp-card-cta:hover { background: rgba(245, 158, 11, 0.22); }
+
+/* ── Sabbath / rest guardrail ────────────────────────────────── */
+.dp-guardrail-warn { border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); }
+.dp-guardrail-ok   { border-color: rgba(110, 231, 183, 0.25); background: rgba(52, 211, 153, 0.06); }
+.dp-guardrail-row { display: flex; align-items: center; gap: 8px; }
+.dp-guardrail-icon { font-size: 16px; }
+.dp-guardrail-text { font-size: 12.5px; color: rgba(255,255,255,0.78); }
+.dp-guardrail-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.dp-guardrail-warning {
+  font-size: 12.5px; line-height: 1.45;
+  color: #fcd34d;
+  padding-left: 18px; position: relative;
+}
+.dp-guardrail-warning::before { content: '⚠'; position: absolute; left: 0; top: 0; }
+
+/* ── Prayer focus ────────────────────────────────────────────── */
+.dp-count-stepper { display: inline-flex; align-items: center; gap: 6px; }
+.dp-step-btn {
+  appearance: none; width: 22px; height: 22px;
+  border-radius: 6px; border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06); color: #fff;
+  font-size: 14px; font-weight: 800; line-height: 1; cursor: pointer;
+}
+.dp-step-btn:hover { background: rgba(255,255,255,0.14); }
+.dp-step-val { font-size: 13px; font-weight: 800; min-width: 14px; text-align: center; color: #fff; }
+.dp-focus-list, .dp-reach-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.dp-focus-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: 9px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+}
+.dp-focus-dot { font-size: 13px; flex-shrink: 0; }
+.dp-focus-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.dp-focus-title { font-size: 13px; font-weight: 600; color: var(--text, #e5e7eb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-focus-cat { font-size: 10.5px; color: rgba(255,255,255,0.45); }
+
+/* ── Who to reach out to ─────────────────────────────────────── */
+.dp-reach-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 8px; border-radius: 9px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+}
+.dp-reach-avatar {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+}
+.dp-reach-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.dp-reach-name { font-size: 13px; font-weight: 600; color: var(--text, #e5e7eb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-reach-due { font-size: 10.5px; font-weight: 700; color: #fcd34d; }
+.dp-reach-due.dp-reach-overdue { color: #fca5a5; }
+
+/* ── Week strip ──────────────────────────────────────────────── */
+.dp-weekstrip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin: 0 0 14px;
+}
+.dp-week-day {
+  appearance: none;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 11px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.dp-week-day:hover { background: rgba(255,255,255,0.07); }
+.dp-week-day.today { border-color: rgba(245, 158, 11, 0.45); }
+.dp-week-day.on {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: var(--dp-accent);
+  color: #fff;
+}
+.dp-week-dow { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; }
+.dp-week-num { font-size: 16px; font-weight: 800; line-height: 1; }
+.dp-week-density {
+  width: 100%; height: 22px;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.dp-week-fill {
+  width: 18px; min-height: 2px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(to top, var(--dp-accent), rgba(245, 158, 11, 0.4));
+}
+
+/* ── Split view (today vs. next day) ─────────────────────────── */
+.dp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; overflow-y: auto; padding-top: 10px; }
+.dp-split-col {
+  display: flex; flex-direction: column; gap: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px;
+}
+.dp-split-head {
+  appearance: none; background: none; border: none;
+  text-align: left; cursor: pointer;
+  font-size: 13px; font-weight: 800; color: #fff;
+  padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.dp-split-head:hover { color: var(--dp-accent); }
+
+/* Small per-day title shown in split / week views — same serif
+   look as the big day theme, just scaled down. Read-only here;
+   edit it from the single-day (timeline) view. */
+.dp-day-theme-mini {
+  font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
+  font-size: 12px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  text-align: center;
+  margin: 4px 0 2px;
+  word-break: break-word;
+  background: linear-gradient(180deg, #fff 0%, #fde68a 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: default;
+}
+.dp-split-col .dp-day-theme-mini { text-align: left; }
+.dp-split-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.dp-split-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.dp-split-item.done .dp-split-title { text-decoration: line-through; color: rgba(255,255,255,0.4); }
+.dp-split-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dp-split-time { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); min-width: 56px; }
+.dp-split-title { color: var(--text, #e5e7eb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Recurring blocks ────────────────────────────────────────── */
+.dp-rec-form { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 6px; }
+.dp-rec-title, .dp-rec-form input[type="time"], .dp-rec-form select {
+  appearance: none;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: var(--text, #e5e7eb);
+  font-family: inherit; font-size: 13px;
+  padding: 7px 9px;
+}
+.dp-rec-row { display: flex; gap: 8px; }
+.dp-rec-row .dp-edit-field { flex: 1; }
+.dp-rec-days { display: flex; gap: 4px; flex-wrap: wrap; }
+.dp-rec-day {
+  appearance: none; flex: 1; min-width: 34px;
+  padding: 5px 0; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.dp-rec-day.on { background: rgba(245, 158, 11, 0.2); border-color: var(--dp-accent); color: #fff; }
+.dp-rec-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.dp-rec-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: 9px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+}
+.dp-rec-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.dp-rec-name { font-size: 13px; font-weight: 600; color: var(--text, #e5e7eb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-rec-meta { font-size: 10.5px; color: rgba(255,255,255,0.5); }
+
+/* ── Timeline toolbar: view toggle + day-sheet actions ───────── */
+.dp-tl-head { flex-wrap: wrap; }
+.dp-tl-head-left { display: flex; align-items: center; gap: 12px; }
+.dp-tl-head-actions { display: flex; align-items: center; gap: 6px; }
+.dp-tl-hint { flex-basis: 100%; font-size: 11px; font-style: italic; color: rgba(255,255,255,0.45); margin-top: 4px; }
+.dp-view-toggle {
+  display: inline-flex; gap: 2px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 9px; padding: 2px;
+}
+.dp-view-tab {
+  appearance: none; background: none; border: none;
+  padding: 4px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6);
+  cursor: pointer;
+}
+.dp-view-tab.on { background: rgba(245, 158, 11, 0.2); color: #fff; }
+
+/* ── Block done checkbox ─────────────────────────────────────── */
+.dp-block-view { padding-left: 22px; }
+.dp-block-done {
+  position: absolute;
+  top: 6px; left: 8px;
+  pointer-events: auto;
+  display: inline-flex; align-items: center;
+  cursor: pointer;
+  z-index: 3;
+}
+.dp-block-done input { width: 15px; height: 15px; accent-color: var(--dp-accent); cursor: pointer; }
+.dp-block.done { filter: saturate(0.55) brightness(0.85); }
+.dp-block.done .dp-block-title { text-decoration: line-through; opacity: 0.7; }
+
+/* ── Make-recurring button in the block editor ───────────────── */
+.dp-edit-recur {
+  appearance: none;
+  padding: 6px 10px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.dp-edit-recur:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* ── Make-recurring modal ────────────────────────────────────── */
+.dp-modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.dp-modal {
+  width: 100%; max-width: 360px;
+  background: #1b1d22;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  padding: 18px;
+}
+.dp-modal-title {
+  margin: 0 0 14px; font-size: 15px; font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+.dp-recur-field { margin-bottom: 14px; }
+.dp-recur-label {
+  display: block; margin-bottom: 6px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: rgba(255,255,255,0.5);
+}
+.dp-recur-days { display: flex; gap: 4px; flex-wrap: wrap; }
+.dp-recur-day {
+  appearance: none; flex: 1; min-width: 34px;
+  padding: 6px 0; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.dp-recur-day.active { background: rgba(245, 158, 11, 0.2); border-color: var(--dp-accent); color: #fff; }
+.dp-select {
+  width: 100%; appearance: none;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: var(--text, #e5e7eb);
+  font-family: inherit; font-size: 13px;
+  padding: 8px 9px;
+}
+.dp-recur-hint { margin: 8px 0 0; font-size: 11px; color: rgba(255,255,255,0.45); }
+.dp-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.dp-btn-ghost {
+  appearance: none; padding: 8px 14px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: none; color: rgba(255,255,255,0.75);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.dp-btn-ghost:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.dp-btn-primary {
+  appearance: none; padding: 8px 14px; border-radius: 8px;
+  border: 1px solid var(--dp-accent);
+  background: rgba(245, 158, 11, 0.22); color: #fde68a;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.dp-btn-primary:hover { background: rgba(245, 158, 11, 0.34); color: #fff; }
+.dp-btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Print day sheet ─────────────────────────────────────────── */
+@media print {
+  .app-topbar, .nav-rail, .dp-weekstrip, .dp-left, .dp-right,
+  .dp-view-toggle, .dp-tl-head-actions, .dp-tl-hint, .dp-now-marker,
+  .dp-block-del, .dp-block-resize, .dp-sync-btn, .dp-date-controls,
+  .dp-gap {
+    display: none !important;
+  }
+  .dp-root, .dp-main { height: auto; overflow: visible; background: #fff; color: #111; }
+  .dp-body { display: block; }
+  .dp-block { color: #111; }
+  .dp-block-title, .dp-block-time, .dp-card-title { color: #111 !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   New: focus mix · block energy badge · free-time gaps ·
+   template presets · weekly rhythm view
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Focus / energy mix card ─────────────────────────────────── */
+.dp-focus-deep-tag {
+  font-size: 11px; font-weight: 800;
+  color: #c4b5fd;
+  background: rgba(167, 139, 250, 0.16);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  padding: 2px 8px; border-radius: 999px;
+}
+.dp-energy-bar {
+  display: flex; width: 100%; height: 12px;
+  border-radius: 999px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 4px 0 10px;
+}
+.dp-energy-seg { height: 100%; }
+.dp-energy-seg.dp-energy-untagged {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,0.10) 0 4px,
+    rgba(255,255,255,0.04) 4px 8px);
+}
+.dp-energy-legend {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.dp-energy-leg { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.dp-energy-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.dp-energy-leg-label { color: rgba(255,255,255,0.8); font-weight: 600; }
+.dp-energy-leg-val { margin-left: auto; color: rgba(255,255,255,0.55); font-weight: 700; }
+
+/* ── Block energy badge ──────────────────────────────────────── */
+.dp-block-energy {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 800;
+  opacity: 0.95;
+  white-space: nowrap;
+}
+
+/* ── Free-time suggestions ───────────────────────────────────── */
+.dp-gap {
+  position: absolute;
+  left: 64px; right: 6px;
+  z-index: 2;
+  pointer-events: auto;     /* capture hover so suggestions can reveal */
+  display: flex; align-items: center; justify-content: center;
+}
+.dp-gap-inner {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  /* Hidden until the user hovers over the free-time gap. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2px);
+  transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+}
+.dp-gap:hover .dp-gap-inner,
+.dp-gap:focus-within .dp-gap-inner {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.dp-gap.roomy .dp-gap-inner { flex-direction: column; gap: 6px; }
+.dp-gap-fill, .dp-gap-chip {
+  pointer-events: auto;
+  appearance: none; cursor: pointer; font-family: inherit;
+  border-radius: 999px;
+  border: 1px dashed rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.10);
+  color: #fcd34d;
+  font-weight: 700;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.dp-gap-fill { padding: 4px 12px; font-size: 11px; }
+.dp-gap-fill:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.75);
+  color: #fff;
+}
+.dp-gap-chips { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.dp-gap-chip {
+  padding: 3px 9px; font-size: 10px;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+}
+.dp-gap-chip:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+/* ── Template presets ────────────────────────────────────────── */
+.dp-tpl-subhead {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: rgba(255,255,255,0.4);
+  margin: 10px 0 6px;
+}
+.dp-tpl-subhead:first-of-type { margin-top: 2px; }
+.dp-template-preset {
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.07);
+}
+.dp-template-preset:hover {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+/* Inline "name this template" row (replaces window.prompt). */
+.dp-tpl-namer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+.dp-tpl-name-input {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: var(--text, #e5e7eb);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 5px 8px;
+}
+.dp-tpl-name-input:focus {
+  outline: none;
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+/* ── Weekly rhythm view ──────────────────────────────────────── */
+.dp-week-summary {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  padding: 8px 4px 2px;
+  font-size: 12px; color: rgba(255,255,255,0.6);
+}
+.dp-week-sum-stat b { color: #fff; font-size: 14px; }
+.dp-week-sum-stat.warn b { color: #fca5a5; }
+.dp-rhythm {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 8px;
+}
+.dp-rhythm-col {
+  display: flex; flex-direction: column; align-items: stretch;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 6px 5px;
+  background: rgba(255,255,255,0.02);
+}
+.dp-rhythm-col.today { border-color: rgba(245, 158, 11, 0.4); }
+.dp-rhythm-col.on {
+  border-color: rgba(245, 158, 11, 0.65);
+  background: rgba(245, 158, 11, 0.07);
+}
+.dp-rhythm-head {
+  appearance: none; background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 2px 0 6px; font-family: inherit;
+}
+.dp-rhythm-dow {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.04em; color: rgba(255,255,255,0.5);
+}
+.dp-rhythm-num { font-size: 15px; font-weight: 800; color: var(--text, #e5e7eb); }
+.dp-rhythm-col.today .dp-rhythm-num { color: var(--dp-accent, #f59e0b); }
+.dp-rhythm-head:hover .dp-rhythm-num { color: #fff; }
+.dp-rhythm-track {
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.05) 0 1px,
+      transparent 1px 30px);
+  overflow: hidden;
+}
+.dp-rhythm-bar {
+  position: absolute;
+  left: 3px; right: 3px;
+  border-radius: 3px;
+  opacity: 0.9;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+}
+.dp-rhythm-bar.done { opacity: 0.4; }
+.dp-rhythm-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 4px; padding: 6px 2px 1px;
+}
+.dp-rhythm-hrs { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.7); }
+.dp-rhythm-flags { display: inline-flex; gap: 3px; font-size: 11px; line-height: 1; }
+.dp-rhythm-flag.warn { filter: drop-shadow(0 0 3px rgba(239,68,68,0.6)); }
+
+@media (max-width: 900px) {
+  .dp-rhythm { gap: 5px; }
+  .dp-rhythm-col { padding: 5px 3px; }
+  .dp-rhythm-num { font-size: 13px; }
+}

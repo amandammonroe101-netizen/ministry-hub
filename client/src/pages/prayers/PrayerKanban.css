@@ -1,0 +1,223 @@
+/* PrayerKanban — three-column board view. Namespaced `pk-`. */
+
+.pk-root {
+  flex: 1;
+  display: flex; flex-direction: column;
+  padding: 18px 24px 28px;
+  gap: 14px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.pk-hd {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.pk-hd-title {
+  font-size: 16px; font-weight: 700;
+  color: rgba(255,255,255,.9);
+  letter-spacing: -.01em;
+}
+.pk-hd-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,.45);
+}
+
+/* ── Columns row ── */
+.pk-columns {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  overflow: hidden;
+}
+@media (max-width: 880px) {
+  .pk-columns { grid-template-columns: 1fr; overflow-y: auto; }
+}
+
+.pk-col {
+  display: flex; flex-direction: column;
+  background: var(--pk-tint, rgba(255,255,255,.03));
+  border: .5px solid rgba(255,255,255,.08);
+  border-top: 3px solid var(--pk-accent, rgba(255,255,255,.2));
+  border-radius: 10px;
+  padding: 12px 12px 6px;
+  min-height: 0;
+  overflow: hidden;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+.pk-col.hover {
+  border-color: var(--pk-accent);
+  background:
+    var(--pk-tint),
+    rgba(255,255,255,.04);
+  box-shadow: inset 0 0 0 1px var(--pk-accent);
+  transform: translateY(-1px);
+}
+
+.pk-col-hd {
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 4px;
+}
+.pk-col-emoji { font-size: 16px; }
+.pk-col-title {
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,.92);
+  letter-spacing: -.01em;
+  flex: 1;
+}
+.pk-col-count {
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,.6);
+  background: rgba(0,0,0,.18);
+  padding: 2px 8px; border-radius: 999px;
+  min-width: 22px; text-align: center;
+}
+.pk-col-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,.4);
+  padding-bottom: 8px;
+  border-bottom: .5px solid rgba(255,255,255,.06);
+  margin-bottom: 8px;
+}
+.pk-col-body {
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.pk-col-body::-webkit-scrollbar { width: 3px; }
+.pk-col-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+.pk-col-empty {
+  padding: 18px 12px;
+  font-size: 11px;
+  color: rgba(255,255,255,.32);
+  font-style: italic;
+  text-align: center;
+  border: 1px dashed rgba(255,255,255,.08);
+  border-radius: 8px;
+}
+
+/* ── Card ── */
+.pk-card {
+  background: rgba(14,10,30,.45);
+  border: .5px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: 9px 11px 8px;
+  cursor: grab;
+  font-family: inherit;
+  color: rgba(255,255,255,.85);
+  display: flex; flex-direction: column; gap: 5px;
+  transition: all .14s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+.pk-card:hover {
+  border-color: rgba(255,255,255,.18);
+  background: rgba(14,10,30,.55);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+}
+.pk-card:active { cursor: grabbing; }
+/* Compact density — tighter card from Page Settings → Display →
+   List density. Smaller padding + tighter inter-row gap so 3-4
+   more cards fit on screen at once. The snippet is hidden in JSX,
+   so we don't need to deal with it here. */
+.pk-card.density-compact {
+  padding: 6px 9px 6px;
+  gap: 3px;
+}
+.pk-card.density-compact .pk-card-title { font-size: 12px; }
+.pk-card.density-compact .pk-card-pills { gap: 4px; }
+.pk-card.dragging {
+  opacity: .35;
+  transform: rotate(-1.5deg) scale(.97);
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);
+}
+.pk-card.urgent {
+  border-color: rgba(239,68,68,.36);
+  box-shadow: 0 2px 10px rgba(239,68,68,.12);
+}
+
+.pk-card-pills {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.pk-tag {
+  display: inline-flex; align-items: center;
+  font-size: 9px; font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  border: .5px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6);
+  text-transform: none;
+}
+.pk-tag-urgent { background: rgba(239,68,68,.16); color: #fca5a5; border-color: rgba(239,68,68,.32); }
+.pk-tag-daily  { background: rgba(251,191,36,.18); color: #fcd34d; border-color: rgba(251,191,36,.32); }
+
+.pk-card-title {
+  font-size: 13px; font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -.005em;
+  color: rgba(255,255,255,.92);
+}
+.pk-card-snip {
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
+  line-height: 1.5;
+  /* clamp to 2 lines via line height */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pk-card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; color: rgba(255,255,255,.38);
+  padding-top: 2px;
+}
+.pk-card-age     { letter-spacing: .04em; }
+
+/* Linked-friends row — one chip per name. Sits above the footer so
+   it reads as part of the prayer body, not the metadata strip. Wraps
+   naturally when several friends are linked. */
+.pk-card-friends {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding-top: 4px;
+}
+.pk-card-friends-icon {
+  font-size: 11px;
+  color: rgba(125,211,252,.72);
+  margin-right: 2px;
+}
+.pk-friend-chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(165,243,252,.85);
+  background: rgba(34,211,238,.10);
+  border: .5px solid rgba(34,211,238,.28);
+  border-radius: 999px;
+  padding: 2px 8px;
+  letter-spacing: .01em;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Empty page state ── */
+.pk-empty {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center;
+  gap: 14px;
+}
+.pk-empty-icon { font-size: 48px; opacity: .8; }
+.pk-empty-title {
+  font-size: 17px; font-weight: 700;
+  color: rgba(255,255,255,.85);
+}
+.pk-empty-actions { display: flex; gap: 10px; }

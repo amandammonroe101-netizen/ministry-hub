@@ -1,0 +1,171 @@
+/* ─────────────────────────────────────────────────────────────
+   Outreach → Follow-Ups. Naming: .ofu-*
+   Renders inside OutreachShell's .osh-content, so it inherits the
+   --osh-* custom properties defined in OutreachShell.css.
+   ───────────────────────────────────────────────────────────── */
+
+.ofu-root { color: var(--osh-ink, #123331); height: 100%; }
+.ofu-shell { display: flex; flex-direction: column; gap: 16px; height: 100%; }
+
+.ofu-description { margin: 0; font-size: 13px; color: var(--osh-ink-soft); }
+
+.ofu-board {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .ofu-board { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+}
+
+.ofu-loading { grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--osh-ink-faint); }
+
+.ofu-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  min-height: 160px;
+  transition: background .15s, border-color .15s;
+}
+.ofu-col.drag-over {
+  background: rgba(15,148,136,0.08);
+  border-color: var(--osh-border-hi);
+}
+
+.ofu-col-head { display: flex; align-items: center; gap: 8px; }
+.ofu-col-icon { font-size: 15px; }
+.ofu-col-name { flex: 1; font-size: 13px; font-weight: 800; color: var(--osh-ink); }
+.ofu-col-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ofu-accent, #60a5fa);
+  background: color-mix(in srgb, var(--ofu-accent, #60a5fa) 14%, transparent);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+.ofu-col-hint { margin: 0; font-size: 11px; color: var(--osh-ink-faint); }
+
+.ofu-col-body { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+.ofu-col-empty {
+  border: 1px dashed var(--osh-border, rgba(15,148,136,0.14));
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--osh-ink-faint);
+}
+
+.ofu-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  cursor: grab;
+  transition: all .15s;
+}
+.ofu-card:active { cursor: grabbing; }
+.ofu-card:hover { border-color: var(--osh-border-hi); box-shadow: 0 6px 16px rgba(15,148,136,0.12); }
+.ofu-card.is-overdue { border-color: rgba(251,113,133,0.5); }
+.ofu-card-overdue {
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--osh-coral, #fb7185);
+}
+.ofu-card-name { font-size: 13px; font-weight: 700; color: var(--osh-ink); }
+.ofu-card-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.ofu-card-chip { font-size: 11px; color: var(--osh-ink-soft); }
+.ofu-card-note {
+  font-size: 11.5px;
+  color: var(--osh-ink-soft);
+  background: rgba(15,148,136,0.05);
+  border-radius: 6px;
+  padding: 5px 7px;
+}
+
+/* ── Edit modal ─────────────────────────────────────────────── */
+.ofu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(18,51,49,0.35);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.ofu-modal {
+  width: min(460px, 100%);
+  max-height: min(86vh, 640px);
+  overflow-y: auto;
+  border-radius: 18px;
+  background: #fffdfa;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  box-shadow: 0 30px 80px rgba(15,148,136,0.22);
+  animation: ofuModalIn .28s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes ofuModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.ofu-modal-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 10px;
+}
+.ofu-modal-title { flex: 1; margin: 0; font-size: 17px; font-weight: 800; color: var(--osh-ink); }
+.ofu-modal-x {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  background: color-mix(in srgb, var(--ofu-accent, #60a5fa) 10%, transparent);
+  color: var(--ofu-accent, #60a5fa);
+  cursor: pointer;
+  font-size: 12px;
+}
+.ofu-modal-x:hover { background: rgba(239,68,68,0.14); color: #b91c1c; }
+
+.ofu-modal-body { display: flex; flex-direction: column; gap: 12px; padding: 6px 20px 4px; }
+.ofu-field { display: flex; flex-direction: column; gap: 4px; }
+.ofu-field-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--osh-ink-faint); }
+.ofu-inp {
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  background: #fff;
+  color: var(--osh-ink);
+  font-size: 13.5px;
+  font-family: inherit;
+}
+.ofu-inp:focus { outline: none; border-color: var(--ofu-accent, #60a5fa); }
+.ofu-textarea { min-height: 70px; resize: vertical; }
+
+.ofu-modal-foot { display: flex; gap: 10px; padding: 16px 20px 20px; }
+.ofu-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--osh-border-hi, rgba(15,148,136,0.30));
+  background: #fff;
+  color: var(--osh-ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ofu-btn-primary { background: linear-gradient(135deg, var(--ofu-accent, #60a5fa), color-mix(in srgb, var(--ofu-accent, #60a5fa) 70%, white)); border-color: transparent; color: #fff; }
+.ofu-btn-primary:hover { filter: brightness(1.06); }
+.ofu-btn-ghost { background: transparent; }
+.ofu-btn-ghost:hover { background: rgba(239,68,68,0.1); color: #b91c1c; border-color: rgba(239,68,68,0.3); }

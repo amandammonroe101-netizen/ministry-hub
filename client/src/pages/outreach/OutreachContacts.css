@@ -1,0 +1,222 @@
+/* ─────────────────────────────────────────────────────────────
+   Outreach → New Contacts. Naming: .oct-*
+   Renders inside OutreachShell's .osh-content, so it inherits the
+   --osh-* custom properties defined in OutreachShell.css.
+   ───────────────────────────────────────────────────────────── */
+
+.oct-root { color: var(--osh-ink, #123331); }
+.oct-shell { display: flex; flex-direction: column; gap: 20px; }
+
+.oct-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.oct-stat {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  border-top: 3px solid var(--oct-accent, #60a5fa);
+  box-shadow: 0 2px 10px rgba(15,148,136,0.06);
+}
+.oct-stat.is-warn { border-top-color: var(--osh-coral, #fb7185); }
+.oct-stat.is-warn .oct-stat-n { color: var(--osh-coral, #fb7185); }
+.oct-stat-n { font-size: 24px; font-weight: 800; color: var(--osh-ink); }
+.oct-stat-lbl { font-size: 11.5px; color: var(--osh-ink-soft); }
+
+.oct-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.oct-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  min-width: 240px;
+  flex: 1;
+}
+.oct-search-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--osh-ink);
+}
+.oct-search-wrap input::placeholder { color: var(--osh-ink-faint); }
+.oct-search-clear { border: none; background: none; cursor: pointer; color: var(--osh-ink-faint); }
+.oct-search-clear:hover { color: var(--osh-ink); }
+
+.oct-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.oct-filter-chip {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  background: #fff;
+  color: var(--osh-ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.oct-filter-chip:hover { background: rgba(15,148,136,0.06); color: var(--osh-ink); }
+.oct-filter-chip.on {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--oct-accent, #60a5fa) 22%, transparent), rgba(255,255,255,0.6));
+  border-color: color-mix(in srgb, var(--oct-accent, #60a5fa) 45%, var(--osh-border-hi));
+  color: var(--oct-accent, #60a5fa);
+}
+
+.oct-loading, .oct-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--osh-ink-faint);
+}
+.oct-empty-title { font-size: 15px; font-weight: 700; color: var(--osh-ink); margin-bottom: 6px; }
+.oct-empty-sub { margin: 0; font-size: 13px; color: var(--osh-ink-soft); }
+
+.oct-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.oct-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: all .15s;
+  opacity: 0;
+  animation: octCardIn .38s cubic-bezier(.2,.7,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes octCardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.oct-card:hover { border-color: var(--osh-border-hi); box-shadow: 0 10px 24px rgba(15,148,136,0.14); }
+.oct-card-name { font-size: 15px; font-weight: 800; color: var(--osh-ink); }
+.oct-card-meta { display: flex; gap: 10px; font-size: 12px; color: var(--osh-ink-soft); flex-wrap: wrap; }
+.oct-card-prayer {
+  font-size: 12px;
+  color: var(--osh-ink-soft);
+  background: rgba(96,165,250,0.08);
+  border-radius: 8px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.oct-card-foot {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+}
+.oct-card-foot-val { font-size: 12px; font-weight: 700; color: var(--oct-accent, #60a5fa); }
+.oct-card-foot-lbl { font-size: 11.5px; color: var(--osh-ink-faint); }
+
+/* ── Slide-over ─────────────────────────────────────────────── */
+.oct-slide-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(18,51,49,0.25);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: flex-end;
+}
+.oct-slide {
+  position: relative;
+  width: min(420px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  background: #fffdfa;
+  border-left: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  box-shadow: -14px 0 40px rgba(15,148,136,0.14);
+  padding: 24px 24px 32px;
+  box-sizing: border-box;
+  animation: octSlideIn .32s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes octSlideIn {
+  from { transform: translateX(30px); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+.oct-slide-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--oct-accent, #60a5fa) 10%, transparent);
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  color: var(--oct-accent, #60a5fa);
+  cursor: pointer;
+  font-size: 13px;
+}
+.oct-slide-close:hover { background: rgba(239,68,68,0.14); color: #b91c1c; border-color: rgba(239,68,68,0.3); }
+
+.oct-view-title { margin: 4px 40px 16px 0; font-size: 20px; font-weight: 800; color: var(--osh-ink); }
+.oct-view-body { display: flex; flex-direction: column; gap: 10px; }
+.oct-view-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+}
+.oct-view-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--osh-ink-faint); }
+.oct-view-val { margin: 0; font-size: 13.5px; color: var(--osh-ink); }
+
+.oct-slide-foot { display: flex; gap: 10px; margin-top: 20px; }
+.oct-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--osh-border-hi, rgba(15,148,136,0.30));
+  background: #fff;
+  color: var(--osh-ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.oct-btn-primary { background: linear-gradient(135deg, var(--oct-accent, #60a5fa), color-mix(in srgb, var(--oct-accent, #60a5fa) 70%, white)); border-color: transparent; color: #fff; }
+.oct-btn-primary:hover { filter: brightness(1.06); }
+.oct-btn-ghost { background: transparent; }
+.oct-btn-ghost:hover { background: rgba(15,148,136,0.06); color: var(--osh-ink); }
+
+.oct-form-body { display: flex; flex-direction: column; gap: 12px; }
+.oct-field { display: flex; flex-direction: column; gap: 4px; }
+.oct-field-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--osh-ink-faint); }
+.oct-inp {
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  background: #fff;
+  color: var(--osh-ink);
+  font-size: 13.5px;
+  font-family: inherit;
+}
+.oct-inp:focus { outline: none; border-color: var(--oct-accent, #60a5fa); }
+.oct-textarea { min-height: 70px; resize: vertical; }
+
+@media (max-width: 480px) {
+  .oct-slide { width: 100%; }
+}

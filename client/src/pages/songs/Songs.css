@@ -751,6 +751,54 @@
 }
 .sg-rec-audio { height: 32px; }
 
+/* Save-to-Stems button — small inline action on each recording card */
+.sg-rec-stems-btn {
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+  padding: 6px 10px;
+}
+.sg-rec-stems-btn.is-saved {
+  color: #6ee7b7;
+  border-color: rgba(110,231,183,0.45);
+  background: rgba(110,231,183,0.10);
+  cursor: default;
+  opacity: 0.95;
+}
+.sg-rec-stems-btn:disabled:not(.is-saved) {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Transient toast surfaced inside the Recordings tab when a stem is saved */
+.sg-rec-stems-toast {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  border: 0.5px solid var(--border);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  animation: sg-rec-toast-in 180ms ease-out;
+}
+.sg-rec-stems-toast-ok {
+  color: #6ee7b7;
+  background: rgba(110,231,183,0.10);
+  border-color: rgba(110,231,183,0.45);
+}
+.sg-rec-stems-toast-warn {
+  color: #fcd34d;
+  background: rgba(252,211,77,0.10);
+  border-color: rgba(252,211,77,0.45);
+}
+.sg-rec-stems-toast-err {
+  color: #fca5a5;
+  background: rgba(239,68,68,0.10);
+  border-color: rgba(239,68,68,0.45);
+}
+@keyframes sg-rec-toast-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Insights tab ───────────────────────────────────────────── */
 .sg-insights { display: flex; flex-direction: column; gap: 16px; }
 .sg-ins-grid {
@@ -1630,7 +1678,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Performance Mode: notes banner + setlist nav
+   Performance Mode: notes banner
    ───────────────────────────────────────────────────────────── */
 .sg-perf-notes {
   padding: 8px 16px;
@@ -1640,218 +1688,4 @@
   font-size: var(--fs-md);
   text-align: center;
 }
-.sg-perf-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 10px 14px;
-  background: rgba(10,8,22,0.85);
-  border-top: 0.5px solid var(--border);
-  flex-shrink: 0;
-}
-.sg-perf-nav-btn {
-  padding: 6px 14px;
-  background: rgba(255,255,255,0.08);
-  border: 0.5px solid var(--border-hi);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: var(--fs-sm);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.sg-perf-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.14); }
-.sg-perf-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.sg-perf-nav-dots { display: flex; gap: 6px; }
-.sg-perf-nav-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.sg-perf-nav-dot:hover { background: rgba(255,255,255,0.30); }
-.sg-perf-nav-dot.on { background: var(--tab-songs); transform: scale(1.4); }
 
-/* ─────────────────────────────────────────────────────────────
-   Setlist sidebar add row + detail view
-   ───────────────────────────────────────────────────────────── */
-.sg-row-add {
-  border-style: dashed !important;
-  color: var(--text-muted) !important;
-}
-.sg-row-add:hover {
-  color: var(--tab-songs) !important;
-  border-color: rgba(251,113,133,0.4) !important;
-}
-.sg-row-add .sg-row-emoji { color: var(--tab-songs); font-weight: 700; }
-
-.sg-setlist {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  animation: fadeUp 0.25s ease both;
-}
-.sg-setlist-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-3xl);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
-
-.sg-setlist-body {
-  flex: 1;
-  padding: 22px 28px 36px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.sg-setlist-empty {
-  padding: 32px;
-  text-align: center;
-  background: var(--bg-glass);
-  border: 0.5px dashed var(--border-hi);
-  border-radius: var(--radius-lg);
-}
-.sg-setlist-empty-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  color: var(--text-primary);
-}
-.sg-setlist-empty-sub {
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-  margin-top: 4px;
-}
-
-.sg-setlist-songs {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.sg-setlist-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  background: var(--bg-glass);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  transition: all var(--transition);
-}
-.sg-setlist-row:hover { background: var(--bg-glass-md); border-color: var(--border-hi); }
-.sg-setlist-row.is-dragging { opacity: 0.5; border-style: dashed; }
-.sg-setlist-drag {
-  cursor: grab;
-  font-size: 14px;
-  color: var(--text-muted);
-  user-select: none;
-}
-.sg-setlist-drag:active { cursor: grabbing; }
-.sg-setlist-num {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--bg-glass-hi);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-sm);
-  color: var(--tab-songs);
-}
-.sg-setlist-info { flex: 1; min-width: 0; }
-.sg-setlist-title-link {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-family: var(--font-body);
-  font-size: var(--fs-md);
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  text-align: left;
-  display: block;
-}
-.sg-setlist-title-link:hover { color: var(--tab-songs); }
-.sg-setlist-meta {
-  display: flex;
-  gap: 4px;
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-.sg-setlist-remove {
-  width: 26px;
-  height: 26px;
-  background: transparent;
-  border: 0.5px solid var(--border);
-  border-radius: 6px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.sg-setlist-remove:hover { color: #fca5a5; border-color: rgba(239,68,68,0.4); }
-
-.sg-setlist-add { margin-top: 10px; }
-.sg-setlist-picker {
-  background: var(--bg-glass);
-  border: 0.5px solid var(--border-hi);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.sg-setlist-picker-hd {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--fs-md);
-  font-weight: 500;
-  color: var(--text-primary);
-}
-.sg-setlist-picker-empty {
-  padding: 14px;
-  text-align: center;
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  font-style: italic;
-}
-.sg-setlist-picker-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 320px;
-  overflow-y: auto;
-}
-.sg-setlist-picker-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  background: transparent;
-  border: 0.5px solid transparent;
-  border-radius: var(--radius-md);
-  text-align: left;
-  cursor: pointer;
-  transition: all var(--transition);
-  color: var(--text-primary);
-}
-.sg-setlist-picker-row:hover {
-  background: var(--bg-glass-md);
-  border-color: rgba(251,113,133,0.35);
-}
-.sg-setlist-add-icon {
-  font-size: 18px;
-  color: var(--tab-songs);
-  font-weight: 700;
-}

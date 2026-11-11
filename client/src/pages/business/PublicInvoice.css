@@ -1,0 +1,48 @@
+/* ─────────────────────────────────────────────────────────────
+   Business Ministry — public invoice page
+   Naming: .bzpi-*
+   ───────────────────────────────────────────────────────────── */
+
+.bzpi-root {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  background: #0b1a14;
+}
+
+.bzpi-card {
+  width: min(640px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bzpi-status {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-secondary, #94a3b8);
+  font-size: var(--fs-md, 15px);
+}
+
+.bzpi-print-btn {
+  align-self: flex-end;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: var(--fs-md, 15px);
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.06);
+  color: #e2e8f0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.bzpi-print-btn:hover { background: rgba(255,255,255,0.12); }
+
+@media print {
+  .bzpi-root { background: #fff; padding: 0; }
+  .bzpi-print-btn { display: none; }
+}

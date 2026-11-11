@@ -1,0 +1,477 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's — Coming Soon
+   Naming: .wmc-*
+   Accent: var(--wmc-accent) — supplied inline per page
+   ───────────────────────────────────────────────────────────── */
+
+.wmc-root {
+  position: relative;
+  min-width: 0;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.wmc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wmc-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.wmc-crumb-link {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  transition: background 120ms ease, color 120ms ease;
+}
+.wmc-crumb-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--wmc-accent);
+}
+
+.wmc-crumb-sep {
+  opacity: 0.4;
+}
+
+.wmc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.wmc-title-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.wmc-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-badge {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--wmc-accent);
+  background: color-mix(in srgb, var(--wmc-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wmc-accent) 35%, transparent);
+}
+
+.wmc-description {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 720px;
+}
+
+/* ── Hero card ───────────────────────────────────────────────── */
+.wmc-card {
+  position: relative;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--wmc-accent) 18%, transparent), transparent 60%),
+    rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.wmc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px color-mix(in srgb, var(--wmc-accent) 10%, transparent);
+}
+
+.wmc-card-emblem {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.wmc-card-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-card-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 640px;
+}
+
+.wmc-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.wmc-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e5e7eb);
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.wmc-btn:hover  { background: rgba(255, 255, 255, 0.12); }
+.wmc-btn:active { transform: translateY(1px); }
+
+.wmc-btn-primary {
+  background: color-mix(in srgb, var(--wmc-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--wmc-accent) 55%, transparent);
+  color: var(--wmc-accent);
+}
+.wmc-btn-primary:hover {
+  background: color-mix(in srgb, var(--wmc-accent) 32%, transparent);
+}
+
+.wmc-btn-ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+.wmc-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e5e7eb);
+}
+
+/* ── Calendar (Overview only) ────────────────────────────────── */
+/* Rendered as a full-width sibling above .wmc-shell (rather than
+   inside its 1080px centered column) so it stretches across the
+   whole page instead of being capped like the rest of the content. */
+.wmc-cal {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wmc-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.wmc-cal-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-cal-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wmc-cal-navbtn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text, #e5e7eb);
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+.wmc-cal-navbtn:hover { background: rgba(255, 255, 255, 0.1); }
+
+.wmc-cal-month {
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: center;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-cal-today {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wmc-cal-today:hover { background: rgba(255, 255, 255, 0.06); color: var(--text, #e5e7eb); }
+
+.wmc-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.wmc-cal-dow {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.4);
+  padding-bottom: 6px;
+}
+
+.wmc-cal-day {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 10px 6px 10px;
+  cursor: pointer;
+  color: var(--text, #e5e7eb);
+  font: inherit;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.wmc-cal-day:hover { background: rgba(255, 255, 255, 0.07); }
+.wmc-cal-day.is-outside { opacity: 0.35; }
+.wmc-cal-day.is-today .wmc-cal-daynum {
+  background: var(--wmc-accent);
+  color: #1a0a10;
+}
+.wmc-cal-day.is-selected {
+  border-color: color-mix(in srgb, var(--wmc-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--wmc-accent) 12%, transparent);
+}
+
+.wmc-cal-daynum {
+  font-size: 16px;
+  font-weight: 600;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wmc-cal-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.wmc-cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.wmc-cal-agenda {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wmc-cal-agenda-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wmc-cal-agenda-date {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-cal-open {
+  padding: 7px 14px;
+  font-size: 14px;
+}
+
+.wmc-cal-empty {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.wmc-cal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.wmc-cal-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.wmc-cal-item-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.wmc-cal-item-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-cal-item-time {
+  margin-left: auto;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Map (Overview only) ─────────────────────────────────────── */
+.wmc-map {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 8px;
+}
+
+.wmc-map-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-map-sub {
+  margin: -16px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.wmc-map-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wmc-map-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.wmc-map-group-icon { font-size: 16px; }
+
+.wmc-map-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.wmc-map-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  color: inherit;
+  font: inherit;
+}
+.wmc-map-card:hover {
+  background: color-mix(in srgb, var(--wmc-card-accent) 10%, rgba(255, 255, 255, 0.05));
+  border-color: color-mix(in srgb, var(--wmc-card-accent) 45%, transparent);
+}
+.wmc-map-card:active { transform: translateY(1px); }
+
+.wmc-map-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.wmc-map-card-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.wmc-map-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}

@@ -1,0 +1,597 @@
+/* ─────────────────────────────────────────────────────────────
+   Business Ministry — Pricing
+   Naming: .bzp-*
+   ───────────────────────────────────────────────────────────── */
+
+.bzp-root { width: 100%; }
+
+.bzp-btn {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border: 1px solid var(--border-hi);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.bzp-btn:hover { background: var(--bg-hover); }
+.bzp-btn.primary {
+  background: linear-gradient(135deg, #059669, #d4a537);
+  border-color: transparent;
+  color: #04160f;
+}
+.bzp-btn.primary:hover { filter: brightness(1.08); }
+.bzp-btn.primary:disabled { filter: none; }
+.bzp-btn.tiny { height: 28px; padding: 0 10px; font-size: var(--fs-sm); }
+.bzp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.bzp-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.bzp-icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.bzp-icon-btn.danger:hover { color: #fca5a5; background: rgba(239,68,68,0.12); }
+.bzp-icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.bzp-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: rgba(239,68,68,0.12);
+  border: 0.5px solid rgba(239,68,68,0.35);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: #fca5a5;
+}
+.bzp-error button { background: none; border: none; color: inherit; cursor: pointer; }
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.bzp-toolbar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.bzp-search {
+  flex: 1;
+  min-width: 220px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hi);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-family: inherit;
+}
+.bzp-stats {
+  display: flex;
+  gap: 16px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.bzp-stats span:first-child { color: var(--text-primary); font-weight: 600; }
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.bzp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-secondary);
+  gap: 8px;
+}
+.bzp-empty-icon { font-size: 40px; margin-bottom: 6px; }
+.bzp-empty h2 { color: var(--text-primary); font-size: var(--fs-xl); }
+
+/* ── Pricing rows ────────────────────────────────────────────── */
+.bzp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.bzp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-glass);
+}
+.bzp-row.is-inactive { opacity: 0.65; }
+
+.bzp-row-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.bzp-row-name {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bzp-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+.bzp-badge.bundle { background: rgba(5,150,105,0.18); color: #6ee7b7; }
+
+.bzp-field-label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.bzp-input {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hi);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.bzp-input.narrow { width: 100px; flex: none; }
+.bzp-input.grow { flex: 1; }
+
+.bzp-field { display: flex; flex-direction: column; gap: 4px; }
+
+.bzp-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Product-specific (rush fee, min order, seasonal) ────────── */
+.bzp-specifics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.bzp-specifics-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.bzp-specifics-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.bzp-view-specifics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bzp-chip {
+  font-size: var(--fs-sm);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.bzp-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.bzp-tier-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bzp-tier-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bzp-tier-row .bzp-input:first-child { flex: 1; }
+.bzp-tier-label-static {
+  flex: 1;
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+}
+.bzp-tier-margin {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  min-width: 90px;
+  text-align: right;
+}
+.bzp-tier-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bzp-tier-qty-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.bzp-input.narrow.qty { width: 56px; }
+
+/* ── Per-tier ingredients / cost of goods editor ────────────────── */
+.bzp-ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px 10px 20px;
+  border-left: 2px solid var(--border);
+  margin-left: 4px;
+}
+.bzp-ingredients-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bzp-ingredients-total {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.bzp-ingredients-total strong { color: var(--text-primary); }
+.bzp-ingredient-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border);
+}
+.bzp-ingredient-block:last-of-type { border-bottom: none; padding-bottom: 0; }
+.bzp-ingredient-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bzp-ingredient-row .bzp-input:first-child { flex: 1; }
+
+.bzp-ingredient-link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 2px;
+  flex-wrap: wrap;
+}
+.bzp-ingredient-link-select {
+  flex: 1;
+  min-width: 140px;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+.bzp-ingredient-link-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.bzp-ingredient-link-unit {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.bzp-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.bzp-saved { font-size: var(--fs-sm); color: #6ee7b7; }
+
+/* ── View mode ───────────────────────────────────────────────── */
+.bzp-view-cogs {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  padding: 0 0 4px 20px;
+}
+.bzp-view-cogs strong { color: var(--text-primary); }
+.bzp-view-cogs-ingredients { color: var(--text-muted); }
+.bzp-view-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bzp-view-tier-block {
+  display: flex;
+  flex-direction: column;
+}
+.bzp-view-tier-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.bzp-view-tier-label {
+  flex: 1;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+.bzp-view-tier-price {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--accent-green);
+  min-width: 70px;
+  text-align: right;
+}
+.bzp-view-tier-qty {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ── AI Pricing Research ─────────────────────────────────────── */
+.bzp-ai {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-hi);
+  background: rgba(5,150,105,0.06);
+}
+.bzp-ai-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bzp-ai-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.bzp-ai-free {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: var(--radius-full);
+  background: rgba(5,150,105,0.18);
+  color: #6ee7b7;
+  vertical-align: middle;
+}
+.bzp-ai-note {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.bzp-ai-note a { color: #6ee7b7; }
+.bzp-ai-error {
+  font-size: var(--fs-sm);
+  color: #fca5a5;
+}
+.bzp-ai-prices {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.bzp-ai-price {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  min-width: 90px;
+}
+.bzp-ai-price span {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bzp-ai-price strong {
+  font-size: var(--fs-lg);
+  color: #6ee7b7;
+}
+.bzp-ai-summary {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.bzp-ai-market {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+}
+.bzp-ai-market-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bzp-ai-market-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.bzp-ai-market-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+.bzp-ai-market-badge.premium { background: rgba(212,165,55,0.18); color: #d4a537; }
+.bzp-ai-market-badge.budget { background: rgba(239,68,68,0.12); color: #fca5a5; }
+.bzp-ai-market-badge.mid { background: rgba(5,150,105,0.18); color: #6ee7b7; }
+.bzp-ai-market-range {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.bzp-ai-market-range strong { color: var(--text-primary); }
+.bzp-ai-market-note {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Overhead & processing fees panel ───────────────────────── */
+.bzp-fin {
+  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-glass);
+  overflow: hidden;
+}
+.bzp-fin-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: left;
+}
+.bzp-fin-toggle:hover { background: var(--bg-hover); }
+.bzp-fin-caret {
+  color: var(--text-muted);
+  font-size: 12px;
+  width: 12px;
+}
+.bzp-fin-summary {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.bzp-fin-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 4px 16px 16px;
+  border-top: 1px solid var(--border);
+}
+.bzp-fin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bzp-fin-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bzp-fin-row .bzp-input:not(.narrow) { flex: 1; }
+.bzp-fin-radio { display: flex; align-items: center; }
+.bzp-fin-pct-sign { font-size: var(--fs-sm); color: var(--text-secondary); }
+.bzp-fin-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.bzp-fin-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Overhead & fees — view mode (double-click to edit) ─────── */
+.bzp-fin-view {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+.bzp-fin-view:hover { background: var(--bg-hover); }
+.bzp-fin-view-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: var(--fs-sm);
+}
+.bzp-fin-view-label { color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+.bzp-fin-view-value { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+.bzp-fin-active-dot { color: #6ee7b7; font-size: 10px; }
+.bzp-fin-edit-hint {
+  text-align: center;
+  padding-top: 4px;
+  font-style: italic;
+}
+
+/* ── Per-tier cost breakdown (overhead, fees, break-even) ───── */
+.bzp-cost-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 4px 20px;
+}
+.bzp-breakeven {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: #d4a537;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .bzp-row-head { flex-direction: column; align-items: stretch; }
+  .bzp-fin-summary { width: 100%; margin-left: 0; }
+}

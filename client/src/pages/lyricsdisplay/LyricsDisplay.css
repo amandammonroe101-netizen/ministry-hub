@@ -1,0 +1,892 @@
+/* ─────────────────────────────────────────────────────────────
+   LyricsDisplay — full-screen lyric/chord teleprompter
+   Naming: .ld-*
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout ───────────────────────────────────────────────── */
+.ld-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  background: var(--bg-deep);
+  color: var(--text-primary, #f0f0f5);
+  font-family: var(--font, 'Inter', system-ui, sans-serif);
+}
+
+/* ── Left panel ────────────────────────────────────────────────── */
+.ld-panel {
+  position: relative;
+  z-index: 1;
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 0.5px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+/* ── Panel tabs ────────────────────────────────────────────────── */
+.ld-panel-tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.ld-tab-btn {
+  flex: 1;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-bottom-color 0.15s;
+  border-bottom: 2px solid transparent;
+}
+
+.ld-tab-btn.active {
+  color: #06b6d4;
+  border-bottom-color: #06b6d4;
+}
+
+.ld-tab-btn:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Search input ──────────────────────────────────────────────── */
+.ld-search-wrap {
+  padding: 10px 12px;
+  flex-shrink: 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+}
+
+.ld-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  color: #f0f0f5;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.ld-search::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.ld-search:focus {
+  border-color: rgba(6, 182, 212, 0.5);
+}
+
+/* ── Scrollable list area ──────────────────────────────────────── */
+.ld-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.ld-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ld-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ld-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+
+/* ── Song item ─────────────────────────────────────────────────── */
+.ld-song-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+
+.ld-song-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ld-song-item.active {
+  background: rgba(6, 182, 212, 0.1);
+  border-left-color: #06b6d4;
+}
+
+.ld-song-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f0f0f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-song-meta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.38);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Setlist item ──────────────────────────────────────────────── */
+.ld-setlist-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+
+.ld-setlist-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ld-setlist-item.active {
+  background: rgba(6, 182, 212, 0.1);
+  border-left-color: #06b6d4;
+}
+
+.ld-setlist-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f0f0f5;
+}
+
+.ld-setlist-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+/* ── Queue header ──────────────────────────────────────────────── */
+.ld-queue-header {
+  padding: 10px 14px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+/* ── Queue song rows ───────────────────────────────────────────── */
+.ld-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+
+.ld-queue-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ld-queue-item.active {
+  background: rgba(6, 182, 212, 0.1);
+  border-left-color: #06b6d4;
+}
+
+.ld-queue-num {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  width: 16px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ld-queue-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e0e0ea;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-queue-key {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── Divider between song list and section list ─────────────────── */
+.ld-panel-divider {
+  height: 0.5px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.ld-sections-header {
+  padding: 10px 14px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+/* ── Section navigation list ───────────────────────────────────── */
+.ld-sections-list {
+  overflow-y: auto;
+  max-height: 220px;
+  padding: 4px 0 8px;
+  flex-shrink: 0;
+}
+
+.ld-sections-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.ld-sections-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.ld-section-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+
+.ld-section-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ld-section-item.active {
+  background: rgba(6, 182, 212, 0.1);
+  border-left-color: #06b6d4;
+}
+
+.ld-section-item-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ld-section-item.active .ld-section-item-label {
+  color: #06b6d4;
+}
+
+.ld-section-item-idx {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.25);
+  margin-left: auto;
+}
+
+/* ── Empty state ───────────────────────────────────────────────── */
+.ld-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.25);
+  line-height: 1.6;
+}
+
+/* ── Main display area ─────────────────────────────────────────── */
+.ld-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Settings bar ──────────────────────────────────────────────── */
+.ld-settings {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 20px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  background: rgba(7, 7, 10, 0.95);
+  flex-wrap: wrap;
+}
+
+.ld-settings-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ld-settings-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+
+/* Font-size slider */
+.ld-size-slider {
+  -webkit-appearance: none;
+  width: 110px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+  cursor: pointer;
+}
+
+.ld-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #06b6d4;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.ld-size-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.ld-size-value {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  width: 30px;
+}
+
+/* Chords toggle */
+.ld-chord-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ld-toggle-track {
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.12);
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.ld-toggle-track.on {
+  background: #06b6d4;
+}
+
+.ld-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+}
+
+.ld-toggle-track.on .ld-toggle-thumb {
+  left: 17px;
+}
+
+.ld-toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Background picker */
+.ld-bg-picker {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ld-bg-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.12s;
+  flex-shrink: 0;
+}
+
+.ld-bg-swatch:hover {
+  transform: scale(1.15);
+}
+
+.ld-bg-swatch.active {
+  border-color: #fff;
+}
+
+/* Fullscreen button */
+.ld-fs-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.ld-fs-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ── Worship Ministry — Live group light theme (chrome only) ────
+   .ld-root's own background/color already re-tint via the shared
+   --bg-deep/--text-primary tokens WorshipShell.css re-feeds under
+   .ws-group-live. Everything below flips this panel's literal
+   translucent-white fills to translucent-black equivalents. Scoped
+   to stop at .ld-stage/.ld-content/.ld-line/.ld-chord/.ld-lyric/
+   .ld-placeholder/.ld-bg-picker/.ld-nav-prev/.ld-nav-next below —
+   those belong to the projected display, which keeps its own
+   independent color-theme picker regardless of this app-chrome
+   brightness setting. */
+.ws-page.ws-group-live .ld-panel {
+  background: rgba(15,23,42,0.025);
+  border-right-color: rgba(15,23,42,0.1);
+}
+.ws-page.ws-group-live .ld-panel-tabs { border-bottom-color: rgba(15,23,42,0.1); }
+.ws-page.ws-group-live .ld-tab-btn { color: rgba(15,23,42,0.4); }
+.ws-page.ws-group-live .ld-tab-btn:hover:not(.active) { color: rgba(15,23,42,0.65); }
+.ws-page.ws-group-live .ld-search-wrap { border-bottom-color: rgba(15,23,42,0.08); }
+.ws-page.ws-group-live .ld-search {
+  background: rgba(15,23,42,0.04);
+  border-color: rgba(15,23,42,0.12);
+  color: #181c22;
+}
+.ws-page.ws-group-live .ld-search::placeholder { color: rgba(15,23,42,0.3); }
+.ws-page.ws-group-live .ld-song-item:hover,
+.ws-page.ws-group-live .ld-setlist-item:hover,
+.ws-page.ws-group-live .ld-queue-item:hover,
+.ws-page.ws-group-live .ld-section-item:hover { background: rgba(15,23,42,0.045); }
+.ws-page.ws-group-live .ld-song-title,
+.ws-page.ws-group-live .ld-setlist-name,
+.ws-page.ws-group-live .ld-queue-title { color: #181c22; }
+.ws-page.ws-group-live .ld-song-meta,
+.ws-page.ws-group-live .ld-setlist-sub,
+.ws-page.ws-group-live .ld-queue-num,
+.ws-page.ws-group-live .ld-queue-key,
+.ws-page.ws-group-live .ld-queue-header,
+.ws-page.ws-group-live .ld-sections-header,
+.ws-page.ws-group-live .ld-section-item-idx,
+.ws-page.ws-group-live .ld-empty { color: rgba(15,23,42,0.42); }
+.ws-page.ws-group-live .ld-panel-divider { background: rgba(15,23,42,0.1); }
+.ws-page.ws-group-live .ld-section-item-label { color: rgba(15,23,42,0.6); }
+.ws-page.ws-group-live .ld-settings {
+  background: rgba(255,255,255,0.85);
+  border-bottom-color: rgba(15,23,42,0.08);
+}
+.ws-page.ws-group-live .ld-settings-label { color: rgba(15,23,42,0.45); }
+.ws-page.ws-group-live .ld-size-slider { background: rgba(15,23,42,0.15); }
+.ws-page.ws-group-live .ld-size-value { color: rgba(15,23,42,0.55); }
+.ws-page.ws-group-live .ld-toggle-track { background: rgba(15,23,42,0.15); }
+.ws-page.ws-group-live .ld-toggle-label { color: rgba(15,23,42,0.6); }
+.ws-page.ws-group-live .ld-bg-swatch.active { border-color: #181c22; }
+.ws-page.ws-group-live .ld-fs-btn {
+  background: rgba(15,23,42,0.05);
+  border-color: rgba(15,23,42,0.14);
+  color: rgba(15,23,42,0.6);
+}
+.ws-page.ws-group-live .ld-fs-btn:hover {
+  background: rgba(15,23,42,0.08);
+  color: #181c22;
+}
+
+/* ── Stage ─────────────────────────────────────────────────────── */
+.ld-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ── Section label ─────────────────────────────────────────────── */
+.ld-section-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+/* ── Content area ──────────────────────────────────────────────── */
+.ld-content {
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+  font-size: var(--ld-font-size, 36px);
+  line-height: 1;
+}
+
+/* ── Chord rendering ───────────────────────────────────────────── */
+.ld-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 0.6em;
+  line-height: 1;
+}
+
+.ld-chord-block {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 2px;
+}
+
+.ld-chord {
+  font-weight: 700;
+  font-size: 0.7em;
+  line-height: 1.4;
+  /* color set via inline style */
+  white-space: pre;
+  min-width: 1ch;
+}
+
+.ld-chord-spacer {
+  /* invisible spacer keeps lyric row aligned when chord row is empty */
+  font-weight: 700;
+  font-size: 0.7em;
+  line-height: 1.4;
+  opacity: 0;
+  user-select: none;
+  white-space: pre;
+}
+
+.ld-lyric {
+  line-height: 1.5;
+  white-space: pre;
+}
+
+/* ── Nav arrows ────────────────────────────────────────────────── */
+.ld-nav-prev,
+.ld-nav-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  width: 52px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.35);
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+  z-index: 10;
+}
+
+.ld-nav-prev {
+  left: 12px;
+}
+
+.ld-nav-next {
+  right: 12px;
+}
+
+.ld-nav-prev:hover,
+.ld-nav-next:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ld-nav-prev:disabled,
+.ld-nav-next:disabled {
+  opacity: 0.18;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── No-song placeholder ───────────────────────────────────────── */
+.ld-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  opacity: 0.28;
+  text-align: center;
+}
+
+.ld-placeholder-icon {
+  font-size: 56px;
+}
+
+.ld-placeholder-text {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ld-placeholder-sub {
+  font-size: 13px;
+  opacity: 0.7;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.ld-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.ld-footer-title {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.55;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ld-footer-meta {
+  font-size: 11px;
+  opacity: 0.32;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.ld-footer-queue {
+  font-size: 11px;
+  opacity: 0.32;
+  white-space: nowrap;
+}
+
+/* ── Fade transition on section change ─────────────────────────── */
+.ld-content-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  opacity: 1;
+  transition: opacity 0.18s ease;
+}
+
+.ld-content-wrap.fading {
+  opacity: 0;
+}
+
+/* ── Keyboard hint ─────────────────────────────────────────────── */
+.ld-kbd-hint {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  font-size: 10px;
+  opacity: 0.18;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+/* ── Loading state ─────────────────────────────────────────────── */
+.ld-loading {
+  font-size: 13px;
+  opacity: 0.35;
+  padding: 16px;
+  text-align: center;
+}
+
+/* ── Panel options: bg image + performance mode ────────────────── */
+.ld-panel-options {
+  padding: 12px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ld-options-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 4px;
+}
+
+.ld-bg-upload-btn {
+  display: block;
+  text-align: center;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.ld-bg-upload-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(6, 182, 212, 0.5);
+  color: #fff;
+}
+
+.ld-bg-clear-btn {
+  padding: 6px 10px;
+  background: transparent;
+  border: 0.5px solid rgba(239, 68, 68, 0.35);
+  border-radius: 7px;
+  color: rgba(239, 68, 68, 0.85);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ld-bg-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fff;
+}
+
+.ld-bg-err {
+  font-size: 11px;
+  color: rgba(239, 68, 68, 0.9);
+  line-height: 1.4;
+}
+
+.ld-perf-btn {
+  margin-top: 4px;
+  padding: 9px 12px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.22), rgba(6, 182, 212, 0.12));
+  border: 0.5px solid rgba(6, 182, 212, 0.45);
+  border-radius: 7px;
+  color: #06b6d4;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ld-perf-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(6, 182, 212, 0.18));
+  color: #fff;
+}
+
+.ld-perf-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Custom-background overlay ─────────────────────────────────── */
+.ld-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* When a bg image is set, lift the content above the overlay */
+.ld-stage.has-bg-image .ld-content-wrap,
+.ld-stage.has-bg-image .ld-section-label,
+.ld-stage.has-bg-image .ld-placeholder,
+.ld-stage.has-bg-image .ld-footer,
+.ld-stage.has-bg-image .ld-kbd-hint,
+.ld-stage.has-bg-image .ld-exit-hint,
+.ld-stage.has-bg-image .ld-nav-prev,
+.ld-stage.has-bg-image .ld-nav-next {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Performance mode (Feature 2 + 3) ──────────────────────────── */
+.ld-root.performance-mode {
+  background: #000;
+}
+
+.ld-stage.is-performance {
+  cursor: pointer;
+  /* fill the screen — main area no longer constrained by the panel */
+  padding: 6vw;
+}
+
+.ld-stage.is-performance.cursor-hidden {
+  cursor: none;
+}
+
+/* Exit hint shown briefly when entering performance mode */
+.ld-exit-hint {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 20;
+}
+
+.ld-exit-hint.visible {
+  opacity: 0.75;
+}

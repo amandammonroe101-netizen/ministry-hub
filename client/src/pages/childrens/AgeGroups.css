@@ -1,0 +1,654 @@
+/* Children's → Age Groups — visual hierarchy fixes (.cmag-*) */
+
+/* ── Top "health strip" dashboard ───────────────────────────── */
+.cmag-health {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.cmag-stat {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: center;
+  border-left: 3px solid var(--border);
+}
+.cmag-stat-n {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+.cmag-stat-label {
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+/* Tone variants — bring the eye to the actionable stat. */
+.cmag-stat-good { border-left-color: #22c55e; }
+.cmag-stat-good .cmag-stat-n { color: #6ee7b7; }
+.cmag-stat-info { border-left-color: #60a5fa; }
+.cmag-stat-info .cmag-stat-n { color: #93c5fd; }
+.cmag-stat-warn { border-left-color: #fbbf24; }
+.cmag-stat-warn .cmag-stat-n { color: #fcd34d; }
+.cmag-stat-bad  { border-left-color: #ef4444; }
+.cmag-stat-bad  .cmag-stat-n { color: #fca5a5; }
+.cmag-stat-mute .cmag-stat-n { color: var(--text-muted); }
+
+/* ── Band grid ──────────────────────────────────────────────── */
+.cmag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+/* ── Card layout — clear hierarchy: header (status) →
+       location → bars → callouts → roster → setup ─────────── */
+.cmag-card {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cmag-card-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cmag-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cmag-card-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-top: -2px;
+}
+
+/* ── Stacked bars (capacity + ratio) ────────────────────────── */
+.cmag-bar { display: flex; flex-direction: column; gap: 4px; }
+.cmag-bar-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.cmag-bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(30,41,59,0.10);
+  overflow: hidden;
+}
+.cmag-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 6px;
+  transition: width 200ms ease;
+}
+.cmag-bar-good { background: linear-gradient(90deg, #22c55e, #6ee7b7); }
+.cmag-bar-warn { background: linear-gradient(90deg, #fbbf24, #fcd34d); }
+.cmag-bar-bad  { background: linear-gradient(90deg, #dc2626, #fca5a5); }
+.cmag-bar-over {
+  position: absolute;
+  inset: 0 0 0 auto;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(239,68,68,0.55) 0 6px,
+    rgba(239,68,68,0.85) 6px 12px
+  );
+  border-radius: 6px;
+}
+
+/* ── Callouts row (allergies, meds) ─────────────────────────── */
+.cmag-callouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── Sunday-banner — single page-wide cue that today is live ─── */
+.cmag-today-banner {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background:
+    radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, #fbbf24 18%, transparent), transparent 60%),
+    color-mix(in srgb, #fbbf24 8%, var(--bg-glass));
+  border: 0.5px solid color-mix(in srgb, #fbbf24 45%, var(--border));
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+
+/* ── Today-row inside a band card (live check-ins) ──────────── */
+.cmag-today-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 8px;
+  background: color-mix(in srgb, #22c55e 8%, rgba(255,255,255,0.02));
+  border: 0.5px solid color-mix(in srgb, #22c55e 25%, var(--border));
+  border-radius: var(--radius-sm);
+}
+
+/* Today's-lead-override pill (anchored next to the lead name) */
+.cmag-override-pill {
+  margin-left: 6px;
+  font-size: 10px;
+  padding: 1px 7px;
+  vertical-align: middle;
+}
+
+/* "↗ Open today's Sunday plan" jump link */
+.cmag-sunday-link {
+  background: transparent;
+  border: 0;
+  color: var(--yps-accent);
+  font-size: var(--fs-xs);
+  text-align: left;
+  padding: 2px 0;
+  cursor: pointer;
+  align-self: flex-start;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--yps-accent) 40%, transparent);
+}
+.cmag-sunday-link:hover { text-decoration-color: var(--yps-accent); }
+
+/* ── Care lines (allergens + meds) — full-width info rows ────── */
+.cmag-care-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  border-radius: var(--radius-sm);
+  word-break: break-word;
+}
+.cmag-care-allergy {
+  background: color-mix(in srgb, #fca5a5 14%, transparent);
+  border-left: 3px solid color-mix(in srgb, #ef4444 55%, transparent);
+  color: #b91c1c;
+}
+.cmag-care-meds {
+  background: color-mix(in srgb, #fcd34d 16%, transparent);
+  border-left: 3px solid color-mix(in srgb, #f59e0b 55%, transparent);
+  color: #92400e;
+}
+.cmag-care-icon { flex-shrink: 0; font-size: 14px; }
+.cmag-care-label {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cmag-care-body { flex: 1; }
+.cmag-care-kid + .cmag-care-kid { margin-left: 0; }
+.cmag-care-more {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+/* ── Band age range in card title ───────────────────────────── */
+.cmag-band-ages {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* ── Currently-teaching lesson link ─────────────────────────── */
+.cmag-lesson-link {
+  background: transparent;
+  border: 0;
+  color: var(--yps-accent);
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--yps-accent) 35%, transparent);
+}
+.cmag-lesson-link:hover { text-decoration-color: var(--yps-accent); }
+
+/* ── Orphan-kids banner ─────────────────────────────────────── */
+.cmag-orphan-banner {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: color-mix(in srgb, #fbbf24 8%, var(--bg-glass));
+  border: 0.5px solid color-mix(in srgb, #fbbf24 45%, var(--border));
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+
+/* ── Bands manager modal table ──────────────────────────────── */
+.cmag-bands-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cmag-bands-row {
+  display: grid;
+  grid-template-columns: 36px 1.6fr 70px 70px 1fr 36px;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+.cmag-bands-row-hd {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 4px;
+}
+.cmag-bands-arrow {
+  padding: 0 6px !important;
+  font-size: 10px;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+/* ── Staffing forecast (next-Sundays rollup) ────────────────── */
+.cmag-forecast {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.cmag-forecast-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.cmag-forecast-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cmag-forecast-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cmag-forecast-row {
+  display: grid;
+  grid-template-columns: 24px 100px auto 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+}
+.cmag-forecast-ok        { background: color-mix(in srgb, #22c55e 6%, transparent); }
+.cmag-forecast-short     { background: color-mix(in srgb, #fbbf24 9%, transparent); }
+.cmag-forecast-unstaffed { background: color-mix(in srgb, #ef4444 9%, transparent); }
+.cmag-forecast-icon { font-size: 14px; }
+.cmag-forecast-date {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cmag-forecast-theme {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+.cmag-forecast-summary {
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+/* ── Promotion preview panel ────────────────────────────────── */
+.cmag-promo {
+  background:
+    radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, #a78bfa 12%, transparent), transparent 60%),
+    var(--bg-glass);
+  border: 0.5px solid color-mix(in srgb, #a78bfa 30%, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.cmag-promo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.cmag-promo-band {
+  background: rgba(255,255,255,0.55);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.cmag-promo-band-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6d28d9;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.cmag-promo-band-kids {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+
+/* ── Per-card insights row (sparkline + tenure + aging) ──────── */
+.cmag-insights-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.45);
+  border-radius: var(--radius-sm);
+}
+.cmag-insights-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+.cmag-insights-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.cmag-insights-value {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cmag-insights-warn .cmag-insights-label,
+.cmag-insights-warn .cmag-insights-value { color: #6d28d9; }
+
+/* Sparkline svg */
+.cmag-spark { display: inline-block; vertical-align: middle; }
+.cmag-spark path { stroke: currentColor; }
+.cmag-spark circle { fill: currentColor; }
+.cmag-spark-up   { color: #16a34a; }
+.cmag-spark-down { color: #dc2626; }
+.cmag-spark-flat { color: var(--text-muted); }
+.cmag-spark-empty {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── Volunteer affinity (potential helpers) ─────────────────── */
+.cmag-affinity {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  background: color-mix(in srgb, #60a5fa 6%, transparent);
+  border-left: 3px solid color-mix(in srgb, #60a5fa 45%, transparent);
+  border-radius: var(--radius-sm);
+  word-break: break-word;
+}
+.cmag-affinity-icon { font-size: 14px; flex-shrink: 0; }
+.cmag-affinity-label {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cmag-affinity-body { flex: 1; color: var(--text-secondary); }
+
+/* ── Room conflict banner ───────────────────────────────────── */
+.cmag-room-conflict {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: color-mix(in srgb, #ef4444 9%, var(--bg-glass));
+  border: 0.5px solid color-mix(in srgb, #ef4444 50%, var(--border));
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* ── Snack rotation row on a band card ──────────────────────── */
+.cmag-snack-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  background: color-mix(in srgb, #84cc16 8%, transparent);
+  border-left: 3px solid color-mix(in srgb, #84cc16 50%, transparent);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  transition: background var(--transition);
+}
+.cmag-snack-row:hover {
+  background: color-mix(in srgb, #84cc16 14%, transparent);
+}
+.cmag-snack-pill {
+  margin-left: auto;
+  font-size: 10px;
+}
+
+/* ── Per-band CSV export button (inside roster disclosure) ──── */
+.cmag-roster > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.cmag-export-btn {
+  background: transparent;
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+.cmag-export-btn:hover {
+  border-color: var(--yps-accent);
+  color: var(--yps-accent);
+}
+
+/* ── Move-up wizard ─────────────────────────────────────────── */
+.cmag-wizard-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.cmag-wizard-group {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-left: 3px solid color-mix(in srgb, var(--yps-accent) 60%, var(--border));
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+.cmag-wizard-group-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--border);
+}
+.cmag-wizard-arrow {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.cmag-wizard-arrow b { color: var(--yps-accent); }
+.cmag-wizard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cmag-wizard-row label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.cmag-wizard-row label:hover { background: var(--bg-glass-md); }
+.cmag-wizard-row.off label { opacity: 0.55; }
+.cmag-wizard-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+.cmag-wizard-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* ── Print + export dropdown (page header) ──────────────────── */
+.cmag-print-wrap {
+  position: relative;
+  display: inline-block;
+}
+.cmag-print-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  min-width: 240px;
+  background: rgba(255,253,248,0.98);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cmag-print-section {
+  display: flex;
+  flex-direction: column;
+}
+.cmag-print-section + .cmag-print-section {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 0.5px solid var(--border);
+}
+.cmag-print-section-hd {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 4px 8px 2px;
+}
+.cmag-print-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text-primary);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.cmag-print-menu button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--yps-accent) 14%, transparent);
+  color: var(--yps-accent);
+}
+.cmag-print-menu button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Roster disclosure ──────────────────────────────────────── */
+.cmag-roster {
+  background: rgba(255,255,255,0.45);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+.cmag-roster > summary {
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  list-style: none;
+  padding: 2px 0;
+}
+.cmag-roster > summary::-webkit-details-marker { display: none; }
+.cmag-roster ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: var(--fs-sm);
+  max-height: 220px;
+  overflow-y: auto;
+}
+.cmag-roster li {
+  padding: 2px 0;
+  color: var(--text-secondary);
+}
+
+/* ── Room-setup disclosure (collapsed once configured) ──────── */
+.cmag-setup {
+  background: var(--bg-glass-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: 4px;
+}
+.cmag-setup > summary {
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  list-style: none;
+}
+.cmag-setup > summary::-webkit-details-marker { display: none; }
+.cmag-setup[open] > summary {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--border);
+}
+.cmag-setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+}
+.cmag-setup-grid .cm-field.full { grid-column: 1 / -1; }

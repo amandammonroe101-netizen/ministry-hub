@@ -1,0 +1,192 @@
+/* ─────────────────────────────────────────────────────────────
+   Men's — Coming Soon
+   Naming: .mc-*
+   Accent: var(--mc-accent) — supplied inline per page
+   Nested inside MensShell's .mns-content, so no full-viewport
+   sizing here — mirrors Women's ComingSoon.css (.wc-*) exactly.
+   ───────────────────────────────────────────────────────────── */
+
+.mc-root {
+  position: relative;
+  color: var(--text, #e5e7eb);
+}
+
+.mc-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Hero card ───────────────────────────────────────────────── */
+.mc-card {
+  position: relative;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--mc-accent) 18%, transparent), transparent 60%),
+    rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.mc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px color-mix(in srgb, var(--mc-accent) 10%, transparent);
+}
+
+.mc-card-emblem {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.mc-card-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.mc-card-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 640px;
+}
+
+.mc-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.mc-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e5e7eb);
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.mc-btn:hover  { background: rgba(255, 255, 255, 0.12); }
+.mc-btn:active { transform: translateY(1px); }
+
+.mc-btn-primary {
+  background: color-mix(in srgb, var(--mc-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--mc-accent) 55%, transparent);
+  color: var(--mc-accent);
+}
+.mc-btn-primary:hover {
+  background: color-mix(in srgb, var(--mc-accent) 32%, transparent);
+}
+
+.mc-btn-ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+.mc-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e5e7eb);
+}
+
+/* ── Map (Overview only) ─────────────────────────────────────── */
+.mc-map {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 8px;
+}
+
+.mc-map-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.mc-map-sub {
+  margin: -16px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mc-map-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-map-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.mc-map-group-icon { font-size: 16px; }
+
+.mc-map-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.mc-map-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  color: inherit;
+  font: inherit;
+}
+.mc-map-card:hover {
+  background: color-mix(in srgb, var(--mc-card-accent) 10%, rgba(255, 255, 255, 0.05));
+  border-color: color-mix(in srgb, var(--mc-card-accent) 45%, transparent);
+}
+.mc-map-card:active { transform: translateY(1px); }
+
+.mc-map-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mc-map-card-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.mc-map-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}

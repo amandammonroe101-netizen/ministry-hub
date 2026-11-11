@@ -1,0 +1,206 @@
+/* ─────────────────────────────────────────────────────────────
+   Youth → All Students
+   Naming: .ys-*
+   Accent: var(--yps-accent) — supplied inline on root
+   ───────────────────────────────────────────────────────────── */
+
+.ys-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.ys-add-btn {
+  appearance: none; padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 14px;
+  background: color-mix(in srgb, var(--yps-accent) 24%, transparent);
+  border: 1px solid color-mix(in srgb, var(--yps-accent) 60%, transparent);
+  color: var(--yps-accent); cursor: pointer;
+  transition: background 100ms ease, transform 60ms ease;
+}
+.ys-add-btn:hover { background: color-mix(in srgb, var(--yps-accent) 34%, transparent); }
+.ys-add-btn:active { transform: translateY(1px); }
+
+/* Body: 2-column */
+.ys-body {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Left list pane */
+.ys-list-pane {
+  display: flex; flex-direction: column; gap: 8px; min-height: 0;
+  background: rgba(43,32,19,0.025);
+  border: 1px solid rgba(43,32,19,0.08);
+  border-radius: 14px;
+  padding: 12px;
+}
+.ys-list-tools { display: flex; gap: 8px; }
+.ys-search, .ys-sort {
+  appearance: none;
+  background: rgba(43,32,19,0.04);
+  border: 1px solid rgba(43,32,19,0.10);
+  color: var(--text, #2b2013);
+  padding: 8px 10px; border-radius: 8px; font-size: 13px;
+  font-family: inherit;
+}
+.ys-search { flex: 1; min-width: 0; }
+.ys-search:focus, .ys-sort:focus {
+  outline: 2px solid color-mix(in srgb, var(--yps-accent) 60%, transparent);
+  outline-offset: 1px;
+}
+.ys-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+.ys-list-empty {
+  padding: 18px 12px; text-align: center; font-size: 13px;
+  color: rgba(43,32,19,0.55); font-style: italic;
+}
+.ys-row {
+  appearance: none; display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  background: rgba(43,32,19,0.02); border: 1px solid transparent;
+  color: var(--text, #2b2013); text-align: left; transition: background 80ms ease, border-color 80ms ease;
+}
+.ys-row:hover { background: rgba(43,32,19,0.06); }
+.ys-row.on {
+  background: color-mix(in srgb, var(--yps-accent) 12%, rgba(43,32,19,0.04));
+  border-color: color-mix(in srgb, var(--yps-accent) 50%, transparent);
+}
+.ys-row-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: color-mix(in srgb, var(--yps-accent) 35%, transparent);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; flex-shrink: 0;
+}
+.ys-row-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.ys-row-name { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ys-row-sub  { font-size: 11px; color: rgba(43,32,19,0.55); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ys-row-tag {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.06em;
+  padding: 2px 6px; border-radius: 4px;
+  background: rgba(251,146,60,0.15); border: 1px solid rgba(251,146,60,0.5);
+  color: #b8410c; flex-shrink: 0;
+}
+
+/* Right detail pane */
+.ys-detail {
+  background: rgba(43,32,19,0.025);
+  border: 1px solid rgba(43,32,19,0.08);
+  border-radius: 14px;
+  padding: 20px 24px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.ys-empty {
+  height: 100%; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 8px; text-align: center; color: rgba(43,32,19,0.55);
+}
+.ys-empty-icon { font-size: 56px; line-height: 1; opacity: 0.4; }
+.ys-empty-title { margin: 0; color: var(--text, #2b2013); font-size: 20px; font-weight: 700; }
+.ys-empty-copy  { margin: 0; max-width: 360px; font-size: 14px; line-height: 1.5; }
+
+/* Form */
+.ys-form { display: flex; flex-direction: column; gap: 18px; }
+.ys-form-head { display: flex; justify-content: space-between; align-items: center; }
+.ys-form-title { margin: 0; font-size: 22px; font-weight: 700; }
+.ys-del-btn {
+  appearance: none; padding: 7px 12px; border-radius: 8px;
+  background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.40);
+  color: #b91c1c; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background 100ms ease;
+}
+.ys-del-btn:hover { background: rgba(239,68,68,0.20); }
+.ys-del-btn.armed { background: rgba(239,68,68,0.35); color: #fff; border-color: #dc2626; }
+
+.ys-section {
+  border-top: 1px solid rgba(43,32,19,0.07);
+  padding-top: 12px;
+}
+.ys-section:first-of-type { border-top: none; padding-top: 0; }
+.ys-section-title {
+  margin: 0 0 10px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.10em; color: rgba(43,32,19,0.55);
+}
+.ys-section-body { display: flex; flex-direction: column; gap: 10px; }
+.ys-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ys-row-fields:has(> :nth-child(3)) { grid-template-columns: 1fr 1fr 1fr; }
+.ys-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ys-field-lbl { font-size: 11px; color: rgba(43,32,19,0.55); font-weight: 600; }
+
+.ys-inp {
+  appearance: none;
+  background: rgba(43,32,19,0.04);
+  border: 1px solid rgba(43,32,19,0.10);
+  color: var(--text, #2b2013);
+  padding: 8px 10px; border-radius: 8px; font-size: 14px;
+  font-family: inherit; width: 100%;
+}
+.ys-inp:focus {
+  outline: 2px solid color-mix(in srgb, var(--yps-accent) 60%, transparent);
+  outline-offset: 1px;
+}
+.ys-textarea { resize: vertical; font-family: inherit; line-height: 1.5; }
+
+/* Narrow screens: collapse 2-col body into a stack */
+@media (max-width: 880px) {
+  .ys-body { grid-template-columns: 1fr; }
+  .ys-list-pane { max-height: 40vh; }
+}
+
+/* "Message this parent" button — quick jump from a student row into
+   the Parent Communication composer pre-locked to their household. */
+.ys-msg-parent-row {
+  grid-template-columns: auto 1fr !important;
+  align-items: center;
+  margin-top: 4px;
+}
+.ys-msg-parent-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--yps-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--yps-accent) 45%, transparent);
+  color: var(--yps-accent);
+  cursor: pointer;
+  transition: background 100ms ease, transform 60ms ease;
+  width: fit-content;
+}
+.ys-msg-parent-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--yps-accent) 28%, transparent);
+}
+.ys-msg-parent-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ys-msg-parent-hint {
+  font-size: 12px;
+  color: var(--text-muted, #6b5d47);
+  font-style: italic;
+}
+
+/* Two buttons can sit side-by-side: message + start-welcome-sequence */
+.ys-msg-parent-btn-wrap {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ys-welcome-btn {
+  background: color-mix(in srgb, #16a34a 18%, transparent);
+  border-color: color-mix(in srgb, #16a34a 50%, transparent);
+  color: #15803d;
+}
+.ys-welcome-btn:hover {
+  background: color-mix(in srgb, #16a34a 28%, transparent);
+}

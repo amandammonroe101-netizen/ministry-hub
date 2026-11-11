@@ -1,0 +1,193 @@
+/* ─────────────────────────────────────────────────────────────
+   Tech / Production — Coming Soon
+   Naming: .tc-*
+   Accent: var(--tc-accent) — supplied inline per page
+   Nested inside TechShell's .tps-content, so no full-viewport
+   sizing here. Colors follow the Blue Glass Over Water palette
+   (var(--tps-*)) supplied by the surrounding .tps-page.
+   ───────────────────────────────────────────────────────────── */
+
+.tc-root {
+  position: relative;
+  color: var(--tps-ink, #0d3446);
+}
+
+.tc-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Hero card ───────────────────────────────────────────────── */
+.tc-card {
+  position: relative;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--tc-accent) 16%, transparent), transparent 60%),
+    var(--tps-panel, rgba(255, 255, 255, 0.42));
+  border: 1px solid var(--tps-border, rgba(13, 52, 70, 0.24));
+  border-radius: 18px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.tc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px color-mix(in srgb, var(--tc-accent) 10%, transparent);
+}
+
+.tc-card-emblem {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.tc-card-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--tps-ink, #0d3446);
+}
+
+.tc-card-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--tps-ink-soft, rgba(13, 52, 70, 0.72));
+  max-width: 640px;
+}
+
+.tc-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.tc-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(13, 52, 70, 0.06);
+  color: inherit;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.tc-btn:hover  { background: rgba(13, 52, 70, 0.12); }
+.tc-btn:active { transform: translateY(1px); }
+
+.tc-btn-primary {
+  background: color-mix(in srgb, var(--tc-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--tc-accent) 55%, transparent);
+  color: var(--tc-accent);
+}
+.tc-btn-primary:hover {
+  background: color-mix(in srgb, var(--tc-accent) 32%, transparent);
+}
+
+.tc-btn-ghost {
+  background: transparent;
+  border-color: var(--tps-border, rgba(13, 52, 70, 0.24));
+  color: var(--tps-ink-soft, rgba(13, 52, 70, 0.72));
+}
+.tc-btn-ghost:hover {
+  background: rgba(13, 52, 70, 0.06);
+  color: var(--tps-ink, #0d3446);
+}
+
+/* ── Map (Overview only) ─────────────────────────────────────── */
+.tc-map {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 8px;
+}
+
+.tc-map-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tps-ink, #0d3446);
+}
+
+.tc-map-sub {
+  margin: -16px 0 0;
+  font-size: 14px;
+  color: var(--tps-ink-faint, rgba(13, 52, 70, 0.52));
+}
+
+.tc-map-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tc-map-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tps-ink-faint, rgba(13, 52, 70, 0.52));
+}
+
+.tc-map-group-icon { font-size: 16px; }
+
+.tc-map-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.tc-map-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--tps-panel, rgba(255, 255, 255, 0.42));
+  border: 1px solid var(--tps-border, rgba(13, 52, 70, 0.24));
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  color: inherit;
+  font: inherit;
+}
+.tc-map-card:hover {
+  background: color-mix(in srgb, var(--tc-card-accent) 12%, var(--tps-panel-strong, #eef9fc));
+  border-color: color-mix(in srgb, var(--tc-card-accent) 45%, transparent);
+}
+.tc-map-card:active { transform: translateY(1px); }
+
+.tc-map-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tc-map-card-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tps-ink, #0d3446);
+}
+
+.tc-map-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--tps-ink-soft, rgba(13, 52, 70, 0.72));
+}

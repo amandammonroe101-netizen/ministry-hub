@@ -20,6 +20,7 @@ out/
 # ── Local database (each user / machine gets their own) ──
 server/database/*.db
 server/database/*.db-journal
+server/database/backups/
 
 # ── Environment ──────────────────────────────────────────
 .env
@@ -54,3 +55,31 @@ Desktop.ini
 # ── Logs ─────────────────────────────────────────────────
 *.log
 logs/
+
+# ─────────────────────────────────────────────────────────
+#  EMPLOYER / WORK MATERIAL — NEVER COMMIT
+#  This directory doubles as a local scratchpad for work
+#  files. None of the following is part of Ministry Hub and
+#  none of it may ever reach a public remote.
+# ─────────────────────────────────────────────────────────
+vcph-*
+VCPH*
+*-SOP.md
+*_SOP.md
+docs/data-hub-sop/
+google-apps-script/
+Checklists/
+appsscript.json
+appsscript-*.json
+Analyst_Task_Request_Template.docx
+Update_Request_Template.docx
+Project_Task_Tracker_Template.docx
+Project_Proposal_Intake.xlsx
+build-friends-script-doc.js
+
+# ── Personal / non-code content ──────────────────────────
+Videos/
+Video Scripts/
+*.docx
+*.xlsx
+Sabbath_Rest_Study_Notes.md

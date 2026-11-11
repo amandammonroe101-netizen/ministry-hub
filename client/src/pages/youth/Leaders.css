@@ -1,0 +1,566 @@
+/* Youth → Leaders — .yl-* */
+
+.yl-tools {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.yl-tools .yps-input { flex: 1; min-width: 240px; }
+.yl-tools-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.yl-table {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.yl-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr 1.2fr 20px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  border-top: 0.5px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  transition: background var(--transition);
+}
+.yl-row:first-child { border-top: 0; }
+.yl-row:hover:not(.yl-row-hd) { background: var(--bg-glass-md); }
+.yl-row-hd {
+  cursor: default;
+  background: rgba(43,32,19,0.04);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+}
+.yl-row-hd:hover { background: rgba(43,32,19,0.04); }
+
+.yl-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.yl-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--yps-accent) 22%, transparent);
+  color: var(--yps-accent);
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.yl-role, .yl-training, .yl-contact { color: var(--text-secondary); font-size: var(--fs-sm); }
+.yl-go { color: var(--text-muted); text-align: right; }
+
+.yl-bg-good { background: rgba(110,231,183,0.18); color: #15803d; }
+.yl-bg-wait { background: rgba(252,211,77,0.18);  color: #a16207; }
+.yl-bg-warn { background: rgba(251,191,36,0.22);  color: #92400e; }
+.yl-bg-bad  { background: rgba(252,165,165,0.18); color: #b91c1c; }
+
+@media (max-width: 800px) {
+  .yl-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .yl-row-hd { display: none; }
+  .yl-go { display: none; }
+}
+
+/* Modal */
+.yl-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(43,32,19,0.35);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.yl-modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(253,246,230,0.97);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+.yl-modal-hd {
+  position: sticky; top: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.yl-modal-hd h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+.yl-grid {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.yl-field { display: flex; flex-direction: column; gap: 4px; }
+.yl-field.full { grid-column: 1 / -1; }
+.yl-field-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.yl-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-md);
+  cursor: pointer;
+}
+.yl-toggle input { accent-color: var(--yps-accent); }
+.yl-modal-ft {
+  position: sticky; bottom: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.yl-modal-ft-right { display: flex; gap: 8px; }
+.yl-modal-hd-right { display: flex; gap: 8px; align-items: center; }
+
+/* ── Secondary filter chip rows (Background / Role) ──────────── */
+.yl-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.yl-filter-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-right: 6px;
+  min-width: 80px;
+}
+
+/* ── Background-check cell — main pill + optional "soon" pill ── */
+.yl-bg-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.yl-bg-soon {
+  /* Stronger amber than the regular .yl-bg-warn so the deadline
+     cue stands out from already-warning records. */
+  background: rgba(251,191,36,0.32);
+  color: #854d0e;
+  font-weight: 700;
+}
+
+/* ── Click-to-call / click-to-mail in the row ────────────────── */
+.yl-contact-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.yl-contact-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+.yl-contact-link:hover { color: var(--yps-accent); text-decoration: underline; }
+
+/* ── View-mode contact card inside the modal ─────────────────── */
+.yl-view-hd {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid var(--border);
+}
+.yl-avatar-lg {
+  width: 56px; height: 56px;
+  font-size: 24px;
+}
+.yl-view-hd-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.yl-view-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yl-view-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.yl-view-bgrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.yl-view-muted { color: var(--text-muted); font-size: var(--fs-sm); }
+.yl-view-link {
+  color: var(--yps-accent);
+  text-decoration: none;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition), background var(--transition);
+  word-break: break-word;
+}
+.yl-view-link:hover {
+  border-color: var(--yps-accent);
+  background: color-mix(in srgb, var(--yps-accent) 10%, var(--bg-input));
+}
+.yl-view-notes {
+  white-space: pre-wrap;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+/* ── Chip multi-pick (Roles, Serves at) ──────────────────────── */
+.yl-chipmulti {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yl-chipmulti-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.yl-chipmulti-add {
+  display: flex;
+  gap: 8px;
+}
+.yl-chipmulti-add .yps-input { flex: 1 1 auto; }
+
+/* ── Trainings editor ────────────────────────────────────────── */
+.yl-trainings-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yl-trainings-edit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yl-trainings-edit-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr auto auto;
+  gap: 8px;
+  align-items: end;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+}
+.yl-trainings-edit-row.yl-tr-expired { border-color: color-mix(in srgb, #b91c1c 70%, var(--border)); }
+.yl-trainings-edit-row.yl-tr-soon    { border-color: color-mix(in srgb, #92400e 70%, var(--border)); }
+.yl-trainings-name { width: 100%; }
+.yl-trainings-date-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.yl-trainings-date-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.yl-trainings-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+@media (max-width: 700px) {
+  .yl-trainings-edit-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+}
+
+/* Training status pills — match the bg-status colors */
+.yl-tr-pill-current    { background: rgba(110,231,183,0.18); color: #15803d; }
+.yl-tr-pill-soon       { background: rgba(251,191,36,0.22);  color: #92400e; font-weight: 700; }
+.yl-tr-pill-expired    { background: rgba(252,165,165,0.18); color: #b91c1c; }
+.yl-tr-pill-incomplete { background: rgba(43,32,19,0.06); color: var(--text-muted); }
+
+/* View-mode training list — row layout */
+.yl-training-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yl-training-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+.yl-training-row.yl-tr-expired { border-color: color-mix(in srgb, #b91c1c 70%, var(--border)); }
+.yl-training-row.yl-tr-soon    { border-color: color-mix(in srgb, #92400e 70%, var(--border)); }
+.yl-training-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.yl-training-meta {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .yl-training-row { grid-template-columns: 1fr; }
+}
+
+/* ── Document upload + list (mirrors Trips styling) ──────────── */
+.yl-docs-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yl-doc-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 0.5px dashed var(--border-hi);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+  width: fit-content;
+  max-width: 100%;
+}
+.yl-doc-upload:hover {
+  border-color: var(--yps-accent);
+  color: var(--yps-accent);
+}
+.yl-doc-upload input { display: none; }
+.yl-doc-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.yl-doc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 4px 4px 4px 10px;
+  font-size: var(--fs-sm);
+  max-width: 100%;
+}
+.yl-doc-pill-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+.yl-doc-pill-link:hover { color: var(--yps-accent); }
+.yl-doc-pill-x {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 6px;
+  font-size: 14px;
+  line-height: 1;
+}
+.yl-doc-pill-x:hover { color: var(--text-primary); }
+.yl-doc-pill-view {
+  padding: 6px 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.yl-doc-pill-view:hover {
+  border-color: var(--yps-accent);
+  color: var(--yps-accent);
+}
+
+/* ── Avatar with photo (overrides letter fallback) ───────────── */
+.yl-avatar-photo {
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+.yl-avatar-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Photo uploader (clickable avatar with overlay icon) ─────── */
+.yl-photo-edit-row {
+  display: grid !important;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+.yl-photo-edit-meta { min-width: 0; }
+.yl-photo-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+.yl-photo-uploader-btn {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: transform var(--transition);
+}
+.yl-photo-uploader-btn:hover { transform: scale(1.03); }
+.yl-photo-uploader-btn input { display: none; }
+.yl-photo-uploader-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  color: white;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.yl-photo-uploader-btn:hover .yl-photo-uploader-overlay { opacity: 1; }
+
+/* ── Service status chip group + on-break treatment ──────────── */
+.yl-status-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.yl-break-date-field {
+  margin-top: 8px;
+  max-width: 280px;
+}
+.yl-break-banner {
+  background: color-mix(in srgb, #a16207 12%, var(--bg-glass));
+  border: 0.5px solid color-mix(in srgb, #a16207 50%, var(--border));
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+
+/* ── Celebrations: row pill + top banner ─────────────────────── */
+.yl-celebrate {
+  background: color-mix(in srgb, #6d28d9 22%, transparent);
+  color: #6d28d9;
+  font-weight: 700;
+}
+.yl-celebrate-banner {
+  background:
+    radial-gradient(140% 100% at 0% 0%, color-mix(in srgb, #6d28d9 14%, transparent), transparent 60%),
+    var(--bg-glass);
+  border: 0.5px solid color-mix(in srgb, #6d28d9 30%, var(--border));
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yl-celebrate-banner-hd {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yl-celebrate-banner-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Tighter row layout — names can now carry up to 4 chips. */
+.yl-name {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+/* Per-date "Sync to Calendar" toggle that sits just below the
+   date input inside the same field. Compact, neutral background so
+   it doesn't compete with the main label. */
+.yl-inline-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  margin-top: 4px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  width: fit-content;
+}
+.yl-inline-sync input { accent-color: var(--yps-accent); }
+.yl-inline-sync:has(input:checked) {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--yps-accent) 50%, var(--border));
+}
+.yl-inline-sync:has(input:disabled) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.yl-sync-mark { color: var(--yps-accent); font-weight: 700; }

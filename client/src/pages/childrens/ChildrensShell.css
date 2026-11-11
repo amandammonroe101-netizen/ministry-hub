@@ -1,0 +1,545 @@
+/* ─────────────────────────────────────────────────────────────
+   Children's Ministry — bespoke shell theme
+
+   A bright, cheerful sunshine-meadow look — a green-hills-and-mountains
+   photo wash behind a light cream/sky scrim, a bold geometric
+   display face, and saturated sapphire/emerald/amber/ruby/amethyst
+   accents that pop against light surfaces instead of velvet-dark
+   ones. Scoped entirely under .cms-page so it can't leak onto any
+   other page; pages that reuse .cc-, .yps-, .cm-, .ys- classes get
+   tuned overrides here too, also scoped under .cms-page so their
+   *other* (non-shell) usages elsewhere in the app are untouched.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Single-tone slate-teal picture frame ────────────────────
+   Wraps the whole shell in a carved bezel, 0.5in on all four
+   sides — same carved-frame construction as the Women's rose-gold
+   and Hospitality toasted-oak frames, but re-toned to shades of a
+   single slate-teal hue (matching the misty green-mountain photo
+   behind it) instead of cycling through separate jewel colors. A
+   diagonal teal sheen (brighter/cooler than the base) glazes across
+   the band like light glinting off a polished bezel — layered on
+   top of, not replacing, the teal base, and confined to the frame
+   since .cms-page opaquely covers everything behind it in the
+   middle. */
+.cms-picture-frame {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.5in;
+  background:
+    linear-gradient(115deg,
+      rgba(167,224,224,0) 0%,
+      rgba(167,224,224,0.35) 34%,
+      rgba(120,220,215,0.65) 48%,
+      rgba(167,224,224,0.35) 62%,
+      rgba(167,224,224,0) 100%
+    ),
+    linear-gradient(90deg,
+      #16262e 0%, #3f6270 30%, #6b98a8 50%, #3f6270 70%, #16262e 100%
+    );
+  box-shadow:
+    inset 0 0 2px 2px  #0f1c22,
+    inset 0 0 3px 4px  #7fa8b5,
+    inset 0 0 4px 8px  #3f6270,
+    inset 0 0 6px 13px #16262e,
+    inset 0 0 6px 18px #24404a,
+    inset 0 0 8px 24px #0f1c22,
+    inset 0 0 4px 29px #7fa8b5,
+    inset 0 0 3px 32px #24404a,
+    0 16px 44px rgba(0,0,0,0.5);
+}
+
+.cms-picture-frame .cms-page {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 4px 14px rgba(30,26,10,0.10),
+    inset 0 0 0 1px rgba(30,26,10,0.08);
+}
+
+.cms-page {
+  --cms-ink:        #1e2a44;
+  --cms-ink-soft:   rgba(30,42,68,0.72);
+  --cms-ink-faint:  rgba(30,42,68,0.50);
+  --cms-blue:       #2563eb;
+  --cms-blue-deep:  #1d4ed8;
+  --cms-red:        #e11d48;
+  --cms-yellow:     #fbbf24;
+  --cms-green:      #059669;
+  --cms-border:     rgba(30,41,59,0.12);
+  --cms-border-hi:  rgba(30,41,59,0.22);
+  --cms-display:    'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  --cms-body:       'Plus Jakarta Sans', sans-serif;
+  --yps-accent:     var(--accent-amber, #fbbf24); /* overridden inline per page via prop */
+
+  /* Every per-page Children's stylesheet (Overview.css, AgeGroups.css,
+     etc.) styles its headings with var(--font-display) — the app's
+     global default is a serif (Cormorant Garamond). Overriding it here,
+     scoped to .cms-page, swaps every one of those headings to the bold
+     geometric display face without touching the global definition. */
+  --font-display: var(--cms-display);
+
+  /* Overriding the app's dark-glass surface tokens here (scoped to
+     .cms-page) flips every per-page stylesheet that reads var(--bg-glass)/
+     var(--text-primary)/etc. (Overview.css, AllKids.css, AgeGroups.css,
+     _shared.css) from the app-wide dark theme to this bright one, without
+     touching index.css or any other ministry that shares those tokens. */
+  --bg-glass:       rgba(255,255,255,0.62);
+  --bg-glass-md:    rgba(255,255,255,0.85);
+  --bg-glass-hi:    rgba(255,255,255,0.95);
+  --bg-input:       rgba(255,255,255,0.7);
+  --bg-hover:       rgba(255,255,255,0.85);
+  --border:         var(--cms-border);
+  --border-hi:      var(--cms-border-hi);
+  --border-sel:     rgba(30,41,59,0.32);
+  --text-primary:   var(--cms-ink);
+  --text-secondary: var(--cms-ink-soft);
+  --text-muted:     var(--cms-ink-faint);
+  --text-faint:     rgba(30,42,68,0.32);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  background: url('/childrens-hills-mountains-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  color: var(--cms-ink);
+  font-family: var(--cms-body);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A single green-hills-and-mountains photo wash replaces the old
+   rotating time-of-day gradients — the bright scene reads the same
+   at any hour, so the .cms-time-* hooks now only nudge the bloom
+   accent colors below rather than swapping the whole background. */
+.cms-page.cms-time-morning .cms-bloom.bloom-a { background: #f59e0b; }
+.cms-page.cms-time-evening .cms-bloom.bloom-b { background: #e11d48; }
+.cms-page.cms-time-night .cms-bloom.bloom-a,
+.cms-page.cms-time-night .cms-bloom.bloom-b { opacity: 0.34; }
+
+.cms-bloom {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  animation: cmsBloomDrift 22s ease-in-out infinite;
+}
+.cms-bloom.bloom-a { width: 420px; height: 420px; top: -130px; left: -90px; background: #2563eb; }
+.cms-bloom.bloom-b { width: 380px; height: 380px; bottom: -110px; right: -70px; background: #d97706; animation-delay: -11s; animation-direction: reverse; }
+
+@keyframes cmsBloomDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(28px, 22px) scale(1.08); }
+}
+
+.cms-page ::-webkit-scrollbar-thumb { background: rgba(30,41,59,0.20); }
+.cms-page ::-webkit-scrollbar-thumb:hover { background: rgba(30,41,59,0.34); }
+
+/* ── Nav (gem-glyph dropdown trigger, left of the title) ──────── */
+.cms-nav-wrap {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.cms-nav-trigger {
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(255,255,255,0.14);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  line-height: 1;
+  font-family: inherit;
+  color: #fff;
+  background: radial-gradient(circle at 32% 28%, #60a5fa, #2563eb 55%, #1d4ed8 100%);
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+}
+.cms-nav-trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(37,99,235,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.cms-nav-trigger.is-open {
+  transform: scale(0.94);
+}
+
+.cms-nav-dropdown {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  z-index: 9997;
+  width: 264px;
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,253,248,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--cms-border);
+  border-radius: 22px;
+  box-shadow: 0 20px 48px rgba(30,41,59,0.18);
+  padding: 14px 12px 16px;
+  animation: cmsDropdownIn .2s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes cmsDropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cms-exit {
+  align-self: flex-start;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--cms-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 8px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.cms-exit:hover { background: rgba(30,41,59,0.06); color: var(--cms-ink); }
+
+.cms-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--cms-border);
+}
+.cms-brand-mark { font-size: 16px; color: #d97706; }
+.cms-brand-name {
+  font-family: var(--cms-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--cms-ink);
+}
+
+.cms-nav-scroll {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 2px;
+}
+.cms-nav-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 2px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform .32s cubic-bezier(.34,1.56,.64,1), height .32s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+}
+.cms-nav-group { display: flex; flex-direction: column; gap: 2px; }
+.cms-nav-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cms-ink-faint);
+  padding: 6px 8px 4px;
+}
+.cms-nav-link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cms-ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.cms-nav-link:hover { background: rgba(30,41,59,0.05); color: var(--cms-ink); }
+.cms-nav-link.is-active {
+  color: var(--cms-link-accent, var(--cms-blue-deep));
+  font-weight: 700;
+}
+.cms-nav-link-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.cms-nav-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cms-nav-link.draggable { cursor: grab; }
+.cms-nav-link.draggable:active { cursor: grabbing; }
+
+.cms-drag-hint {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.95), rgba(124,58,237,0.9));
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 13px; font-weight: 700; line-height: 1;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* ── Header + content ───────────────────────────────────────── */
+.cms-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.cms-header {
+  flex-shrink: 0;
+  padding: 14px 32px 14px;
+  border-bottom: 1px solid var(--cms-border);
+  background: rgba(255,255,255,0.55);
+}
+.cms-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.cms-header-text {
+  flex: 1;
+  min-width: 0;
+}
+.cms-crumbs {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cms-ink-faint);
+  margin-bottom: 3px;
+}
+.cms-title-row { display: flex; align-items: center; gap: 10px; }
+.cms-title-icon { font-size: 22px; line-height: 1; }
+.cms-title {
+  font-family: var(--cms-display);
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  color: var(--cms-ink);
+}
+.cms-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cms-subtitle {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--cms-ink-soft);
+  max-width: 640px;
+  line-height: 1.45;
+}
+.cms-stats { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; }
+.cms-stat { font-size: 12px; color: var(--cms-ink-soft); }
+.cms-stat b { color: var(--cms-blue-deep); font-weight: 700; margin-right: 4px; font-variant-numeric: tabular-nums; }
+
+.cms-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cms-blue), #7c3aed);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cms-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px 40px;
+  animation: cmsContentIn .32s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes cmsContentIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 860px) {
+  .cms-nav-dropdown { width: 224px; }
+  .cms-header { padding: 18px 20px 14px; }
+  .cms-content { padding: 18px 20px 32px; }
+  .cms-title { font-size: 22px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Dark-theme overrides for reused classes (.cc-*, .yps-*, .cm-*,
+   .ys-*) — scoped to .cms-page only, so pages that haven't adopted
+   this shell (or the Youth/other ministries that share these class
+   names) are unaffected. Tuned specifically to this shell's ink/
+   jewel-accent palette rather than the app's default dark theme.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── ComingSoon (.cc-*) ──────────────────────────────────────── */
+.cms-page .cc-root { position: static; width: auto; height: auto; overflow: visible; color: var(--cms-ink); }
+.cms-page .cc-main { position: static; overflow: visible; }
+.cms-page .cc-shell { max-width: none; margin: 0; padding: 0; }
+.cms-page .cc-header { display: none; } /* title/crumb duplicated by the shell header */
+.cms-page .cc-card {
+  background: radial-gradient(120% 100% at 0% 0%, rgba(37,99,235,0.08), transparent 60%), rgba(255,255,255,0.62);
+  border: 1px solid var(--cms-border);
+  border-radius: 22px;
+}
+.cms-page .cc-card-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .cc-card-copy { color: var(--cms-ink-soft); }
+.cms-page .cc-btn {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--cms-border-hi);
+  color: var(--cms-ink-soft);
+  border-radius: 14px;
+  font-weight: 700;
+}
+.cms-page .cc-btn:hover { background: rgba(255,255,255,0.92); }
+.cms-page .cc-btn-primary { color: var(--cms-blue-deep); }
+.cms-page .cc-btn-ghost { color: var(--cms-ink-soft); border-color: var(--cms-border); }
+.cms-page .cc-btn-ghost:hover { color: var(--cms-ink); }
+.cms-page .cc-map-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .cc-map-sub { color: var(--cms-ink-faint); }
+.cms-page .cc-map-group-title { color: var(--cms-ink-faint); }
+.cms-page .cc-map-card {
+  background: rgba(255,255,255,0.62);
+  border: 1px solid var(--cms-border);
+  border-radius: 16px;
+}
+.cms-page .cc-map-card:hover { border-color: color-mix(in srgb, var(--cc-card-accent) 55%, var(--cms-border-hi)); background: color-mix(in srgb, var(--cc-card-accent) 14%, rgba(255,255,255,0.62)); }
+.cms-page .cc-map-card-label { color: var(--cms-ink); }
+.cms-page .cc-map-card-desc { color: var(--cms-ink-soft); }
+
+/* ── Shared .yps-* utility library (used inside real page bodies) ── */
+.cms-page .yps-add-btn { background: linear-gradient(135deg, var(--cms-yellow), #d97706); color: #1e2a44; border-radius: 999px; box-shadow: 0 4px 10px rgba(217,119,6,0.3); }
+.cms-page .yps-btn { background: rgba(255,255,255,0.7); color: var(--cms-ink-soft); border: 1px solid var(--cms-border); border-radius: 12px; }
+.cms-page .yps-btn:hover { background: rgba(255,255,255,0.92); border-color: var(--cms-border-hi); }
+.cms-page .yps-btn.ghost { background: transparent; color: var(--cms-ink-soft); }
+.cms-page .yps-btn.ghost:hover { background: rgba(30,41,59,0.06); color: var(--cms-ink); }
+.cms-page .yps-input,
+.cms-page .yps-textarea,
+.cms-page .yps-select {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--cms-border);
+  color: var(--cms-ink);
+  border-radius: 12px;
+}
+.cms-page .yps-input:focus,
+.cms-page .yps-textarea:focus,
+.cms-page .yps-select:focus { background: rgba(255,255,255,0.92); border-color: var(--cms-border-hi); }
+.cms-page .yps-empty { background: rgba(255,255,255,0.5); border: 1px dashed var(--cms-border-hi); border-radius: 18px; }
+.cms-page .yps-empty-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .yps-empty-sub { color: var(--cms-ink-faint); }
+.cms-page .yps-chip { background: rgba(255,255,255,0.62); border: 1px solid var(--cms-border); color: var(--cms-ink-soft); }
+.cms-page .yps-chip:hover { background: rgba(255,255,255,0.9); color: var(--cms-ink); }
+.cms-page .yps-card,
+.cms-page .yps-section { background: rgba(255,255,255,0.62); border: 1px solid var(--cms-border); border-radius: 18px; }
+.cms-page .yps-section-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .yps-muted { color: var(--cms-ink-faint); }
+.cms-page .yps-pill { background: rgba(255,255,255,0.65); color: var(--cms-ink-soft); }
+.cms-page .yps-stat { color: var(--cms-ink-soft); }
+
+/* ── Children's-own shared library (.cm-*) ────────────────────── */
+.cms-page .cm-empty { background: rgba(255,255,255,0.5); border: 1px dashed var(--cms-border-hi); border-radius: 18px; color: var(--cms-ink-faint); }
+.cms-page .cm-empty-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .cm-chip-label { color: var(--cms-ink-faint); }
+.cms-page .cm-card { background: rgba(255,255,255,0.62); border: 1px solid var(--cms-border); border-radius: 18px; }
+.cms-page .cm-card:hover { border-color: color-mix(in srgb, var(--yps-accent) 60%, var(--cms-border-hi)); background: color-mix(in srgb, var(--yps-accent) 12%, rgba(255,255,255,0.62)); }
+.cms-page .cm-card-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .cm-card-sub { color: var(--cms-ink-soft); }
+.cms-page .cm-card-meta { color: var(--cms-ink-faint); }
+.cms-page .cm-modal-backdrop { background: rgba(30,26,50,0.4); }
+.cms-page .cm-modal { background: #fffaf0; border: 1px solid var(--cms-border-hi); border-radius: 22px; box-shadow: 0 24px 60px rgba(30,41,59,0.22); }
+.cms-page .cm-modal-hd { background: #fffaf0; border-bottom: 1px solid var(--cms-border); color: var(--cms-ink); }
+.cms-page .cm-modal-ft { background: #fffaf0; border-top: 1px solid var(--cms-border); }
+.cms-page .cm-field-label { color: var(--cms-ink-faint); }
+.cms-page .cm-rows { background: rgba(255,255,255,0.62); border: 1px solid var(--cms-border); border-radius: 18px; }
+.cms-page .cm-row { border-top-color: var(--cms-border); color: var(--cms-ink); }
+.cms-page .cm-row:hover { background: rgba(30,41,59,0.05); }
+.cms-page .cm-row-sub { color: var(--cms-ink-faint); }
+
+/* ── All Kids (.ys-*, .ck-*) ───────────────────────────────────── */
+.cms-page .ys-stats { margin-top: 0; }
+.cms-page .ys-stat { background: rgba(255,255,255,0.62); border: 1px solid var(--cms-border); color: var(--cms-ink-soft); }
+.cms-page .ys-stat b { color: var(--cms-ink); }
+.cms-page .ys-body { color: var(--cms-ink); }
+.cms-page .ys-list-pane,
+.cms-page .ys-detail {
+  background: rgba(255,255,255,0.62);
+  border: 1px solid var(--cms-border);
+  border-radius: 18px;
+}
+.cms-page .ys-search,
+.cms-page .ys-sort {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--cms-border);
+  color: var(--cms-ink);
+}
+.cms-page .ys-search:focus,
+.cms-page .ys-sort:focus { outline-color: var(--cms-border-hi); }
+.cms-page .ys-list-empty { color: var(--cms-ink-faint); }
+.cms-page .ys-row {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid transparent;
+  color: var(--cms-ink);
+}
+.cms-page .ys-row:hover { background: rgba(30,41,59,0.05); }
+.cms-page .ys-row.on {
+  background: color-mix(in srgb, var(--ys-accent, var(--cms-blue)) 20%, rgba(255,255,255,0.55));
+  border-color: color-mix(in srgb, var(--ys-accent, var(--cms-blue)) 55%, transparent);
+}
+.cms-page .ys-row-sub { color: var(--cms-ink-faint); }
+.cms-page .ys-empty { color: var(--cms-ink-faint); }
+.cms-page .ys-empty-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .ys-form-title { color: var(--cms-ink); font-family: var(--cms-display); }
+.cms-page .ys-section { border-top-color: var(--cms-border); }
+.cms-page .ys-section-title { color: var(--cms-blue-deep); }
+.cms-page .ys-field-lbl { color: var(--cms-ink-faint); }
+.cms-page .ys-inp {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--cms-border);
+  color: var(--cms-ink);
+}
+.cms-page .ys-inp:focus { outline-color: var(--cms-border-hi); }
+.cms-page .ys-add-btn {
+  background: linear-gradient(135deg, var(--cms-yellow), #d97706);
+  border-color: transparent;
+  color: #1e2a44;
+}
+.cms-page .ys-add-btn:hover { filter: brightness(1.08); }
+.cms-page .ys-del-btn { background: rgba(225,29,72,0.12); border-color: rgba(225,29,72,0.4); color: #be123c; }
+.cms-page .ys-del-btn:hover { background: rgba(225,29,72,0.2); }
+.cms-page .ys-del-btn.armed { background: #e11d48; color: #fff; border-color: #e11d48; }
+.cms-page .ck-orphan-hint { color: #b45309; }

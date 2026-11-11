@@ -1,0 +1,391 @@
+/* PrayerDashboard — namespaced `pd-` to stay isolated from
+   the Wall view's `p-` styles. */
+
+.pd-root {
+  flex: 1;
+  display: flex; flex-direction: column;
+  gap: 14px;
+  padding: 22px 28px 96px;
+  overflow-y: auto;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Cards ── */
+.pd-card {
+  background: rgba(255,255,255,.05);
+  backdrop-filter: blur(14px);
+  border: .5px solid rgba(255,255,255,.1);
+  border-radius: 13px;
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+}
+.pd-card-hd {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.pd-card-icon { font-size: 15px; flex-shrink: 0; }
+.pd-card-title {
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85);
+  flex: 1; letter-spacing: -.01em;
+}
+.pd-card-sub  { font-size: 11px; color: rgba(255,255,255,.4); }
+.pd-small-btn {
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 10px; font-weight: 600;
+  background: rgba(255,255,255,.07);
+  border: .5px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.55);
+  cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.pd-small-btn:hover {
+  background: rgba(140,100,255,.18);
+  border-color: rgba(140,100,255,.32);
+  color: #c4b5fd;
+}
+
+/* ── Pray Now CTA ──
+   Big hero button at the top of the dashboard. Gradient
+   background, large affordance — this is the page's hero
+   action. */
+.pd-praynow {
+  display: flex; align-items: center; gap: 16px;
+  width: 100%; text-align: left;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(140,100,255,.32), rgba(180,60,130,.24)),
+    rgba(255,255,255,.04);
+  border: .5px solid rgba(140,100,255,.42);
+  color: white;
+  cursor: pointer; font-family: inherit;
+  box-shadow:
+    0 8px 28px rgba(140,100,255,.28),
+    inset 0 1px 0 rgba(255,255,255,.16);
+  transition: all .2s;
+}
+.pd-praynow:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 34px rgba(140,100,255,.4),
+    inset 0 1px 0 rgba(255,255,255,.18);
+}
+.pd-praynow-icon {
+  font-size: 32px;
+  width: 52px; height: 52px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: rgba(255,255,255,.1);
+  flex-shrink: 0;
+}
+.pd-praynow-text { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pd-praynow-title {
+  font-size: 17px; font-weight: 700;
+  letter-spacing: -.01em;
+}
+.pd-praynow-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,.78);
+  line-height: 1.4;
+}
+.pd-praynow-go {
+  font-size: 20px;
+  color: rgba(255,255,255,.85);
+  flex-shrink: 0;
+  transition: transform .15s;
+}
+.pd-praynow:hover .pd-praynow-go { transform: translateX(3px); }
+
+.pd-empty-hint {
+  margin-top: 24px;
+  font-size: 12px; color: rgba(255,255,255,.5);
+  line-height: 1.55; max-width: 380px;
+}
+.pd-empty-hint strong { color: #c4b5fd; font-weight: 700; }
+
+/* ── Today's focus ── */
+.pd-focus { padding: 14px 16px; }
+.pd-focus-empty {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: rgba(255,255,255,.45);
+  padding: 8px 4px;
+}
+.pd-link {
+  background: transparent; border: none;
+  color: #a78bfa; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  padding: 4px 6px; border-radius: 4px;
+  transition: all .15s;
+}
+.pd-link:hover { background: rgba(140,100,255,.14); }
+
+.pd-focus-list { display: flex; flex-direction: column; gap: 4px; }
+/* Compact density — picked from Page Settings → Display → List
+   density. Smaller gap so the same card holds more rows; the row
+   itself shrinks via .pd-focus-row.density-compact below. */
+.pd-focus-list.density-compact { gap: 2px; }
+.pd-focus-row {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 9px 11px;
+  background: rgba(255,255,255,.03);
+  border: .5px solid rgba(255,255,255,.07);
+  border-radius: 9px;
+  cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,.85);
+  transition: all .15s;
+}
+.pd-focus-row.density-compact {
+  padding: 5px 9px;
+  gap: 8px;
+  font-size: 12px;
+}
+.pd-focus-row:hover {
+  background: rgba(140,100,255,.1);
+  border-color: rgba(140,100,255,.28);
+  transform: translateX(2px);
+}
+.pd-focus-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  font-size: 13px; flex-shrink: 0;
+}
+.pd-focus-info  { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pd-focus-title {
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pd-focus-meta { display: flex; flex-wrap: wrap; gap: 4px; }
+.pd-focus-go {
+  font-size: 14px; color: rgba(255,255,255,.3);
+  flex-shrink: 0;
+  transition: color .15s, transform .15s;
+}
+.pd-focus-row:hover .pd-focus-go { color: #c4b5fd; transform: translateX(2px); }
+
+/* Small inline tags inside focus row. */
+.pd-tag {
+  display: inline-flex; align-items: center;
+  font-size: 10px; padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  border: .5px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.55);
+}
+.pd-tag-daily { background: rgba(251,191,36,.12); color: #fcd34d; border-color: rgba(251,191,36,.25); }
+.pd-tag-age   { background: rgba(255,255,255,.04); color: rgba(255,255,255,.4); }
+
+/* ── Stats row ── */
+.pd-stats {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+}
+.pd-stat {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,.05);
+  border: .5px solid rgba(255,255,255,.09);
+  border-radius: 10px;
+  padding: 14px 8px;
+  cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.pd-stat:hover {
+  background: rgba(140,100,255,.12);
+  border-color: rgba(140,100,255,.3);
+  transform: translateY(-1px);
+}
+.pd-stat-n   { font-size: 24px; font-weight: 800; color: white; line-height: 1; }
+.pd-stat-lbl {
+  font-size: 9px; color: rgba(255,255,255,.4);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-top: 4px;
+}
+
+/* ── Answer rate ── */
+.pd-rate-row { display: flex; align-items: center; gap: 14px; }
+.pd-rate-n   {
+  font-size: 38px; font-weight: 800; color: #6ee7b7; line-height: 1;
+  flex-shrink: 0;
+}
+.pd-rate-track {
+  flex: 1; height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,.06); overflow: hidden;
+}
+.pd-rate-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, #34d399, #6ee7b7);
+  transition: width .4s ease;
+}
+
+/* ── Two-column grid for testimonies + waiting longest ── */
+.pd-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 880px) { .pd-grid-2 { grid-template-columns: 1fr; } }
+
+.pd-mini-list  { display: flex; flex-direction: column; gap: 4px; }
+.pd-mini-empty {
+  font-size: 12px; color: rgba(255,255,255,.4);
+  font-style: italic; padding: 6px 4px;
+}
+.pd-mini-row {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%; text-align: left;
+  padding: 7px 9px;
+  background: rgba(255,255,255,.03);
+  border: .5px solid transparent;
+  border-radius: 7px;
+  cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,.85);
+  transition: all .15s;
+}
+.pd-mini-row:hover {
+  background: rgba(140,100,255,.1);
+  border-color: rgba(140,100,255,.22);
+}
+.pd-mini-row-answered:hover {
+  background: rgba(110,231,183,.08);
+  border-color: rgba(110,231,183,.26);
+}
+.pd-mini-emoji { font-size: 14px; flex-shrink: 0; }
+.pd-mini-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.pd-mini-title {
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pd-mini-date  { font-size: 10px; color: rgba(255,255,255,.35); }
+
+/* ── Category bars ── */
+.pd-cat-bars { display: flex; flex-direction: column; gap: 6px; }
+.pd-cat-bar  { display: grid; grid-template-columns: 110px 1fr 30px; align-items: center; gap: 9px; }
+.pd-cat-bar-lbl {
+  font-size: 11px; color: rgba(255,255,255,.65);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pd-cat-bar-track {
+  height: 6px; border-radius: 3px;
+  background: rgba(255,255,255,.06); overflow: hidden;
+}
+.pd-cat-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, #a78bfa, #c084fc);
+  transition: width .4s ease;
+}
+.pd-cat-bar-n {
+  font-size: 11px; color: rgba(255,255,255,.4);
+  text-align: right;
+}
+
+/* ── Verse card ──
+   Treats the verse like a proper pull-quote: oversized opening
+   quote glyph, generous line-height, and a citation line right-
+   aligned on its own row. The card itself keeps the existing
+   warm-purple gradient surface but with a thin amethyst rule on
+   the left so it reads as decorative, not just "another card." */
+.pd-verse-card {
+  background: linear-gradient(135deg, rgba(140,100,255,.10), rgba(200,60,130,.05));
+  position: relative;
+  overflow: hidden;
+}
+.pd-verse-card::before {
+  /* Big decorative open-quote watermark in the top-left corner. */
+  content: '\201C'; /* left double-quote */
+  position: absolute;
+  top: -14px; left: 14px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 84px;
+  line-height: 1;
+  color: rgba(167,139,250,.18);
+  pointer-events: none;
+  user-select: none;
+}
+.pd-verse {
+  /* HTML <blockquote> default margins reset; the card padding does
+     the spacing work. Leaves room on the left for the watermark. */
+  margin: 0;
+  padding: 10px 6px 4px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.pd-verse-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255,255,255,.85);
+  font-style: italic;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  letter-spacing: .005em;
+  /* Long verses (e.g. a full psalm) can stretch the card; cap to
+     a comfortable read window with a fade-out wouldn't fit a
+     persistent card, so we just allow up to ~6 lines naturally. */
+}
+.pd-verse-empty {
+  font-size: 13px;
+  color: rgba(255,255,255,.42);
+  font-style: italic;
+}
+.pd-verse-ref {
+  align-self: flex-end;
+  font-size: 11px;
+  color: #c4b5fd;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.pd-verse-ref::before {
+  /* En-dash separator before the citation. */
+  content: '\2014';
+  margin-right: 6px;
+  opacity: .65;
+}
+
+/* ── Empty state ── */
+.pd-empty {
+  align-items: center; text-align: center;
+  justify-content: center;
+  padding: 60px 28px;
+  min-height: 70vh;
+}
+.pd-empty-icon { font-size: 48px; opacity: .8; }
+.pd-empty-title {
+  font-size: 22px; font-weight: 700;
+  color: rgba(255,255,255,.92);
+  margin-top: 12px;
+  letter-spacing: -.01em;
+}
+.pd-empty-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,.55);
+  line-height: 1.55;
+  max-width: 380px;
+  margin: 6px auto 0;
+}
+.pd-empty-actions {
+  display: flex; gap: 10px;
+  margin-top: 20px;
+}
+.pd-empty-verse {
+  margin-top: 36px;
+  max-width: 420px;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,.5);
+  line-height: 1.55;
+}
+.pd-empty-verse span {
+  display: block;
+  font-style: normal;
+  color: #c4b5fd;
+  font-weight: 600;
+  font-size: 11px;
+  margin-top: 8px;
+  letter-spacing: .04em;
+}
+
+/* Scrollbar */
+.pd-root::-webkit-scrollbar { width: 4px; }
+.pd-root::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }

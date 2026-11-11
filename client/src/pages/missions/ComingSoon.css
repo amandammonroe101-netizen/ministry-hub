@@ -1,0 +1,187 @@
+/* ─────────────────────────────────────────────────────────────
+   Missions — Coming Soon
+   Naming: .mis-*
+   Accent: var(--mis-accent) — supplied inline per page
+   Rendered inside MissionsShell, which owns the root/nav/header
+   chrome — this file only styles the inner content below that.
+   ───────────────────────────────────────────────────────────── */
+
+.mis-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Hero card ───────────────────────────────────────────────── */
+.mis-card {
+  position: relative;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--mis-accent) 18%, transparent), transparent 60%),
+    rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.mis-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px color-mix(in srgb, var(--mis-accent) 10%, transparent);
+}
+
+.mis-card-emblem {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.mis-card-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.mis-card-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 640px;
+}
+
+.mis-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.mis-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e5e7eb);
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.mis-btn:hover  { background: rgba(255, 255, 255, 0.12); }
+.mis-btn:active { transform: translateY(1px); }
+
+.mis-btn-primary {
+  background: color-mix(in srgb, var(--mis-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--mis-accent) 55%, transparent);
+  color: var(--mis-accent);
+}
+.mis-btn-primary:hover {
+  background: color-mix(in srgb, var(--mis-accent) 32%, transparent);
+}
+
+.mis-btn-ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+.mis-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e5e7eb);
+}
+
+/* ── Map (Overview only) ─────────────────────────────────────── */
+.mis-map {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 8px;
+}
+
+.mis-map-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.mis-map-sub {
+  margin: -16px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mis-map-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mis-map-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.mis-map-group-icon { font-size: 16px; }
+
+.mis-map-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.mis-map-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  color: inherit;
+  font: inherit;
+}
+.mis-map-card:hover {
+  background: color-mix(in srgb, var(--mis-card-accent) 10%, rgba(255, 255, 255, 0.05));
+  border-color: color-mix(in srgb, var(--mis-card-accent) 45%, transparent);
+}
+.mis-map-card:active { transform: translateY(1px); }
+
+.mis-map-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mis-map-card-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #e5e7eb);
+}
+
+.mis-map-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}

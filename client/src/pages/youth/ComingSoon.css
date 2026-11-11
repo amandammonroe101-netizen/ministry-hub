@@ -1,0 +1,199 @@
+/* ─────────────────────────────────────────────────────────────
+   Youth — Coming Soon
+   Naming: .yc-*
+   Accent: var(--yps-accent) — supplied inline per page
+   ───────────────────────────────────────────────────────────── */
+
+.yc-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.yc-badge {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--yps-accent);
+  background: color-mix(in srgb, var(--yps-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--yps-accent) 45%, transparent);
+}
+
+/* ── Hero card ───────────────────────────────────────────────── */
+.yc-card {
+  position: relative;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--yps-accent) 18%, transparent), transparent 60%),
+    rgba(43, 32, 19, 0.035);
+  border: 1px solid rgba(43, 32, 19, 0.1);
+  border-radius: 22px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -12px rgba(60,40,15,0.28);
+}
+
+.yc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px color-mix(in srgb, var(--yps-accent) 10%, transparent);
+}
+
+.yc-card-emblem {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.yc-card-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--text, #2b2013);
+}
+
+.yc-card-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(43, 32, 19, 0.68);
+  max-width: 640px;
+}
+
+.yc-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.yc-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(43, 32, 19, 0.055);
+  color: var(--text, #2b2013);
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease, box-shadow 120ms ease;
+}
+.yc-btn:hover  { background: rgba(43, 32, 19, 0.1); }
+.yc-btn:active { transform: translateY(1px); }
+
+.yc-btn-primary {
+  background: color-mix(in srgb, var(--yps-accent) 26%, transparent);
+  border-color: color-mix(in srgb, var(--yps-accent) 60%, transparent);
+  color: var(--yps-accent);
+}
+.yc-btn-primary:hover {
+  background: color-mix(in srgb, var(--yps-accent) 36%, transparent);
+}
+
+.yc-btn-ghost {
+  background: transparent;
+  border-color: rgba(43, 32, 19, 0.16);
+  color: rgba(43, 32, 19, 0.64);
+}
+.yc-btn-ghost:hover {
+  background: rgba(43, 32, 19, 0.055);
+  color: var(--text, #2b2013);
+}
+
+/* ── Map (Overview only) ─────────────────────────────────────── */
+.yc-map {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 8px;
+}
+
+.yc-map-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text, #2b2013);
+}
+
+.yc-map-sub {
+  margin: -16px 0 0;
+  font-size: 14px;
+  color: rgba(43, 32, 19, 0.5);
+}
+
+.yc-map-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yc-map-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(43, 32, 19, 0.56);
+}
+
+.yc-map-group-icon { font-size: 16px; }
+
+.yc-map-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.yc-map-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(43, 32, 19, 0.04);
+  border: 1px solid rgba(43, 32, 19, 0.1);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease, box-shadow 120ms ease;
+  color: inherit;
+  font: inherit;
+}
+.yc-map-card:hover {
+  background: color-mix(in srgb, var(--yc-card-accent) 14%, rgba(43, 32, 19, 0.04));
+  border-color: color-mix(in srgb, var(--yc-card-accent) 55%, transparent);
+  transform: translateY(-1px);
+}
+.yc-map-card:active { transform: translateY(1px); }
+
+.yc-map-card-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.yc-map-card-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text, #2b2013);
+}
+
+.yc-map-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(43, 32, 19, 0.56);
+}

@@ -673,6 +673,7 @@
   outline: none;
 }
 .wm-body:focus { outline: none; }
+.wm-body-readonly { cursor: default; }
 
 /* Pagination spacers — fill the bottom margin + gutter + next page's
    top margin so content resumes inside the next sheet's margins.
@@ -1390,3 +1391,217 @@
   gap: 8px;
   margin-top: 16px;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   FocusWriter view mode — same page, but read-only (no ribbon,
+   no contentEditable) until the Edit button flips it back.
+   ───────────────────────────────────────────────────────────── */
+.wm-view-hint {
+  padding: 10px 18px;
+  font-size: 12.5px;
+  color: var(--wm-faint);
+  background: color-mix(in srgb, var(--wm-bg) 92%, var(--wm-text));
+  border-bottom: 1px solid var(--wm-faint);
+}
+.wm-view-hint b { color: var(--wm-text); }
+.wm-fb-title-view {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--wm-text);
+}
+.wm-view-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--wm-faint);
+  border: 1px solid var(--wm-faint);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+/* Grammar Check side panel (mirrors the Outline pane on the
+   opposite side of the canvas). */
+.wm-grammar {
+  flex: 0 0 280px;
+  overflow-y: auto;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: color-mix(in srgb, var(--wm-bg) 92%, var(--wm-text));
+  border-left: 1px solid var(--wm-faint);
+}
+.wm-grammar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wm-faint);
+}
+.wm-grammar-head button {
+  border: 0;
+  background: transparent;
+  color: var(--wm-faint);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.wm-grammar-head button:hover { color: var(--wm-text); }
+.wm-grammar-empty { font-size: 12.5px; line-height: 1.5; color: var(--wm-faint); }
+.wm-gm-issue-card {
+  padding: 10px 12px;
+  border: 0.5px solid var(--wm-faint);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--wm-text) 5%, transparent);
+}
+.wm-gm-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.wm-gm-tag-spelling       { background: #ef4444; }
+.wm-gm-tag-grammar        { background: #0ea5e9; }
+.wm-gm-tag-punctuation    { background: #f59e0b; }
+.wm-gm-tag-spacing        { background: #6b7280; }
+.wm-gm-tag-capitalization { background: #8b5cf6; }
+.wm-gm-tag-repetition     { background: #ec4899; }
+.wm-gm-issue-text { font-size: 13px; color: var(--wm-text); }
+.wm-gm-issue-msg { margin-top: 3px; font-size: 12px; color: var(--wm-faint); }
+
+@media (max-width: 900px) {
+  .wm-grammar { display: none; }
+}
+
+/* ── Profile modal: Writing tab (Preferences / How to Use) ──────
+   Rendered inside the shared ProfileModal's pageSettings slot, so
+   it follows that modal's dark, rgba-based palette rather than the
+   Focus editor's theme variables (--wm-text/--wm-faint/--wm-bg). */
+.wm-ps-subtabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 5px;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+.wm-ps-subtab {
+  flex: 1 1 0;
+  min-width: 90px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: all 0.14s;
+}
+.wm-ps-subtab:hover { background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.92); }
+.wm-ps-subtab.on {
+  background: rgba(140, 100, 255, 0.22);
+  color: #c4b5fd;
+  box-shadow: 0 0 0 0.5px rgba(140, 100, 255, 0.4) inset;
+}
+.wm-ps-subtab-icon { font-size: 14px; line-height: 1; flex-shrink: 0; }
+.wm-ps-subtab-name { font-size: 12px; font-weight: 600; }
+
+.wm-ps-section { display: flex; flex-direction: column; gap: 8px; }
+.wm-ps-section-title { font-size: 13px; font-weight: 700; color: #c4b5fd; letter-spacing: 0.02em; }
+
+.wm-ps-howto-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+.wm-ps-howto-download {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1206;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.wm-ps-howto-download:hover { opacity: .85; }
+
+.wm-ps-howto-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+  background: rgba(245, 158, 11, 0.08);
+  border: 0.5px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+}
+.wm-ps-howto-feedback b { color: #fbbf24; }
+.wm-ps-howto-feedback-ic { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+
+.wm-ps-howto-intro {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  background: rgba(140, 100, 255, 0.06);
+  border: 0.5px solid rgba(140, 100, 255, 0.16);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.wm-ps-howto-block { display: flex; flex-direction: column; gap: 5px; }
+.wm-ps-howto-block + .wm-ps-howto-block { margin-top: 12px; }
+.wm-ps-howto-h {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wm-ps-howto-p { font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.6; }
+.wm-ps-howto-p b, .wm-ps-howto-list b { color: rgba(255, 255, 255, 0.88); }
+.wm-ps-howto-list {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.55;
+}
+.wm-ps-howto-list li::marker { color: #a78bfa; }

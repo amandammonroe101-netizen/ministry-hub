@@ -1,0 +1,1444 @@
+/* Library — Books · Bible Studies sticky-note board.
+   The board is an absolutely-positioned canvas; each note carries
+   its own x/y and is dragged by pointer. Double-clicking a note
+   opens a tabbed editor modal whose tab set depends on note type. */
+
+.lib-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  color: #e5e7eb;
+}
+
+/* Toolbar */
+.lib-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.lib-toolbar h1 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 8px 0 0;
+  letter-spacing: 0.2px;
+}
+
+.lib-toolbar .lib-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-right: auto;
+}
+
+.lib-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3f4f6;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.lib-add:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-1px); }
+.lib-add:active { transform: translateY(0); }
+.lib-add .dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+/* Reading-goal tracker (toolbar) */
+.lib-goal {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(252, 211, 77, 0.3);
+  background: rgba(252, 211, 77, 0.08);
+}
+.lib-goal-label { font-size: 12px; font-weight: 700; color: #fcd34d; }
+.lib-goal-count { font-size: 13px; font-weight: 800; color: #f3f4f6; }
+.lib-goal-input {
+  width: 44px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  color: #f3f4f6;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 6px;
+  text-align: center;
+}
+.lib-goal-bar {
+  width: 90px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.lib-goal-bar > span { display: block; height: 100%; background: #fcd34d; border-radius: 999px; transition: width 0.3s ease; }
+
+/* Board canvas */
+.lib-board {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 26px 26px;
+}
+
+.lib-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #6b7280;
+  pointer-events: none;
+  text-align: center;
+}
+.lib-empty .big { font-size: 40px; }
+
+/* Sticky note */
+/* Notes render as glowing circular "bubbles" on the board. The fill +
+   glow are driven by --note-bg (set inline from the note's color). Rich
+   details (preview, progress, stars…) are hidden on the bubble and shown
+   when the note is opened; hovering reveals a preview caption below. */
+.lib-note {
+  --note-bg: #fcd34d;
+  position: absolute;
+  width: 168px;
+  aspect-ratio: 1 / 1;
+  min-height: 0 !important;
+  height: auto;
+  padding: 22px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  cursor: grab;
+  user-select: none;
+  color: #1f2937;
+  background:
+    radial-gradient(circle at 32% 26%,
+      rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0) 52%),
+    radial-gradient(circle at 70% 80%,
+      color-mix(in srgb, var(--note-bg) 92%, #000 14%), var(--note-bg) 60%);
+  border: 1px solid color-mix(in srgb, var(--note-bg) 70%, #fff 30%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.40),
+    0 0 26px color-mix(in srgb, var(--note-bg) 55%, transparent),
+    inset 0 2px 6px rgba(255, 255, 255, 0.45),
+    inset 0 -10px 18px color-mix(in srgb, var(--note-bg) 60%, #000 20%);
+  transition: box-shadow 0.18s ease, transform 0.14s ease;
+}
+.lib-note:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.5),
+    0 0 38px color-mix(in srgb, var(--note-bg) 75%, transparent),
+    inset 0 2px 6px rgba(255, 255, 255, 0.5),
+    inset 0 -10px 18px color-mix(in srgb, var(--note-bg) 60%, #000 20%);
+}
+.lib-note.dragging { cursor: grabbing; transform: scale(1.06); }
+
+/* Bubbles stay clean: hide the card-only details. They remain visible
+   when the note is opened in the modal. */
+.lib-note .lib-note-cover,
+.lib-note .lib-note-progress,
+.lib-note .lib-note-pages,
+.lib-note .lib-stars,
+.lib-note .lib-note-hint,
+.lib-note .lib-note-resize { display: none; }
+
+/* Preview text slides in below the bubble on hover. */
+.lib-note .lib-note-preview {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 170px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: rgba(17, 24, 39, 0.92);
+  color: #e5e7eb;
+  font-size: 11.5px;
+  line-height: 1.45;
+  pointer-events: none;
+  transition: max-height 0.18s ease, opacity 0.18s ease, padding 0.18s ease;
+  z-index: 4;
+}
+.lib-note:hover .lib-note-preview {
+  max-height: 96px;
+  opacity: 1;
+  padding: 8px 10px;
+}
+
+.lib-note-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.lib-note-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.16);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Status ribbon pill on the sticky face (also a button there) */
+.lib-status-pill {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+button.lib-status-pill:hover { filter: brightness(1.1); }
+.lib-status-pill.toread   { background: #6b7280; }
+.lib-status-pill.reading  { background: #2563eb; }
+.lib-status-pill.finished { background: #16a34a; }
+
+/* Book cover thumbnail on the sticky */
+.lib-note-cover {
+  float: right;
+  width: 44px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 3px;
+  margin: 0 0 4px 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.lib-stars { display: flex; gap: 1px; margin-bottom: 4px; }
+.lib-star {
+  border: none; background: none; cursor: pointer; padding: 0;
+  font-size: 15px; line-height: 1; color: rgba(31, 41, 55, 0.22);
+}
+.lib-star.on { color: #b45309; }
+.lib-star:hover { transform: scale(1.18); }
+
+/* Reading-progress bar on the sticky face */
+.lib-note-progress {
+  position: relative;
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.14);
+  overflow: visible;
+}
+.lib-note-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.lib-note-progress > em {
+  position: absolute;
+  right: 0;
+  top: -13px;
+  font-size: 9px;
+  font-weight: 700;
+  font-style: normal;
+  color: rgba(31, 41, 55, 0.65);
+}
+
+.lib-note-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  word-break: break-word;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lib-note-preview {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: rgba(31, 41, 55, 0.78);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lib-note-hint {
+  position: absolute;
+  left: 14px;
+  bottom: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(31, 41, 55, 0.5);
+}
+
+/* Modal */
+.lib-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  padding: 24px;
+}
+
+.lib-modal {
+  width: min(680px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.lib-modal-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lib-modal-swatch { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+.lib-modal-title {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f9fafb;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.lib-modal-title:focus { background: rgba(255, 255, 255, 0.06); }
+.lib-modal-x {
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.lib-modal-x:hover { background: rgba(255, 255, 255, 0.16); }
+
+.lib-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lib-tab-wrap { position: relative; }
+
+/* Tab "bubbles" — circular glowing dots that show just the icon. The
+   label slides in when the bubble is active or hovered, turning it into
+   a pill. Each bubble's color (--bubble) is user-pickable per note. */
+.lib-tab {
+  --bubble: #fbbf24;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--bubble) 55%, transparent);
+  border-radius: 999px;
+  color: #f8fafc;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  background:
+    radial-gradient(circle at 32% 28%,
+      color-mix(in srgb, var(--bubble) 60%, transparent),
+      color-mix(in srgb, var(--bubble) 16%, transparent) 70%);
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--bubble) 35%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--bubble) 25%, transparent);
+  transition: width .18s ease, padding .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+.lib-tab-icon { font-size: 18px; line-height: 1; }
+.lib-tab-label {
+  display: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+.lib-tab:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--bubble) 55%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--bubble) 30%, transparent);
+}
+.lib-tab:hover, .lib-tab.on { width: auto; padding: 0 16px; }
+.lib-tab:hover .lib-tab-label, .lib-tab.on .lib-tab-label { display: inline; }
+.lib-tab.on {
+  border-color: var(--bubble);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--bubble) 70%, transparent),
+    0 0 6px color-mix(in srgb, var(--bubble) 90%, transparent),
+    inset 0 0 10px color-mix(in srgb, var(--bubble) 35%, transparent);
+}
+
+.lib-tab-palette-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+}
+.lib-tab-palette {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 140px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #111827;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+}
+.lib-tab-palette button {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.lib-tab-palette button:hover {
+  transform: scale(1.18);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.lib-tab-body {
+  padding: 18px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lib-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.lib-field input,
+.lib-field select,
+.lib-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #f3f4f6;
+  font-size: 14px;
+  padding: 10px 12px;
+  font-family: inherit;
+}
+.lib-field textarea { min-height: 180px; resize: vertical; line-height: 1.5; }
+.lib-field input:focus,
+.lib-field select:focus,
+.lib-field textarea:focus {
+  outline: none;
+  border-color: var(--note-color, #fbbf24);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.lib-modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lib-saved { font-size: 12px; color: #6b7280; }
+.lib-delete {
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.lib-delete:hover { background: rgba(239, 68, 68, 0.2); }
+
+/* ── Modal field extras ── */
+.lib-muted { color: #6b7280; font-size: 13px; margin: 4px 0; }
+
+/* Star rating picker */
+.lib-rating { display: flex; align-items: center; gap: 4px; }
+.lib-rating-star {
+  border: none; background: none; cursor: pointer;
+  font-size: 24px; line-height: 1; color: rgba(255, 255, 255, 0.2);
+  padding: 0 1px; transition: color 0.1s ease, transform 0.08s ease;
+}
+.lib-rating-star:hover { transform: scale(1.15); }
+.lib-rating-star.on { color: #fbbf24; }
+.lib-rating-clear {
+  margin-left: 8px; border: none; background: none; cursor: pointer;
+  color: #6b7280; font-size: 12px; text-decoration: underline;
+}
+
+/* Cover URL + preview */
+.lib-cover-field { display: flex; gap: 12px; align-items: flex-start; }
+.lib-cover-field input { flex: 1; }
+.lib-cover-field img {
+  width: 64px; height: 92px; object-fit: cover; border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); flex: none;
+}
+.lib-cover-ph {
+  width: 64px; height: 92px; border-radius: 6px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #6b7280; text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+}
+
+/* Page progress field */
+.lib-progress-field { display: flex; align-items: center; gap: 10px; }
+.lib-progress-field input { width: 90px; flex: none; }
+.lib-progress-of { color: #9ca3af; font-size: 13px; }
+.lib-progress-pct { margin-left: auto; font-weight: 800; color: var(--note-color, #fbbf24); }
+.lib-progress-track {
+  margin-top: 10px; height: 8px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1); overflow: hidden;
+}
+.lib-progress-track > span { display: block; height: 100%; background: var(--note-color, #fbbf24); border-radius: 999px; transition: width 0.25s ease; }
+
+/* Scripture reference chips */
+.lib-ref-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.lib-ref-chip {
+  font-size: 12px; font-weight: 600; text-decoration: none;
+  padding: 4px 9px; border-radius: 999px;
+  color: #bae6fd; background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+}
+.lib-ref-chip:hover { background: rgba(56, 189, 248, 0.22); }
+
+/* Flashcard launcher button */
+.lib-flash-launch {
+  align-self: flex-start;
+  border: 1px solid var(--note-color, #fbbf24);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f4f6; font-size: 13px; font-weight: 600;
+  padding: 8px 14px; border-radius: 10px; cursor: pointer;
+}
+.lib-flash-launch:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* Sub-item add button (sessions) */
+.lib-sub-add {
+  align-self: flex-start;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3f4f6; font-size: 13px; font-weight: 600;
+  padding: 8px 14px; border-radius: 10px; cursor: pointer;
+}
+.lib-sub-add:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* Session log */
+.lib-sessions { display: flex; flex-direction: column; gap: 14px; }
+.lib-session {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px; padding: 12px; background: rgba(255, 255, 255, 0.03);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.lib-session-head { display: flex; align-items: center; gap: 8px; }
+.lib-session-num { font-size: 12px; font-weight: 800; color: var(--note-color, #fbbf24); flex: none; }
+.lib-session-head input[type="date"] { width: 150px; flex: none; }
+.lib-session-head input[type="text"] { flex: 1; }
+.lib-session-del {
+  flex: none; border: none; background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5; width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
+}
+.lib-session-del:hover { background: rgba(239, 68, 68, 0.22); }
+.lib-session textarea { min-height: 80px; }
+
+/* Chapter notes — notes-app style, one addable tab per chapter */
+.lib-chapters { display: flex; flex-direction: column; gap: 12px; }
+.lib-ch-tabs {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lib-ch-tab {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb; font-size: 13px; font-weight: 600; font-family: inherit;
+  padding: 7px 13px; border-radius: 9px 9px 0 0; cursor: pointer;
+  max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lib-ch-tab:hover { background: rgba(255, 255, 255, 0.1); }
+/* Active tab is an inline-editable title input — type straight into it */
+input.lib-ch-tab.on {
+  color: #0b1220; background: var(--note-color, #fbbf24);
+  border-color: var(--note-color, #fbbf24);
+  font-weight: 800; cursor: text; outline: none; box-sizing: content-box;
+}
+input.lib-ch-tab.on::placeholder { color: rgba(11, 18, 32, 0.5); }
+.lib-ch-add {
+  border: 1px dashed rgba(255, 255, 255, 0.22); background: transparent;
+  color: #f3f4f6; font-size: 13px; font-weight: 600;
+  padding: 7px 13px; border-radius: 9px; cursor: pointer;
+}
+.lib-ch-add:hover { background: rgba(255, 255, 255, 0.08); }
+.lib-ch-editor { display: flex; flex-direction: column; gap: 10px; }
+.lib-md textarea {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px; color: #f3f4f6;
+  font-size: 14px; padding: 10px 12px; font-family: inherit;
+  min-height: 220px; resize: vertical; line-height: 1.5;
+}
+.lib-md textarea::placeholder { color: #6b7280; }
+.lib-md textarea:focus {
+  outline: none; border-color: var(--note-color, #fbbf24);
+  background: rgba(255, 255, 255, 0.07);
+}
+.lib-ch-del {
+  align-self: flex-start; border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.12); color: #fca5a5;
+  font-size: 12px; font-weight: 600; padding: 6px 12px;
+  border-radius: 8px; cursor: pointer;
+}
+.lib-ch-del:hover { background: rgba(239, 68, 68, 0.22); }
+.lib-v-chapter { padding: 6px 0; }
+.lib-v-chapter h5 {
+  margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #e5e7eb;
+}
+
+/* Related-note linker */
+.lib-related-list { display: flex; flex-direction: column; gap: 4px; }
+.lib-related-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px; border-radius: 9px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+}
+.lib-related-item:hover { background: rgba(255, 255, 255, 0.07); }
+.lib-related-item input { width: auto; }
+.lib-related-type { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+.lib-related-title { flex: 1; font-size: 13px; color: #e5e7eb; }
+.lib-related-kind { font-size: 11px; color: #6b7280; }
+.lib-related-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.lib-related-chip {
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  padding: 5px 10px; border-radius: 999px; color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.lib-related-chip:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* Flashcard overlay */
+.lib-flash {
+  position: fixed; inset: 0; z-index: 1300;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 24px;
+}
+.lib-flash-inner {
+  width: min(520px, 100%); background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65); overflow: hidden;
+}
+.lib-flash-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 700; color: #f3f4f6;
+}
+.lib-flash-card {
+  display: block; width: calc(100% - 40px); margin: 20px; min-height: 200px;
+  border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04); cursor: pointer; position: relative;
+  padding: 28px 24px; text-align: center;
+}
+.lib-flash-card:hover { background: rgba(255, 255, 255, 0.07); }
+.lib-flash-face { display: none; font-size: 19px; line-height: 1.5; color: #f9fafb; }
+.lib-flash-face.front { display: block; font-weight: 800; color: #7dd3fc; }
+.lib-flash-card.flipped .front { display: none; }
+.lib-flash-card.flipped .back { display: block; }
+.lib-flash-tap {
+  position: absolute; bottom: 10px; left: 0; right: 0;
+  font-size: 11px; font-style: normal; color: #6b7280;
+}
+.lib-flash-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px 20px; color: #9ca3af; font-size: 13px; font-weight: 600;
+}
+.lib-flash-nav button {
+  border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.06);
+  color: #f3f4f6; padding: 8px 16px; border-radius: 9px; cursor: pointer; font-weight: 600;
+}
+.lib-flash-nav button:disabled { opacity: 0.4; cursor: default; }
+.lib-flash-nav button:not(:disabled):hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ── Sticky hover toolbar + quick actions ── */
+.lib-note-bar {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  transition-delay: 0.25s; /* linger briefly after the mouse leaves */
+  pointer-events: none;
+  z-index: 6;
+}
+/* Invisible bridge fills the gap between the bubble and the toolbar so
+   the mouse never drops out of the hover region on its way up. */
+.lib-note-bar::after {
+  content: '';
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  top: 100%;
+  height: 16px;
+}
+.lib-note:hover .lib-note-bar,
+.lib-note-bar:hover {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+.lib-note-bar button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px 4px;
+  border-radius: 6px;
+  filter: grayscale(0.2);
+}
+.lib-note-bar button:hover { background: rgba(255, 255, 255, 0.22); }
+.lib-note-bar button.on { background: rgba(255, 255, 255, 0.35); }
+.lib-note-bar button.danger:hover { background: rgba(239, 68, 68, 0.5); }
+
+.lib-note-palette {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 140px;
+  padding: 7px;
+  border-radius: 9px;
+  background: #111827;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+.lib-note-palette button {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+}
+.lib-note-palette button:hover { transform: scale(1.15); }
+
+.lib-note-pin { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 11px; }
+.lib-note.pinned { cursor: default; }
+
+/* Page +/- quick controls */
+.lib-note-pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(31, 41, 55, 0.7);
+}
+.lib-note-pages button {
+  border: none;
+  background: rgba(0, 0, 0, 0.14);
+  color: rgba(31, 41, 55, 0.85);
+  font-weight: 800;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.lib-note-pages button:hover { background: rgba(0, 0, 0, 0.24); }
+
+/* ── Modal head: view/edit affordances ── */
+.lib-modal-title.view { flex: 1; color: #f9fafb; font-size: 18px; font-weight: 800; padding: 4px 6px; }
+.lib-modal-kind {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.lib-mode-btn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3f4f6;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 13px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.lib-mode-btn:hover { background: rgba(255, 255, 255, 0.12); }
+.lib-mode-btn.primary { border-color: var(--note-color, #fbbf24); color: #fff; background: color-mix(in srgb, var(--note-color, #fbbf24) 22%, transparent); }
+
+/* ── Read-only view body ── */
+.lib-view { display: flex; flex-direction: column; gap: 18px; }
+.lib-v-hero { display: flex; gap: 16px; }
+.lib-v-cover {
+  width: 96px; height: 138px; object-fit: cover; border-radius: 8px; flex: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+.lib-v-meta { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.lib-v-meta.solo { gap: 8px; }
+.lib-v-meta > div { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #e5e7eb; }
+.lib-v-meta > div > span {
+  min-width: 92px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.4px; color: #6b7280;
+}
+.lib-v-stars { color: #fbbf24; letter-spacing: 1px; }
+
+.lib-v-block { display: flex; flex-direction: column; gap: 8px; }
+.lib-v-headrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.lib-v-block h4 {
+  margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--note-color, #fbbf24);
+}
+.lib-v-text { margin: 0; font-size: 14px; line-height: 1.55; color: #e5e7eb; white-space: pre-wrap; }
+.lib-v-session { padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.lib-v-session:last-child { border-bottom: none; }
+.lib-v-session-head { font-size: 13px; color: #cbd5e1; margin-bottom: 4px; }
+.lib-v-session-head b { color: var(--note-color, #fbbf24); margin-right: 4px; }
+.lib-flash-launch.sm { padding: 5px 10px; font-size: 12px; }
+.lib-view .lib-status-pill { cursor: default; }
+
+/* ─────────────── Drag interactions ─────────────── */
+
+/* Ghost-style toolbar buttons (frame / snap / tidy) */
+.lib-add.ghost {
+  background: transparent;
+  border-style: dashed;
+  color: #cbd5e1;
+}
+.lib-add.ghost:hover { background: rgba(255, 255, 255, 0.08); }
+.lib-add.ghost.on {
+  background: rgba(125, 211, 252, 0.16);
+  border-color: rgba(125, 211, 252, 0.6);
+  border-style: solid;
+  color: #bae6fd;
+}
+
+/* Group frame — a labeled drop zone that moves its members */
+.lib-frame {
+  position: absolute;
+  border: 1.5px dashed rgba(148, 163, 184, 0.5);
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.lib-frame.hover {
+  border-color: rgba(125, 211, 252, 0.85);
+  background: rgba(125, 211, 252, 0.1);
+}
+.lib-frame.dragging { border-style: solid; }
+
+.lib-frame-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  cursor: grab;
+  border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+}
+.lib-frame.dragging .lib-frame-head { cursor: grabbing; }
+.lib-frame-title {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 2px 4px;
+  cursor: text;
+}
+.lib-frame-title:focus { outline: none; background: rgba(255, 255, 255, 0.06); border-radius: 6px; }
+.lib-frame-count {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0f172a;
+  background: rgba(148, 163, 184, 0.7);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.lib-frame-del {
+  border: none;
+  background: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.lib-frame-del:hover { color: #f87171; }
+
+/* Resize grips — bottom-right corner on notes and frames */
+.lib-note-resize,
+.lib-frame-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+.lib-note-resize::after,
+.lib-frame-resize::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid rgba(31, 41, 55, 0.4);
+  border-bottom: 2px solid rgba(31, 41, 55, 0.4);
+}
+.lib-frame-resize::after {
+  border-right-color: rgba(148, 163, 184, 0.6);
+  border-bottom-color: rgba(148, 163, 184, 0.6);
+}
+
+/* Cover file-drop highlight on a book note */
+.lib-note.drop {
+  outline: 2px dashed #2563eb;
+  outline-offset: 2px;
+}
+.lib-note-droplay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: 4px;
+  background: rgba(37, 99, 235, 0.85);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+/* ─────────────── Mini-map ─────────────── */
+.lib-minimap {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 20;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  cursor: pointer;
+}
+.lib-minimap .mm-note {
+  position: absolute;
+  border-radius: 1.5px;
+  opacity: 0.92;
+}
+.lib-minimap .mm-frame {
+  position: absolute;
+  border: 1px dashed rgba(148, 163, 184, 0.7);
+  border-radius: 3px;
+  background: rgba(148, 163, 184, 0.08);
+}
+.lib-minimap .mm-view {
+  position: absolute;
+  border: 1.5px solid #7dd3fc;
+  border-radius: 2px;
+  background: rgba(125, 211, 252, 0.14);
+  pointer-events: none;
+}
+
+/* ─────────────── Celebration toast ─────────────── */
+.lib-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 60;
+  max-width: 80%;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6d28d9, #2563eb);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  animation: lib-toast-in 0.3s ease both;
+}
+@keyframes lib-toast-in {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ─────────────── Confetti ─────────────── */
+.lib-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 55;
+  overflow: hidden;
+  pointer-events: none;
+}
+.lib-confetti > span {
+  position: absolute;
+  top: -16px;
+  border-radius: 2px;
+  animation-name: lib-confetti-fall;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+@keyframes lib-confetti-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--drift, 0), 105vh) rotate(720deg); opacity: 0; }
+}
+
+/* Goal tracker celebration state */
+.lib-goal.done {
+  border-color: rgba(52, 211, 153, 0.7);
+  background: rgba(52, 211, 153, 0.14);
+  animation: lib-goal-pop 0.5s ease;
+}
+.lib-goal.done .lib-goal-label,
+.lib-goal.done .lib-goal-count { color: #34d399; }
+.lib-goal.done .lib-goal-bar > span { background: #34d399; }
+@keyframes lib-goal-pop {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+}
+
+/* ─────────────── Markdown write / preview ─────────────── */
+.lib-md { display: flex; flex-direction: column; gap: 6px; }
+.lib-md-tabs { display: flex; align-items: center; gap: 6px; }
+.lib-md-tabs button {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.lib-md-tabs button.on {
+  background: rgba(125, 211, 252, 0.18);
+  border-color: rgba(125, 211, 252, 0.55);
+  color: #bae6fd;
+}
+.lib-md-hint { margin-left: auto; font-size: 11px; color: #6b7280; }
+.lib-md-preview {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 14px;
+  line-height: 1.55;
+  color: #e5e7eb;
+}
+.lib-md-preview.empty { color: #6b7280; font-style: italic; }
+.lib-md-preview h1, .lib-md-preview h2, .lib-md-preview h3 { margin: 8px 0 4px; line-height: 1.3; }
+.lib-md-preview h1 { font-size: 18px; }
+.lib-md-preview h2 { font-size: 16px; }
+.lib-md-preview h3 { font-size: 14px; }
+.lib-md-preview p { margin: 6px 0; }
+.lib-md-preview ul, .lib-md-preview ol { margin: 6px 0; padding-left: 22px; }
+.lib-md-preview li { margin: 2px 0; }
+.lib-md-preview a { color: #7dd3fc; text-decoration: underline; }
+.lib-md-preview code {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+.lib-md-preview pre {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow: auto;
+}
+.lib-md-preview pre code { background: none; padding: 0; }
+.lib-md-preview blockquote {
+  margin: 6px 0;
+  padding: 4px 12px;
+  border-left: 3px solid var(--note-color, #7dd3fc);
+  color: #cbd5e1;
+}
+.lib-v-text.lib-md-preview { white-space: normal; }
+
+/* ─────────────── Verse auto-fetch chip ─────────────── */
+.lib-ref-chip.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.lib-ref-chip.group > a { padding: 4px 8px; }
+.lib-ref-fetch {
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px 7px;
+}
+.lib-ref-fetch:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
+.lib-ref-fetch:disabled { opacity: 0.6; cursor: progress; }
+
+/* ─────────────── Smart alignment guides (PowerPoint-style) ─────────────── */
+.lib-guide {
+  position: absolute;
+  z-index: 60;
+  pointer-events: none;
+  background: #ec4899;
+  box-shadow: 0 0 3px rgba(236, 72, 153, 0.7);
+}
+.lib-guide.v { width: 1px; }
+.lib-guide.h { height: 1px; }
+
+/* ─────────────── Movable series folder (Writing-mode look) ─────────────── */
+.lib-folder {
+  position: absolute;
+  width: 250px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(30, 33, 45, 0.92);
+  backdrop-filter: blur(10px);
+  /* layered look so a series reads as a stack of pages */
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04),
+    3px 3px 0 -1px rgba(251, 191, 36, 0.16),
+    6px 6px 0 -2px rgba(251, 191, 36, 0.09),
+    0 10px 26px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  z-index: 3;
+}
+.lib-folder:hover {
+  border-color: rgba(251, 191, 36, 0.45);
+  transform: translateY(-1px);
+}
+.lib-folder:hover .lib-folder-chev { transform: translateX(2px); color: #fbbf24; }
+.lib-folder.dragging {
+  transform: scale(1.02);
+  box-shadow:
+    3px 3px 0 -1px rgba(251, 191, 36, 0.2),
+    0 16px 34px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+}
+/* A note is being dragged onto this folder — pulse to invite the drop. */
+.lib-folder.over {
+  border-color: rgba(251, 191, 36, 0.9);
+  box-shadow:
+    0 0 0 2px rgba(251, 191, 36, 0.5),
+    3px 3px 0 -1px rgba(251, 191, 36, 0.3),
+    0 16px 34px rgba(0, 0, 0, 0.5);
+  transform: scale(1.03);
+}
+
+.lib-folder-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: grab;
+}
+.lib-folder.dragging .lib-folder-head { cursor: grabbing; }
+.lib-folder-icon { font-size: 22px; line-height: 1; }
+.lib-folder-info { flex: 1; min-width: 0; }
+.lib-folder-name {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: none;
+  background: none;
+  padding: 1px 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  border-radius: 6px;
+}
+.lib-folder-name.static {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: grab;
+}
+.lib-folder-name:focus { outline: none; background: rgba(255, 255, 255, 0.07); cursor: text; }
+.lib-folder-name::placeholder { color: #64748b; }
+.lib-folder-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; padding-left: 4px; }
+.lib-folder-head-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s ease; }
+.lib-folder:hover .lib-folder-head-actions { opacity: 1; }
+.lib-folder-del {
+  border: none;
+  background: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.lib-folder-del:hover { background: rgba(248, 113, 113, 0.16); color: #f87171; }
+.lib-folder-chev {
+  font-size: 13px;
+  color: #64748b;
+  width: 14px;
+  text-align: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.lib-folder-desc {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 16px 14px;
+}
+.lib-folder-desc-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 2px;
+  border-radius: 6px;
+  cursor: text;
+}
+.lib-folder-desc-text.empty { color: #64748b; font-style: italic; }
+.lib-folder-descinput {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  height: 100%;
+  resize: none;
+  box-sizing: border-box;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #e5e7eb;
+  border-radius: 8px;
+}
+.lib-folder-descinput:focus { outline: none; border-color: rgba(251, 191, 36, 0.7); cursor: text; }
+.lib-folder-descinput::placeholder { color: #64748b; font-style: italic; }
+
+.lib-folder-editfoot {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 14px 12px;
+}
+.lib-folder-done {
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.18);
+  color: #fde68a;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+.lib-folder-done:hover { background: rgba(251, 191, 36, 0.3); }
+
+.lib-folder-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+.lib-folder-resize::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid rgba(251, 191, 36, 0.6);
+  border-bottom: 2px solid rgba(251, 191, 36, 0.6);
+}
+
+/* Folder breadcrumb in the toolbar while drilled in. */
+.lib-folder-crumb { white-space: nowrap; }
+
+/* ── Note "file into series" popover ── */
+.lib-note-folders {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  min-width: 168px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(20, 22, 31, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+.lib-note-folders-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  padding: 2px 6px 4px;
+}
+.lib-note-folders-empty { font-size: 11.5px; color: #64748b; padding: 2px 6px 4px; line-height: 1.4; }
+.lib-note-folders-item {
+  text-align: left;
+  border: none;
+  background: none;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 12.5px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lib-note-folders-item:hover { background: rgba(255, 255, 255, 0.08); }
+.lib-note-folders-item.on { color: #fde68a; }
+.lib-note-folders-item.danger { color: #f87171; margin-top: 2px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 7px; }
+.lib-note-folders-item.danger:hover { background: rgba(248, 113, 113, 0.14); }
+
+/* ─────────────────────────────────────────────────────────────
+   Library Page Settings — sub-tab pill bar (shared .pm-ps-*
+   classes from ProfileModal.css) + the How-To Guide body.
+   ───────────────────────────────────────────────────────────── */
+.lib-ps-root { /* hook for future overrides */ }
+
+.lib-ps-howto-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.lib-ps-howto-download {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px; font-weight: 700; color: #1a1206;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  cursor: pointer; transition: opacity .15s;
+}
+.lib-ps-howto-download:hover { opacity: .85; }
+
+.lib-ps-howto-intro {
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.6); line-height: 1.6;
+  background: rgba(252, 211, 77, 0.06);
+  border: .5px solid rgba(252, 211, 77, 0.16);
+  border-radius: 8px; padding: 10px 12px;
+}
+/* Feedback callout — pinned to the top of the guide so it's the
+   first thing a user sees, styled distinctly (amber) from the
+   gold intro box below it so it reads as "action", not "info". */
+.lib-ps-howto-feedback {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.72); line-height: 1.6;
+  background: rgba(245, 158, 11, 0.08);
+  border: .5px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px; padding: 10px 12px;
+}
+.lib-ps-howto-feedback b { color: #fbbf24; }
+.lib-ps-howto-feedback-ic { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+.lib-ps-howto-block { display: flex; flex-direction: column; gap: 5px; }
+.lib-ps-howto-block + .lib-ps-howto-block { margin-top: 12px; }
+.lib-ps-howto-h {
+  font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, 0.9);
+  display: flex; align-items: center; gap: 6px;
+}
+.lib-ps-howto-p {
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.6;
+}
+.lib-ps-howto-p b, .lib-ps-howto-list b { color: rgba(255, 255, 255, 0.88); }
+.lib-ps-howto-list {
+  margin: 0; padding-left: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.55;
+}
+.lib-ps-howto-list li::marker { color: #fcd34d; }

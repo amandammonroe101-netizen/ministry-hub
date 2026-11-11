@@ -1,0 +1,385 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Referral Directory
+   Same rose-gold embossed design system as LifeStages.css: raised
+   gradient-fill surfaces (inset highlight/shadow + drop shadow),
+   cursive ('Dancing Script') widget headings, sidebar shimmer text,
+   plain sans everywhere else so data stays scannable. Reuses only
+   the shared .app-empty/.pm-tb-avatar shell classes and the .ys-*
+   form primitives from youth/AllStudents.css — everything else is
+   purpose-built here, prefixed .rld-*.
+   ───────────────────────────────────────────────────────────── */
+
+.rld-root {
+  --rld-accent: var(--wms-rose-deep, #c2426a);
+  --rld-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --rld-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --rld-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --rld-cursive: 'Dancing Script', 'Caveat', cursive;
+  --rld-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--rld-sans);
+}
+
+.rld-root,
+.rld-root button {
+  font-family: var(--rld-sans);
+}
+.rld-root h1, .rld-root h2, .rld-root h3, .rld-root h4 {
+  font-family: var(--rld-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.rld-root p, .rld-root span, .rld-root label, .rld-root li,
+.rld-root button, .rld-root a {
+  font-family: var(--rld-sans);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+
+/* Sidebar-only shimmer — matches Life Stages' sidebar treatment. */
+.rld-sidebar h1, .rld-sidebar h2, .rld-sidebar h3, .rld-sidebar h4,
+.rld-sidebar p, .rld-sidebar span, .rld-sidebar label, .rld-sidebar li,
+.rld-sidebar button, .rld-sidebar a {
+  font-family: var(--rld-cursive);
+  font-weight: 500;
+  background: var(--wms-poppygold, linear-gradient(100deg, #c81e3a 0%, #e0453f 28%, #e8823f 55%, #d4a017 80%, #c81e3a 100%));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: rldShine 6s linear infinite;
+}
+@keyframes rldShine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: -220% 50%; }
+}
+/* Form controls stay in plain sans with solid ink — cursive/gradient
+   text-fill is hard to read while typing. */
+.rld-root input,
+.rld-root textarea,
+.rld-root select,
+.rld-root option {
+  font-family: var(--rld-sans);
+  font-weight: 500;
+  background-image: none;
+  -webkit-text-fill-color: initial;
+  color: var(--wms-ink, #3d1728);
+  animation: none;
+}
+
+.rld-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+}
+.rld-empty-note {
+  font-size: 16px;
+  font-style: italic;
+  padding: 4px 0;
+}
+
+/* ── 1. Category sidebar ──────────────────────────────────────── */
+.rld-sidebar {
+  flex-shrink: 0;
+  width: 220px;
+  padding: 16px 14px 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.45);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--rld-3d-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 8px;
+}
+.rld-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--wms-rose-deep, #c2426a);
+}
+
+.rld-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--rld-3d-bg);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: var(--rld-3d-shadow);
+}
+.rld-node:hover { transform: translateX(3px); filter: brightness(1.05); }
+.rld-node.on {
+  transform: translateX(3px);
+  box-shadow: var(--rld-3d-shadow), 0 0 0 3px rgba(196,19,60,0.35);
+}
+.rld-node-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.rld-node-name { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left; }
+.rld-node-count { font-size: 14px; margin-left: auto; flex-shrink: 0; }
+
+/* ── Detail pane beside the sidebar ───────────────────────────── */
+.rld-detail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rld-panel {
+  background: var(--rld-3d-bg);
+  border: none;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--rld-3d-shadow);
+}
+.rld-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.rld-panel-subtitle {
+  font-size: 17px;
+  font-style: italic;
+  margin: 0;
+}
+.rld-panel-hd {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.rld-panel-icon { font-size: 28px; line-height: 1; }
+.rld-panel-title { margin: 0; font-size: 26px; letter-spacing: -.01em; }
+
+/* ── 2. Category dashboard stats ──────────────────────────────── */
+.rld-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.rld-stat {
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-top: 3px solid var(--wms-rose-deep, #c2426a);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  box-shadow: var(--rld-3d-shadow-sm);
+}
+.rld-stat.is-warn { border-top-color: #b8860b; }
+.rld-stat.is-warn .rld-stat-n { color: #b8860b; }
+.rld-stat-n {
+  font-family: var(--rld-sans);
+  font-style: normal;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--wms-ink, #3d1728);
+}
+.rld-stat-lbl {
+  font-family: var(--rld-sans);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* ── 3. Directory controls (search + inactive toggle) ─────────── */
+.rld-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.rld-search-wrap {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--rld-3d-shadow-sm);
+}
+.rld-search-wrap span { font-size: 14px; flex-shrink: 0; }
+.rld-search-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+}
+.rld-search-clear {
+  appearance: none;
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(196,19,60,0.08);
+  font-size: 12px;
+  cursor: pointer;
+}
+.rld-search-clear:hover { background: rgba(196,19,60,0.16); }
+.rld-inactive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── 3. Directory list — collapsed row + inline expanding editor ── */
+.rld-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.rld-row {
+  border-radius: 12px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  box-shadow: var(--rld-3d-shadow-sm);
+  overflow: hidden;
+}
+.rld-row.expanded {
+  box-shadow: var(--rld-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+}
+
+.rld-row-summary {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: filter .15s;
+}
+.rld-row-summary:hover { filter: brightness(1.04); }
+.rld-row-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.rld-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.rld-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rld-row-title { font-size: 16px; letter-spacing: -.01em; }
+.rld-row-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rld-row-cost {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.rld-row-chevron { font-size: 11px; flex-shrink: 0; opacity: .65; }
+
+.rld-badge {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.rld-badge.is-inactive {
+  background: rgba(61,23,40,0.1);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* Inline editor — same rose-gold panel treatment, nested inside the
+   expanded row so nothing pops up as an overlay. */
+.rld-editor {
+  padding: 4px 15px 16px;
+  border-top: 1px solid rgba(196,19,60,0.16);
+}
+.rld-detail-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.rld-title-inp {
+  font-size: 17px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.rld-title-inp:focus {
+  background: rgba(255,255,255,0.5);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.rld-active-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .rld-root { flex-direction: column; }
+  .rld-sidebar { position: static; width: 100%; }
+  .rld-sidebar, .rld-sidebar-list { flex-direction: row; flex-wrap: wrap; }
+  .rld-node { width: auto; flex: 1 1 auto; }
+  .rld-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .rld-row-sub { white-space: normal; }
+}

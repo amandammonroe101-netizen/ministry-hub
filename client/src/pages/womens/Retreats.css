@@ -1,0 +1,1256 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Retreats
+   Reuses the shared page shell from AllWomen.css (.wa-root/.wa-body/
+   .wa-center/.wa-card-grid/.wa-stats-bar…) and the .ys-* form
+   primitives from youth/AllStudents.css. Only the retreat card +
+   detail bits below are scoped to this page, prefix .wr-*.
+
+   Rose-gold pass: ports Life Stages' bespoke treatment (see
+   LifeStages.css .wls-root) onto this page — every card/panel is a
+   raised, embossed rose-gold surface (gradient fill + inset
+   highlight/shadow + drop shadow), reusing the --wms-* tokens
+   defined by the WomensShell this page always mounts inside of.
+   Cursive ('Dancing Script') is reserved for headings only (h1-h4);
+   running text stays bold sans for readability, same carve-out
+   Life Stages makes — this is a form-dense planning page, not a
+   photo directory.
+   ───────────────────────────────────────────────────────────── */
+
+.wr-root {
+  --wr-accent: var(--wms-rose-deep, #c2426a);
+  --wr-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --wr-3d-card: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  --wr-3d-chip: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  --wr-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --wr-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --wr-cursive: 'Dancing Script', 'Caveat', cursive;
+  --wr-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wr-sans);
+}
+.wr-root, .wr-root button { font-family: var(--wr-sans); }
+.wr-root h1, .wr-root h2, .wr-root h3, .wr-root h4 {
+  font-family: var(--wr-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.wr-root p, .wr-root span, .wr-root label, .wr-root li,
+.wr-root button, .wr-root a {
+  font-family: var(--wr-sans);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+.wr-root input, .wr-root textarea, .wr-root select, .wr-root option {
+  font-family: var(--wr-sans);
+  font-weight: 500;
+  background-image: none;
+  -webkit-text-fill-color: initial;
+  color: var(--wms-ink, #3d1728);
+  animation: none;
+}
+
+/* ── Directory panels — Life Stages wraps every top-level section
+   (dashboard, groups, roster) in a raised .wls-panel card on the
+   bold rosegold gradient; this gives the directory's "first look"
+   the same stacked-panel dashboard feel instead of floating stat
+   bar / search / grid chrome directly on the page background. */
+.wr-panel {
+  background: var(--wr-3d-bg);
+  border: none;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--wr-3d-shadow);
+}
+.wr-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wr-root .wr-panel-subtitle {
+  margin: 0;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  -webkit-text-fill-color: var(--wms-ink, #3d1728);
+  background: none;
+  text-shadow: none;
+  animation: none;
+}
+
+/* ── Directory chrome (stats bar / search / filters / grid) ─────
+   AllWomen.css already ports this exact treatment onto .wa-root;
+   this page uses the plain .wa-directory shell without .wa-root
+   (to keep the sans-default/cursive-headings-only rule above
+   instead of AllWomen's cursive-everywhere rule), so the same
+   overrides are repeated here scoped to .wr-root. */
+.wr-root .wa-stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.wr-root .wa-stat {
+  background: var(--wr-3d-card);
+  border: none;
+  border-top: 3px solid var(--wr-accent);
+  border-radius: 12px;
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-root .wa-stat.is-warn { border-top-color: #d4a017; }
+.wr-root .wa-stat-n {
+  font-family: var(--wr-sans);
+  font-weight: 800;
+  color: var(--wms-ink, #3d1728);
+}
+.wr-root .wa-stat.is-warn .wa-stat-n { color: #b8860b; }
+.wr-root .wa-stat-lbl {
+  font-family: var(--wr-sans);
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-root .wa-search-wrap {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-root .wa-search-wrap input { color: var(--wms-ink, #3d1728); }
+.wr-root .wa-search-wrap input::placeholder { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wr-root .ys-inp::placeholder,
+.wr-root .ys-textarea::placeholder { color: var(--wms-ink-faint, rgba(61,23,40,0.45)); opacity: 1; }
+.wr-root .wa-search-clear { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wr-root .wa-search-clear:hover { color: var(--wms-ink, #3d1728); }
+.wr-root .wa-filter-chip {
+  background: var(--wr-3d-chip);
+  border: none;
+  box-shadow: var(--wr-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+  transition: all .15s;
+}
+.wr-root .wa-filter-chip:hover { transform: translateY(-1px); filter: brightness(1.05); color: var(--wms-ink, #3d1728); }
+.wr-root .wa-filter-chip.on {
+  background: var(--wr-3d-bg);
+  box-shadow: var(--wr-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+  color: var(--wms-ink, #3d1728);
+}
+.wr-root .wa-directory-empty { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+/* ── Form primitives (Section/Field, reused from Youth roster) —
+   raised embossed cards + cream inputs, matching .wls-panel. ── */
+.wr-root .ys-section {
+  background: var(--wr-3d-card);
+  border: none;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-root .ys-section-title {
+  font-family: var(--wr-cursive);
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.wr-root .ys-field-lbl {
+  font-family: var(--wr-sans);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-root .ys-inp {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wr-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+}
+.wr-root .ys-inp:focus { border-color: var(--wms-gold, #e8b3ae); }
+.wr-root .app-btn {
+  font-family: var(--wr-sans);
+  background: var(--wr-3d-chip);
+  border: none;
+  box-shadow: var(--wr-3d-shadow-sm);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-root .app-btn:hover { filter: brightness(1.05); }
+.wr-root .app-btn.primary {
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  color: #fff;
+}
+.wr-root .app-btn.ghost { background: transparent; box-shadow: none; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wr-root .app-btn.ghost:hover { background: rgba(196,19,60,0.06); color: var(--wms-ink, #3d1728); }
+.wr-root .ys-del-btn { font-family: var(--wr-sans); }
+
+/* ── Directory card ──────────────────────────────────────────── */
+.wr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  padding: 16px 16px 14px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--wms-ink, #3d1728);
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+  box-shadow: var(--wr-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+
+.wr-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.wr-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+.wr-card-theme {
+  font-size: 12.5px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-style: italic;
+}
+
+.wr-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--wr-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-badge.status-planning     { background: rgba(61,23,40,.08); color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wr-badge.status-open         { background: rgba(74,222,128,.28); color: #14532d; }
+.wr-badge.status-full         { background: rgba(212,160,23,.28); color: #7a5c0a; }
+.wr-badge.status-in-progress  { background: rgba(163,116,196,.26); color: #5b3a86; }
+.wr-badge.status-completed    { background: rgba(61,23,40,.06); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wr-badge.status-unpaid       { background: rgba(61,23,40,.08); color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wr-badge.status-partial      { background: rgba(212,160,23,.28); color: #7a5c0a; }
+.wr-badge.status-paid         { background: rgba(74,222,128,.28); color: #14532d; }
+
+.wr-card-line {
+  font-size: 12.5px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wr-card-foot {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wr-card-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--wr-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-card-chip.is-over { background: rgba(196,19,60,.16); color: #7a1030; }
+.wr-card-chip.is-good { background: rgba(74,222,128,.24); color: #14532d; }
+
+/* ── Retreat drill-in (dedicated in-page view) ──────────────── */
+
+.wr-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 28px 40px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wr-view-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 2px;
+}
+.wr-view-back:hover { color: var(--wr-accent); }
+
+.wr-view-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wr-view-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.wr-title-inp {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.wr-title-inp:focus {
+  background: rgba(255,255,255,.5);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.wr-view-title-inp { flex: 1; min-width: 200px; font-size: 20px; }
+.wr-view-status-sel { max-width: 190px; }
+
+/* Fancy display title — plain <h1>, so it inherits .wr-root h1's
+   cursive gradient treatment automatically. Double-click swaps it
+   for the plain text input above (same pattern as DayPlanner's
+   day-theme editor). */
+.wr-root .wr-title-display {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+  padding: 4px 2px;
+  font-size: 28px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background .15s;
+}
+.wr-root .wr-title-display:hover { background: rgba(196,19,60,0.06); }
+
+.wr-view-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wr-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--wr-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-chip.is-over { background: rgba(196,19,60,.16); color: #7a1030; }
+.wr-chip.is-good { background: rgba(74,222,128,.24); color: #14532d; }
+
+/* ── Dashboard stat row — at-a-glance snapshot atop the drill-in,
+   same pattern as Life Stages' .wls-stat-row/.wls-stat: 5 embossed
+   tiles, with "days until" color-tiered like a health indicator
+   (green = plenty of runway, amber = coming up, red = past/overdue)
+   instead of a bare neutral number. ─────────────────────────────── */
+.wr-dash-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.wr-dash-stat {
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-top: 3px solid var(--wr-accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-dash-stat.is-over { border-top-color: var(--wms-red, #c4133c); }
+.wr-dash-stat.is-good { border-top-color: #2f8f5b; }
+.wr-dash-stat.is-days.tier-good { border-top-color: #2f8f5b; }
+.wr-dash-stat.is-days.tier-warn { border-top-color: #b8860b; }
+.wr-dash-stat.is-days.tier-bad  { border-top-color: #c4133c; }
+.wr-dash-stat.is-days.tier-none { border-top-color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wr-dash-stat.is-days.tier-good .wr-dash-n { color: #2f8f5b; }
+.wr-dash-stat.is-days.tier-warn .wr-dash-n { color: #b8860b; }
+.wr-dash-stat.is-days.tier-bad  .wr-dash-n { color: #c4133c; }
+.wr-dash-n {
+  font-family: var(--wr-sans);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--wms-ink, #3d1728);
+}
+.wr-dash-lbl {
+  font-family: var(--wr-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wr-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  flex-wrap: wrap;
+}
+.wr-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 14px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.wr-tab:hover { color: var(--wms-ink, #3d1728); }
+.wr-tab.on { color: var(--wr-accent); border-bottom-color: var(--wr-accent); }
+.wr-tab-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(196,19,60,0.12);
+  color: var(--wr-accent);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.wr-view-body { display: flex; flex-direction: column; gap: 16px; }
+.wr-add-btn { align-self: flex-start; }
+
+.wr-schedule-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wr-schedule-toolbar .wr-add-btn { align-self: auto; }
+.wr-export-btn { margin-left: auto; }
+.wr-export-btn-group { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.wr-export-btn-group .wr-export-btn { margin-left: 0; }
+
+.wr-empty-hint {
+  font-size: 13px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+}
+
+/* Overview tab — view mode */
+.wr-tab-edit-head { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+/* Overview — everything under the theme hero centered, poster-style. */
+.wr-overview-centered { display: flex; flex-direction: column; gap: 16px; }
+.wr-overview-centered .ys-section-body { align-items: center; text-align: center; }
+.wr-overview-centered .ys-row-fields { justify-content: center; }
+.wr-overview-centered .wr-view-field { align-items: center; }
+.wr-overview-centered .wr-view-hero { justify-content: center; }
+
+.wr-view-hero {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 12px 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.wr-view-hero-val {
+  font-family: var(--wr-cursive);
+  font-size: 26px;
+  line-height: 1.3;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.35), 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+.wr-view-hero-val.is-empty {
+  font-family: var(--wr-sans);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+  background: none;
+  -webkit-text-fill-color: unset;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.45));
+  text-shadow: none;
+}
+
+.wr-view-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.wr-view-field.is-block { grid-column: 1 / -1; }
+.wr-view-field-lbl {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--wr-accent);
+  opacity: 0.85;
+}
+.wr-view-field-val {
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.wr-view-field-val.is-italic { font-style: italic; font-weight: 500; }
+.wr-view-field-val.is-empty {
+  font-size: 14px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.45));
+}
+
+/* Speakers tab */
+.wr-spk-list { display: flex; flex-direction: column; gap: 14px; }
+.wr-spk-card {
+  border: none;
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wr-spk-view-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wr-spk-medallion {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--wr-cursive);
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(145deg, #ff5c9c, var(--wr-accent));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -2px 4px rgba(107,36,49,0.3),
+    0 3px 8px rgba(107,36,49,0.28);
+}
+.wr-spk-view-info { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.wr-spk-view-name {
+  font-family: var(--wr-cursive);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  line-height: 1.2;
+}
+.wr-spk-view-role {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.wr-spk-view-topic {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--wr-accent);
+}
+.wr-spk-view-bio {
+  font-size: 13.5px;
+  color: var(--wms-ink, #3d1728);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  background: rgba(255,255,255,0.42);
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: inset 0 1px 3px rgba(107,36,49,0.14);
+}
+.wr-spk-view-contact-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.wr-spk-view-contact-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  background: var(--wr-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border-radius: 999px;
+  padding: 3px 10px;
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-spk-view-notes {
+  font-size: 12.5px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* Schedule tab */
+.wr-day-list { display: flex; flex-direction: column; gap: 10px; }
+.wr-day {
+  border: none;
+  border-radius: 12px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+  overflow: hidden;
+}
+.wr-day-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+}
+.wr-day-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  min-width: 92px;
+  flex-shrink: 0;
+}
+.wr-day-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wr-day-summary {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  white-space: nowrap;
+}
+.wr-chevron {
+  font-size: 11px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  transition: transform .15s;
+  flex-shrink: 0;
+}
+.wr-day.open .wr-chevron { transform: rotate(90deg); }
+.wr-day-body {
+  padding: 2px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  margin-top: 2px;
+  padding-top: 12px;
+}
+.wr-day-del-row { display: flex; justify-content: flex-end; }
+
+.wr-day-view-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wr-day-view-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wr-day-view-date-pill {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+.wr-day-view-label {
+  font-family: var(--wr-cursive);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--wms-ink, #3d1728);
+}
+.wr-edit-btn { flex-shrink: 0; height: 28px; padding: 0 10px; font-size: 12px; }
+.wr-day-edit-done-row { display: flex; justify-content: flex-end; }
+
+/* Session timeline (day view mode) */
+.wr-timeline { display: flex; flex-direction: column; }
+.wr-timeline-row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 4px 0;
+}
+.wr-timeline-rail {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+}
+.wr-timeline-rail::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: -14px;
+  width: 2px;
+  background: var(--wms-border, rgba(196,19,60,0.18));
+}
+.wr-timeline-row:last-child .wr-timeline-rail::before { display: none; }
+.wr-timeline-dot {
+  position: relative;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ff5c9c, var(--wr-accent));
+  box-shadow: 0 0 0 3px var(--wr-3d-card, #fff6ee);
+}
+.wr-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-bottom: 10px;
+}
+.wr-timeline-time {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--wr-accent);
+}
+.wr-timeline-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wr-timeline-meta {
+  font-size: 12px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wr-timeline-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.wr-session-list { display: flex; flex-direction: column; gap: 6px; }
+.wr-session-row {
+  display: grid;
+  grid-template-columns: 90px 1.6fr 1fr 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+.wr-row-del, .wr-row-edit, .wr-row-done {
+  flex-shrink: 0;
+  background: var(--wr-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: none;
+  border-radius: 8px;
+  color: var(--wr-accent);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-row-del:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #7a1030; }
+.wr-row-edit:hover, .wr-row-done:hover { background: linear-gradient(145deg, #fff6ee, #e8c9a8); color: var(--wms-ink, #3d1728); }
+
+/* Registration tab */
+.wr-reg-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.wr-att-list { display: flex; flex-direction: column; gap: 10px; }
+.wr-att {
+  border: none;
+  border-radius: 12px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+  overflow: hidden;
+}
+.wr-att-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+}
+.wr-att-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wr-att-flag { font-size: 13px; }
+.wr-att-room {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  white-space: nowrap;
+}
+.wr-att-body {
+  padding: 2px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  margin-top: 2px;
+  padding-top: 12px;
+}
+.wr-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  background: rgba(255,255,255,.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* Rooming tab */
+.wr-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.wr-room-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-room-view-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.wr-room-view-name {
+  font-family: var(--wr-cursive);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  line-height: 1.2;
+}
+.wr-room-leader-chip {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.wr-room-notes {
+  font-size: 12px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-room-fill {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wr-room-fill.is-over { color: #7a1030; }
+.wr-room-empty {
+  font-size: 12px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+}
+.wr-room-occupants {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wr-room-occupants li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,.4);
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--wms-ink, #3d1728);
+}
+.wr-unassigned-list { display: flex; flex-direction: column; gap: 8px; }
+.wr-unassigned-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  background: rgba(255,255,255,.35);
+}
+.wr-unassigned-row select { max-width: 200px; }
+
+/* Budget tab — edit mode: one card per line item */
+.wr-budget-card-list { display: flex; flex-direction: column; gap: 12px; }
+.wr-budget-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+
+/* Budget tab — view mode: grouped read-only tables */
+.wr-budget-group { display: flex; flex-direction: column; gap: 8px; }
+.wr-budget-group-title {
+  font-family: var(--wr-cursive);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--wr-accent);
+}
+.wr-budget-table {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-budget-table-head,
+.wr-budget-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1fr 100px 120px 100px;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 14px;
+  font-size: 12.5px;
+}
+.wr-budget-table-head {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  background: rgba(255,255,255,0.3);
+}
+.wr-budget-table-row {
+  color: var(--wms-ink, #3d1728);
+  font-weight: 600;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.wr-budget-table-amt { text-align: right; font-weight: 700; }
+.wr-budget-row-notes { font-weight: 500; font-style: italic; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+/* Team tab */
+.wr-team-list { display: flex; flex-direction: column; gap: 6px; }
+.wr-team-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 130px 1.4fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Team tab — search-to-add from All Women */
+.wr-team-add { display: flex; flex-direction: column; gap: 6px; }
+.wr-team-search-row { display: flex; gap: 8px; }
+.wr-team-search-row .ys-inp { flex: 1; }
+.wr-team-search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wr-team-search-empty {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  padding: 6px 2px;
+}
+.wr-team-search-result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.4);
+}
+.wr-team-search-result-row .wr-att-name { flex: 1; }
+.wr-team-search-phone { font-size: 12px; font-weight: 600; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+
+/* Team tab — view mode */
+.wr-team-view-list { display: flex; flex-direction: column; gap: 8px; }
+.wr-team-view-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--wr-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  box-shadow: var(--wr-3d-shadow-sm);
+}
+.wr-team-view-name { font-size: 14px; font-weight: 700; color: var(--wms-ink, #3d1728); }
+.wr-team-view-role {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.wr-team-view-phone, .wr-team-view-notes { font-size: 12.5px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wr-team-view-notes { flex-basis: 100%; }
+
+/* Packing tab */
+.wr-packing-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.wr-packing-groups { display: flex; flex-direction: column; gap: 14px; }
+.wr-packing-group { display: flex; flex-direction: column; gap: 6px; }
+.wr-packing-group-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.wr-packing-row {
+  display: grid;
+  grid-template-columns: 1fr 160px auto;
+  gap: 6px;
+  align-items: center;
+}
+.wr-packing-cat { min-width: 0; }
+
+.wr-packing-check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--wr-3d-card, rgba(255,255,255,0.5));
+  border: 1px solid var(--wms-border, rgba(61,23,40,0.10));
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.wr-packing-check-row:hover {
+  background: color-mix(in srgb, var(--wr-accent, #c4133c) 8%, var(--wr-3d-card, rgba(255,255,255,0.5)));
+}
+.wr-packing-check-row input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--wr-accent, #c4133c);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.wr-packing-check-row span {
+  font-size: 14px;
+  color: var(--text, #2b2013);
+  transition: color 100ms ease, opacity 100ms ease;
+}
+.wr-packing-check-row.is-checked {
+  border-color: color-mix(in srgb, var(--wr-accent, #c4133c) 35%, transparent);
+}
+.wr-packing-check-row.is-checked span {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+@media (max-width: 860px) {
+  .wr-dash-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .wr-session-row,
+  .wr-team-row,
+  .wr-packing-row {
+    grid-template-columns: 1fr;
+  }
+  .wr-budget-table-head { display: none; }
+  .wr-budget-table-row { grid-template-columns: 1fr; gap: 2px; }
+  .wr-timeline-row { grid-template-columns: 20px 1fr; }
+  .wr-timeline-actions { grid-column: 2; padding-left: 0; }
+  .wr-room-grid { grid-template-columns: 1fr; }
+  .wr-root .wa-stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── PDF export (Schedule / Overview / Registration) ─────────────
+   Hidden on-screen; only shown during print via the @media print
+   block below (same pattern as BusinessInvoices' .bzi-print-area).
+   Only one tab is ever mounted at a time, so a single generic
+   print-area class is safe to reuse across every "Export …" sheet —
+   they never coexist in the DOM. */
+.wr-print-area { display: none; }
+
+@media print {
+  @page { margin: 0.6in; }
+
+  body * { visibility: hidden; }
+  .wr-print-area, .wr-print-area * { visibility: visible; }
+  .wr-print-area {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  /* Neutralize .wr-root's cursive/gradient-clip h1-h4 treatment —
+     it has higher selector specificity than the plain .wr-print-*
+     rules below, and many print/PDF engines don't support
+     background-clip:text, so instead of clipped gradient text it
+     renders as a solid pink rectangle behind the heading. */
+  .wr-print-area h1,
+  .wr-print-area h2,
+  .wr-print-area h3 {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: currentColor !important;
+    text-shadow: none !important;
+    font-family: Georgia, 'Times New Roman', serif !important;
+  }
+
+  .wr-print-head {
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 3px double #000;
+    text-align: center;
+  }
+  .wr-print-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: 0.01em; color: #000; }
+  .wr-print-theme { margin: 0 0 6px; font-size: 14px; font-style: italic; color: #333; }
+  .wr-print-meta { margin: 0; font-size: 12px; letter-spacing: 0.03em; text-transform: uppercase; color: #555; }
+
+  /* Generic key/value fields — Overview export, and the top summary
+     line of the Registration full-profile export. */
+  .wr-print-fields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ccc;
+  }
+  .wr-print-field { display: flex; flex-direction: column; gap: 3px; }
+  .wr-print-field-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #666; }
+  .wr-print-field-val { font-size: 13px; font-weight: 600; color: #000; }
+
+  .wr-print-block { margin-bottom: 18px; break-inside: avoid; }
+  .wr-print-block-title {
+    margin: 0 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1.5px solid #000;
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+  }
+  .wr-print-block-body { margin: 0; font-size: 12.5px; line-height: 1.6; color: #222; white-space: pre-wrap; }
+
+  .wr-print-day { margin-bottom: 22px; break-inside: avoid; }
+  .wr-print-day-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 8px;
+    padding: 5px 0 6px;
+    border-bottom: 1.5px solid #000;
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+  }
+  .wr-print-day-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: #000;
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .wr-print-day-date { font-size: 15px; font-weight: 700; color: #000; }
+  .wr-print-day-label { font-size: 15px; font-weight: 400; font-style: italic; color: #444; margin-left: auto; }
+
+  .wr-print-no-sessions { margin: 0 0 0 2px; font-size: 12px; font-style: italic; color: #555; }
+
+  .wr-print-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #000; font-family: Arial, Helvetica, sans-serif; }
+  .wr-print-table thead th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+    padding: 0 8px 5px 0;
+    border-bottom: 1px solid #999;
+  }
+  .wr-print-table tbody tr { break-inside: avoid; }
+  .wr-print-table td { padding: 5px 8px 5px 0; vertical-align: top; border-bottom: 1px solid #eee; }
+  .wr-print-th-time, .wr-print-td-time { width: 78px; white-space: nowrap; }
+  .wr-print-td-time { font-weight: 700; }
+  .wr-print-th-title, .wr-print-td-title { width: auto; }
+  .wr-print-td-title { font-weight: 600; }
+  .wr-print-th-leader, .wr-print-td-leader,
+  .wr-print-th-location, .wr-print-td-location { width: 140px; color: #444; }
+
+  .wr-print-footer {
+    margin-top: 26px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}

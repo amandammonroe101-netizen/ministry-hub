@@ -1,0 +1,161 @@
+/* Outreach Ministry — one-time "pick your pages" modal. Naming: .oob-*
+   Bright teal/sunrise theme to match OutreachShell.css — this renders
+   inside .osh-page, so it inherits the --osh-* custom properties
+   defined there; the fallbacks below only matter if that ever changes. */
+
+.oob-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(18, 51, 49, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: oobOverlayIn 240ms ease both;
+}
+
+.oob-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(88vh, 720px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%);
+  box-shadow: 0 30px 80px rgba(15, 148, 136, 0.22);
+  color: var(--osh-ink, #123331);
+  overflow: hidden;
+  animation: oobModalIn 300ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.oob-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--osh-sunrise, linear-gradient(100deg, #0f9488, #2dd4bf, #fbbf24, #fb7185, #0f9488));
+}
+
+.oob-head {
+  padding: 28px 32px 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.oob-emoji { font-size: 36px; line-height: 1; margin-bottom: 8px; }
+.oob-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--osh-teal-deep, #0f9488);
+}
+.oob-title {
+  margin: 8px 0 10px;
+  font-size: clamp(22px, 3.2vw, 27px);
+  font-weight: 800;
+  color: var(--osh-teal-deep, #0f9488);
+}
+.oob-lead {
+  margin: 0 auto;
+  max-width: 420px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--osh-ink-soft, rgba(18,51,49,0.74));
+}
+
+.oob-body {
+  padding: 14px 28px 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oob-group { display: flex; flex-direction: column; gap: 8px; }
+.oob-group-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--osh-teal-deep, #0f9488);
+  opacity: 0.8;
+}
+
+.oob-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 520px) {
+  .oob-grid { grid-template-columns: 1fr; }
+}
+
+.oob-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: 1px solid var(--osh-border, rgba(15,148,136,0.14));
+  background: #fff;
+  cursor: pointer;
+  transition: all .15s;
+}
+.oob-row:hover { border-color: var(--osh-border-hi, rgba(15,148,136,0.30)); }
+.oob-row.on { background: rgba(15,148,136,0.05); border-color: var(--osh-border-hi, rgba(15,148,136,0.30)); }
+.oob-checkbox { accent-color: var(--osh-teal-deep, #0f9488); cursor: pointer; margin-top: 2px; flex-shrink: 0; }
+.oob-row-icon { font-size: 15px; flex-shrink: 0; }
+.oob-row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.oob-row-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--osh-ink, #123331);
+}
+.oob-row-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--osh-ink-faint, rgba(18,51,49,0.52));
+}
+
+.oob-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px 26px;
+  flex-shrink: 0;
+}
+.oob-btn {
+  padding: 11px 40px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, var(--osh-teal-deep, #0f9488), var(--osh-teal, #2dd4bf));
+  box-shadow: 0 6px 16px rgba(15,148,136,0.3);
+  transition: filter 140ms ease, transform 140ms ease;
+}
+.oob-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.oob-foot-note {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--osh-ink-faint, rgba(18,51,49,0.52));
+  text-align: center;
+}
+
+@keyframes oobOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes oobModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oob-overlay, .oob-modal { animation: none; }
+  .oob-btn:hover { transform: none; }
+}

@@ -1,0 +1,640 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Crisis & Counseling
+
+   Rose-gold embossed system, matching Life Stages (.wls-* in
+   LifeStages.css) — every widget is a raised gradient surface
+   (fill + inset highlight/shadow + drop shadow), cursive shimmer
+   reserved for headings/section titles, plain sans for data
+   (names, numbers, form inputs). Scoped .wcc-* to this page. The
+   Level 2 case drill-in (.wcc-view/.wcc-tabs/.wcc-dash-row) mirrors
+   Retreats' RetreatView pattern (.wr-view/.wr-tabs/.wr-dash-row in
+   Retreats.css); .ys-* field primitives (youth/AllStudents.css) are
+   still reused for row/field structure inside each tab.
+   ───────────────────────────────────────────────────────────── */
+
+.wcc-root {
+  --wcc-accent: var(--wms-rose-deep, #c2426a);
+  --wcc-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --wcc-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --wcc-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --wcc-cursive: 'Dancing Script', 'Caveat', cursive;
+  --wcc-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wcc-sans);
+}
+/* Flex-column page flow for the outer page wrapper — holds either
+   the directory (banner + stats + card grid) or the Level 2 case
+   drill-in, whichever is open. */
+.wcc-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Plain sans everywhere by default — cursive shimmer is reserved for
+   headings (h1-h4, i.e. Section titles below) and field labels,
+   same split as Life Stages. */
+.wcc-root,
+.wcc-root button {
+  font-family: var(--wcc-sans);
+}
+.wcc-root h1, .wcc-root h2, .wcc-root h3, .wcc-root h4 {
+  font-family: var(--wcc-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.wcc-root p, .wcc-root span, .wcc-root label, .wcc-root li,
+.wcc-root button, .wcc-root a {
+  font-family: var(--wcc-sans);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+/* Form controls stay in a regular sans font with solid, high-contrast
+   ink — gradient text-fill is hard to read while typing. */
+.wcc-root input,
+.wcc-root textarea,
+.wcc-root select,
+.wcc-root option {
+  font-family: var(--wcc-sans);
+  font-weight: 500;
+  background-image: none;
+  -webkit-text-fill-color: initial;
+  color: var(--wms-ink, #3d1728);
+  animation: none;
+}
+.wcc-root .ys-field-lbl {
+  font-style: italic;
+  font-weight: 700;
+  background: var(--wms-poppygold, linear-gradient(100deg, #c81e3a 0%, #e0453f 28%, #e8823f 55%, #d4a017 80%, #c81e3a 100%));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: ccShine 6s linear infinite;
+}
+@keyframes ccShine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: -220% 50%; }
+}
+.wcc-root .ys-del-btn {
+  background: rgba(196,19,60,0.08);
+  border: 1px solid rgba(196,19,60,0.35);
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wcc-root .ys-del-btn:hover { background: rgba(196,19,60,0.18); }
+.wcc-root .ys-del-btn.armed { background: var(--wms-rose-deep, #c2426a); color: #fff; border-color: var(--wms-rose-deep, #c2426a); }
+
+/* ── Confidentiality banner ───────────────────────────────────── */
+.wcc-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--wcc-3d-bg);
+  box-shadow: var(--wcc-3d-shadow-sm);
+  font-size: 13px;
+}
+
+/* ── Stats row ─────────────────────────────────────────────────── */
+.wcc-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.wcc-stat {
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-top: 3px solid var(--wcc-accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: var(--wcc-3d-shadow-sm);
+}
+.wcc-stat.is-warn { border-top-color: #c4133c; }
+.wcc-stat.is-warn .wcc-stat-n { color: #c4133c; }
+.wcc-stat.is-warn.has-value { animation: ccWarnPulse 1.8s ease-in-out infinite; }
+@keyframes ccWarnPulse {
+  0%, 100%  { box-shadow: var(--wcc-3d-shadow-sm), 0 0 0 0 rgba(196,19,60,0.55); }
+  50%       { box-shadow: var(--wcc-3d-shadow-sm), 0 0 0 6px rgba(196,19,60,0); }
+}
+.wcc-stat-n {
+  font-family: var(--wcc-sans);
+  font-style: normal;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--wms-ink, #3d1728);
+}
+.wcc-stat-lbl {
+  font-family: var(--wcc-sans);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* ── Quick links + search + filters ───────────────────────────── */
+.wcc-quicklinks {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wcc-btn-ghost {
+  appearance: none;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wcc-3d-shadow-sm);
+  cursor: pointer;
+  color: var(--wms-ink, #3d1728);
+  transition: all .15s;
+}
+.wcc-btn-ghost:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.wcc-btn-confirm {
+  appearance: none;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #d9f7c4, #86efac 70%, #4ade80);
+  border: none;
+  box-shadow: var(--wcc-3d-shadow-sm);
+  cursor: pointer;
+  color: #14532d;
+  transition: all .15s;
+}
+.wcc-btn-confirm:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+.wcc-controls { display: flex; gap: 10px; }
+.wcc-search-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wcc-3d-shadow-sm);
+}
+.wcc-search-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+}
+.wcc-search-clear {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-size: 13px;
+}
+.wcc-search-clear:hover { color: var(--wms-ink, #3d1728); }
+
+.wcc-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.wcc-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wcc-3d-shadow-sm);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--wms-ink, #3d1728);
+}
+.wcc-filter-chip:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.wcc-filter-chip.on {
+  background: var(--wcc-3d-bg);
+  box-shadow: var(--wcc-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+}
+
+/* ── Case card grid ────────────────────────────────────────────── */
+.wcc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.wcc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  padding: 16px 16px 14px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  color: var(--wms-ink, #3d1728);
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--wcc-3d-shadow-sm);
+}
+
+.wcc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.wcc-card-name {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  letter-spacing: -.01em;
+  text-align: left;
+  cursor: pointer;
+}
+.wcc-card-name.is-blurred {
+  filter: blur(4px);
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+  font-weight: 600;
+  user-select: none;
+}
+.wcc-card-name.is-blurred:hover { filter: blur(2.5px); }
+
+.wcc-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255,255,255,0.55);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wcc-badge.urgency-routine   { background: #d9f7c4; color: #2f8f5b; }
+.wcc-badge.urgency-urgent    { background: #ffe8b8; color: #9a6a00; }
+.wcc-badge.urgency-emergency { background: #ffd2d2; color: #b3182f; }
+
+.wcc-card-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.wcc-status-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.55);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wcc-status-pill.status-new         { background: #cfe3ff; color: #1d4ed8; }
+.wcc-status-pill.status-in-care     { background: #ffd6ea; color: #b3186a; }
+.wcc-status-pill.status-referred    { background: #e6dbff; color: #6425c9; }
+.wcc-status-pill.status-follow-up   { background: #ffe8b8; color: #9a6a00; }
+.wcc-status-pill.status-closed      { background: #d9f7c4; color: #2f8f5b; }
+.wcc-status-pill.status-overdue     { background: #ffd2d2; color: #b3182f; }
+
+.wcc-card-summary {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer;
+}
+.wcc-card-summary.is-blurred {
+  filter: blur(4px);
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+  user-select: none;
+}
+.wcc-card-summary.is-blurred:hover { filter: blur(2.5px); }
+
+.wcc-card-foot {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(196,19,60,0.14);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wcc-card-foot span {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.wcc-open-btn {
+  appearance: none;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wcc-3d-shadow-sm);
+  cursor: pointer;
+  color: var(--wms-ink, #3d1728);
+  font-weight: 700;
+  transition: all .15s;
+}
+.wcc-open-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+/* ── Level 2: case drill-in (dedicated in-page view) ──────────── */
+
+.wcc-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 28px 40px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wcc-view-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 2px;
+  font-family: var(--wcc-sans);
+}
+.wcc-view-back:hover { color: var(--wcc-accent); }
+
+.wcc-view-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wcc-view-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.wcc-view-title-inp { flex: 1; min-width: 200px; font-size: 20px; }
+.wcc-view-status-sel { max-width: 190px; }
+
+.wcc-view-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wcc-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  box-shadow: var(--wcc-3d-shadow-sm);
+}
+.wcc-chip.urgency-routine   { background: #d9f7c4; color: #2f8f5b; }
+.wcc-chip.urgency-urgent    { background: #ffe8b8; color: #9a6a00; }
+.wcc-chip.urgency-emergency { background: #ffd2d2; color: #b3182f; }
+.wcc-chip.is-over { background: rgba(196,19,60,.16); color: #7a1030; }
+
+/* At-a-glance stat row atop the drill-in, same pattern as
+   Retreats' .wr-dash-row — the follow-up stat is color-tiered like
+   a health indicator (green = plenty of runway, amber = coming up,
+   red = overdue) instead of a bare neutral number. */
+.wcc-dash-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.wcc-dash-stat {
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-top: 3px solid var(--wcc-accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: var(--wcc-3d-shadow-sm);
+}
+.wcc-dash-stat.is-days.tier-good { border-top-color: #2f8f5b; }
+.wcc-dash-stat.is-days.tier-warn { border-top-color: #b8860b; }
+.wcc-dash-stat.is-days.tier-bad  { border-top-color: #c4133c; }
+.wcc-dash-stat.is-days.tier-none { border-top-color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wcc-dash-stat.is-days.tier-good .wcc-dash-n { color: #2f8f5b; }
+.wcc-dash-stat.is-days.tier-warn .wcc-dash-n { color: #b8860b; }
+.wcc-dash-stat.is-days.tier-bad  .wcc-dash-n { color: #c4133c; }
+.wcc-dash-n {
+  font-family: var(--wcc-sans);
+  font-style: normal;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--wms-ink, #3d1728);
+}
+.wcc-dash-lbl {
+  font-family: var(--wcc-sans);
+  font-style: normal;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wcc-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  flex-wrap: wrap;
+}
+.wcc-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 14px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--wcc-sans);
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.wcc-tab:hover { color: var(--wms-ink, #3d1728); }
+.wcc-tab.on { color: var(--wcc-accent); border-bottom-color: var(--wcc-accent); }
+.wcc-tab-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--wcc-sans);
+  background: rgba(196,19,60,0.12);
+  color: var(--wcc-accent);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.wcc-view-body { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Tab panels — one embossed panel per section ──────────────── */
+.wcc-panel {
+  background: var(--wcc-3d-bg);
+  border: none;
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--wcc-3d-shadow);
+}
+.wcc-panel-title {
+  font-size: 17px;
+  font-style: italic;
+  margin: 0;
+}
+.wcc-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wcc-detail-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.wcc-title-inp {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.wcc-title-inp:focus {
+  background: rgba(255,255,255,0.5);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.wcc-open-woman {
+  align-self: flex-start;
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--wms-rose-deep, #c2426a);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 2px 0 8px;
+}
+
+.wcc-sync-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.wcc-sync-check.is-disabled { cursor: not-allowed; opacity: .55; }
+
+.wcc-resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wcc-resource-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.wcc-empty-note {
+  font-size: 13px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+}
+
+.wcc-closed-note {
+  font-size: 13px;
+  color: #2f8f5b;
+  font-style: italic;
+}
+
+/* ── Follow-up log ─────────────────────────────────────────────── */
+.wcc-followup-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.wcc-followup-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  box-shadow: var(--wcc-3d-shadow-sm);
+}
+.wcc-followup-icon { font-size: 16px; line-height: 1.3; flex-shrink: 0; }
+.wcc-followup-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.wcc-followup-date { font-size: 12.5px; font-weight: 700; color: var(--wms-rose-deep, #c2426a); }
+.wcc-followup-note { font-size: 13px; font-weight: 500; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wcc-followup-del {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.wcc-followup-del:hover { color: var(--wms-rose-deep, #c2426a); }
+
+@media (max-width: 860px) {
+  .wcc-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .wcc-dash-row { grid-template-columns: repeat(2, 1fr); }
+}

@@ -14,12 +14,36 @@
                                      matching user can create/delete)
    - /channels/{channelId}         → chat channels (public + private)
    - /channels/{channelId}/messages/{messageId}  → chat messages
+   - /contactRequests/{requestId}  → Contacts page connection requests
+   - /infoShareRequests/{requestId} → request-and-consent access to a
+                                     member's hidden email/phone (e.g.
+                                     Business Ministry's Order form)
+   - /founderRequests/{requestId}  → Settings page "Send a Request"
+                                     (bug/feature/add-on requests to the founder)
+   - /publicInvoices/{token}       → Business Ministry public invoice
+                                     share links (world-readable, owner-only write)
+
+   The single founder account (client/src/lib/founder.js) additionally
+   gets READ-ONLY access to every user's /kv, /studio-projects, and
+   /writingDocs docs, powering the Founder Dashboard's usage stats.
    ───────────────────────────────────────────────────────────── */
 
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    /* ── Founder Dashboard access ─────────────────────────────
+       One hardcoded owner account gets read-only visibility into
+       every user's content so the Founder Dashboard page can show
+       a roster + usage stats. Matched off the auth token's email
+       (not a Firestore flag) so there's nothing to tamper with
+       client-side — see client/src/lib/founder.js for the same
+       constant used to gate the UI route. NEVER granted write. */
+    function isFounder() {
+      return request.auth != null
+        && request.auth.token.email.lower() == 'amandammonroe101@gmail.com';
+    }
 
     /* ── User profile (the parent /users/{uid} doc) ──────────
        Anyone signed in can READ profiles. This is what powers the
@@ -32,29 +56,136 @@ service cloud.firestore {
     }
 
     /* ── Private per-user key/value store ────────────────────
-       Only the owner can read or write. This is where useUserStoreKey
-       persists app data (blog posts, songs, journal entries, etc.). */
+       Only the owner can read or write, PLUS the founder account can
+       read (never write) for the Founder Dashboard's usage counts. */
     match /users/{uid}/kv/{key} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == uid;
+      allow read: if request.auth != null
+                 && (request.auth.uid == uid || isFounder());
+      allow write: if request.auth != null
+                  && request.auth.uid == uid;
     }
 
     /* ── Per-user studio projects (one doc per project) ────────
        Replaces the legacy single-array /users/{uid}/kv/studio-projects
        so each project gets its own 1 MiB Firestore budget instead of
-       fighting for room in one shared doc. */
+       fighting for room in one shared doc. Founder gets read-only
+       access for the Founder Dashboard's usage counts. */
     match /users/{uid}/studio-projects/{projectId} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == uid;
+      allow read: if request.auth != null
+                 && (request.auth.uid == uid || isFounder());
+      allow write: if request.auth != null
+                  && request.auth.uid == uid;
     }
 
     /* ── Per-user writing documents (one doc per document) ─────
        Replaces the legacy single-array /users/{uid}/kv/writing:documents
        so each Writing Mode document gets its own 1 MiB Firestore budget
-       instead of fighting for room in one shared blob. */
+       instead of fighting for room in one shared blob. Founder gets
+       read-only access for the Founder Dashboard's usage counts. */
     match /users/{uid}/writingDocs/{docId} {
+      allow read: if request.auth != null
+                 && (request.auth.uid == uid || isFounder());
+      allow write: if request.auth != null
+                  && request.auth.uid == uid;
+    }
+
+    /* ── Per-user Women's Ministry retreats (one doc per retreat) ─
+       Each retreat's schedule, roster, rooming, budget, team, and
+       packing list are embedded on its own doc — same one-doc-per-
+       item shape as studio-projects, so a large roster on one
+       retreat can't crowd out another retreat's data. */
+    match /users/{uid}/womens-retreats/{retreatId} {
       allow read, write: if request.auth != null
                          && request.auth.uid == uid;
+    }
+
+    /* ── Per-user Women's Ministry conferences (one doc per
+       conference) ─ same one-doc-per-item shape as womens-retreats:
+       speakers, sessions, attendees, travel, budget, and follow-up
+       notes are all embedded on the conference's own doc. */
+    match /users/{uid}/womens-conferences/{conferenceId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+
+    /* ── Per-user Women's Ministry meal trains (one doc per
+       train) ─ same one-doc-per-item shape as womens-retreats: the
+       delivery schedule, volunteer pool, reminder log, and
+       coordinator notes are all embedded on the train's own doc. */
+    match /users/{uid}/womens-meal-trains/{trainId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+
+    /* ── Business Ministry — businesses a member runs (one doc
+       per business) ─ a member can run several businesses side by
+       side; each business doc holds its own name/icon/color, and
+       every product in its catalog lives in a `products`
+       sub-collection scoped to that business so duplicating one
+       business's data can never leak into another's. Customer
+       orders live in a sibling `orders` sub-collection, same
+       one-doc-per-item shape. */
+    match /users/{uid}/businesses/{businessId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /users/{uid}/businesses/{businessId}/products/{productId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /users/{uid}/businesses/{businessId}/orders/{orderId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /users/{uid}/businesses/{businessId}/customers/{customerKey} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /users/{uid}/businesses/{businessId}/inventory/{itemId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+
+    /* ── Info-share requests ──────────────────────────────────
+       Lets a member ask another member to share their email and/or
+       phone when those fields are hidden from the directory (see
+       redactForOtherMembers in contactRequests.js) — e.g. Business
+       Ministry's Order form requesting a customer's contact info.
+       Same request/accept/decline shape as contactRequests, except
+       accepting also writes the actual sharedEmail/sharedPhone
+       values (only the recipient can ever set those, and only by
+       reading their OWN /users/{uid} doc first — see
+       acceptInfoShare in client/src/lib/infoShareRequests.js). */
+    match /infoShareRequests/{requestId} {
+      // Read: either party can see it
+      allow read: if request.auth != null && (
+        resource.data.senderUid    == request.auth.uid
+        || resource.data.recipientUid == request.auth.uid
+      );
+
+      // Create: only as yourself, only pending, never to yourself,
+      // and must actually ask for something.
+      allow create: if request.auth != null
+        && request.resource.data.senderUid == request.auth.uid
+        && request.resource.data.recipientUid != request.auth.uid
+        && request.resource.data.status == 'pending'
+        && (request.resource.data.wantEmail == true || request.resource.data.wantPhone == true);
+
+      // Update: only the recipient may respond, only from pending,
+      // only into accepted/declined, and only status + the shared
+      // values + respondedAt may change.
+      allow update: if request.auth != null
+        && resource.data.recipientUid == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.resource.data.status in ['accepted', 'declined']
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['status', 'sharedEmail', 'sharedPhone', 'respondedAt']);
+
+      // Delete: either party — decline/cancel/dismiss.
+      allow delete: if request.auth != null && (
+        resource.data.senderUid    == request.auth.uid
+        || resource.data.recipientUid == request.auth.uid
+      );
     }
 
     /* ── Identifying-key index ────────────────────────────────
@@ -142,9 +273,24 @@ service cloud.firestore {
         || isSelfLeavePrivate()
       );
 
-      // Delete: only the owner
-      allow delete: if request.auth != null
-                    && resource.data.ownerUid == request.auth.uid;
+      // Delete: the owner, OR — for a "solo invite" 1:1 private chat
+      // that's still empty (nobody accepted yet) — the invitee who is
+      // declining, so a declined private chat doesn't linger around on
+      // the inviter's side. Gated by soloInvite==true (only set by the
+      // Contacts page's "Chat" button private-DM flow, never by the
+      // general private-channel creator) + still exactly 1 member +
+      // their own pending invite doc still existing (their "permission
+      // slip", same pattern as isSelfAcceptInvitePrivate above).
+      allow delete: if request.auth != null && (
+        resource.data.ownerUid == request.auth.uid
+        || (
+          resource.data.type == 'private'
+          && resource.data.get('soloInvite', false) == true
+          && resource.data.memberUids.size() == 1
+          && !(request.auth.uid in resource.data.memberUids)
+          && exists(/databases/$(database)/documents/invites/$(channelId + '_' + request.auth.uid))
+        )
+      );
 
       /* ── Messages inside a channel ───────────────────────
          For public channels: any signed-in user can read/post,
@@ -312,6 +458,142 @@ service cloud.firestore {
       );
 
       // No updates — invites are accept-or-decline, no editing
+    }
+
+    /* ── Contact / connection requests ───────────────────────
+       Powers the Contacts page's "request to connect" flow.
+       Document ID convention: `${senderUid}__${recipientUid}` — one
+       outstanding request per direction, so re-sending just overwrites
+       instead of creating a duplicate doc.
+
+       status: 'pending' → 'accepted'. Once accepted, the same doc
+       represents the connection itself (both users show each other in
+       their Contacts list by querying senderUid==me OR recipientUid==me
+       with status=='accepted'). Deleting the doc removes the request
+       (decline/cancel) or the connection (disconnect). */
+    match /contactRequests/{requestId} {
+      // Read: either party can see it
+      allow read: if request.auth != null && (
+        resource.data.senderUid    == request.auth.uid
+        || resource.data.recipientUid == request.auth.uid
+      );
+
+      // Create: only as yourself, only pending, never to yourself
+      allow create: if request.auth != null
+        && request.resource.data.senderUid == request.auth.uid
+        && request.resource.data.recipientUid != request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      // Update: only the recipient may accept a pending request, and
+      // only the status field (plus respondedAt) may change.
+      allow update: if request.auth != null
+        && resource.data.recipientUid == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['status', 'respondedAt']);
+
+      // Delete: either party — declines a pending request, cancels a
+      // sent request, or removes an existing connection.
+      allow delete: if request.auth != null && (
+        resource.data.senderUid    == request.auth.uid
+        || resource.data.recipientUid == request.auth.uid
+      );
+    }
+
+    /* ── Founder requests ─────────────────────────────────────
+       Powers the Settings page's "Send a Request" button — any
+       signed-in user can file a bug report / feature request / add-on
+       idea, which then shows up in the Founder Dashboard's Requests
+       panel. Same shape as contactRequests, except the recipient is
+       always the founder rather than a named user, so read access is
+       sender-or-founder instead of sender-or-recipientUid, and only
+       the founder (not the sender) can move the status forward. */
+    match /founderRequests/{requestId} {
+      // Read: the person who filed it, or the founder
+      allow read: if request.auth != null && (
+        resource.data.senderUid == request.auth.uid || isFounder()
+      );
+
+      // Create: only as yourself, and every new request starts as 'new'
+      allow create: if request.auth != null
+        && request.resource.data.senderUid == request.auth.uid
+        && request.resource.data.status == 'new';
+
+      // Update (founder): status/priority/respondedAt as before, plus a
+      // founder-assigned due date (separate from the sender's own optional
+      // due date) and accepting/declining a two-way chat request the
+      // sender has filed.
+      allow update: if request.auth != null && isFounder()
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['status', 'priority', 'respondedAt', 'founderDueDate', 'twoWayStatus']);
+
+      // Update (sender): asking to upgrade to two-way chat on their own
+      // request. They can only move it INTO 'requested' — never straight
+      // to 'accepted', the founder still has to approve that above.
+      allow update: if request.auth != null
+        && resource.data.senderUid == request.auth.uid
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['twoWayStatus', 'twoWayNote'])
+        && request.resource.data.twoWayStatus == 'requested';
+
+      // Delete: the person who filed it (withdraw), or the founder
+      // (dismiss/clear it from the dashboard).
+      allow delete: if request.auth != null && (
+        resource.data.senderUid == request.auth.uid || isFounder()
+      );
+
+      /* ── Per-request chat thread ──────────────────────────────
+         One-way by default: the founder can always post here to reach
+         the sender about their request, no permission needed. The
+         sender can only post back once the founder has accepted their
+         two-way request (twoWayStatus == 'accepted' on the parent doc).
+         No edits — but either side filing the request or the founder
+         can delete a message (used to clear the whole thread once the
+         sender hits "Confirm received" on a one-way message). */
+      match /messages/{messageId} {
+        allow read: if request.auth != null && (
+          get(/databases/$(database)/documents/founderRequests/$(requestId)).data.senderUid == request.auth.uid
+          || isFounder()
+        );
+
+        allow create: if request.auth != null && isFounder()
+          && request.resource.data.senderRole == 'founder'
+          && request.resource.data.senderUid == request.auth.uid;
+
+        allow create: if request.auth != null
+          && request.resource.data.senderRole == 'user'
+          && request.resource.data.senderUid == request.auth.uid
+          && get(/databases/$(database)/documents/founderRequests/$(requestId)).data.senderUid == request.auth.uid
+          && get(/databases/$(database)/documents/founderRequests/$(requestId)).data.twoWayStatus == 'accepted';
+
+        allow delete: if request.auth != null && (
+          get(/databases/$(database)/documents/founderRequests/$(requestId)).data.senderUid == request.auth.uid
+          || isFounder()
+        );
+      }
+    }
+
+    /* ── Business Ministry — public invoice share links ──────
+       Used by the Invoices & Payments page's "Get shareable link"
+       button (see publicInvoiceService.js). A read-only SNAPSHOT of
+       an order-turned-invoice lives here, top-level (not under
+       /users/{uid}), specifically so an unauthenticated customer
+       who just has the link can view it — no account required.
+
+       READ is wide open (allow read: if true) — that's the point of
+       a share link. Only the member who created it (ownerUid) can
+       create/update (re-sync after the order changes) or delete
+       (revoke the link). */
+    match /publicInvoices/{token} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
     }
   }
 }

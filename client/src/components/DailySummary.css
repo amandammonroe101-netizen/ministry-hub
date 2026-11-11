@@ -1,0 +1,239 @@
+/* Daily Summary carousel — per-page "what's new". Naming: .ds-*
+   Sits below the Verse splash (10001), above app chrome. The
+   --ds-accent custom property is set per-step from the active page. */
+
+.ds-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(6, 8, 16, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: dsOverlayIn 240ms ease both;
+}
+
+.ds-modal {
+  position: relative;
+  width: min(540px, 100%);
+  max-height: min(86vh, 720px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(30, 35, 52, 0.96), rgba(18, 21, 33, 0.97));
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  color: #f3f5fb;
+  overflow: hidden;
+  animation: dsModalIn 300ms cubic-bezier(.16, 1, .3, 1) both;
+}
+/* A thin top edge tinted to the active page's accent. */
+.ds-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--ds-accent, #a78bfa);
+  transition: background 260ms ease;
+}
+
+.ds-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+.ds-close:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+.ds-head {
+  padding: 26px 32px 18px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.ds-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ds-accent, #a78bfa);
+  transition: color 260ms ease;
+}
+.ds-title {
+  margin: 8px 0 4px;
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 700;
+}
+.ds-sub { margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.55); }
+
+.ds-body {
+  padding: 22px 24px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ── The per-page card ────────────────────────────────────────── */
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: dsCardIn 280ms ease both;
+}
+@keyframes dsCardIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.ds-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  align-self: flex-start;
+  padding: 9px 14px 9px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 4px solid var(--ds-accent, #a78bfa);
+  background: rgba(255, 255, 255, 0.045);
+  color: #f3f5fb;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 130ms ease, background 130ms ease, border-color 130ms ease;
+}
+.ds-page:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.ds-page-icon { font-size: 22px; line-height: 1; }
+.ds-page-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ds-page-go {
+  color: var(--ds-accent, #a78bfa);
+  font-weight: 700;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 130ms ease, transform 130ms ease;
+}
+.ds-page:hover .ds-page-go { opacity: 1; transform: translateX(0); }
+
+.ds-paragraph {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.62;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ── Loading + empty ──────────────────────────────────────────── */
+.ds-loading {
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+  padding: 36px 0;
+}
+.ds-loading span {
+  width: 10px; height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  animation: dsBlink 1.2s ease-in-out infinite;
+}
+.ds-loading span:nth-child(2) { animation-delay: 0.2s; }
+.ds-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+.ds-empty {
+  text-align: center;
+  padding: 20px 16px;
+  color: rgba(255, 255, 255, 0.72);
+}
+.ds-empty-emoji { font-size: 34px; margin-bottom: 10px; }
+.ds-empty p { margin: 0; font-size: 15px; line-height: 1.5; }
+
+/* ── Footer: progress dots + Back / Next ──────────────────────── */
+.ds-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ds-dots { display: flex; gap: 7px; }
+.ds-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease, width 160ms ease;
+}
+.ds-dot.done { background: rgba(255, 255, 255, 0.4); }
+.ds-dot.on {
+  width: 22px;
+  background: var(--ds-accent, #a78bfa);
+}
+
+.ds-foot-btns { display: flex; align-items: center; gap: 8px; }
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 140ms ease, transform 140ms ease, background 140ms ease;
+}
+.ds-btn-ghost {
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.82);
+}
+.ds-btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+.ds-btn-primary {
+  padding: 10px 24px;
+  border: none;
+  background: var(--ds-accent, #a78bfa);
+  color: #0b1020;
+}
+.ds-btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.ds-btn-arrow { font-weight: 800; }
+
+@keyframes dsOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dsModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dsBlink {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-overlay, .ds-modal, .ds-card { animation: none; }
+  .ds-btn-primary:hover, .ds-page:hover { transform: none; }
+  .ds-loading span { animation: none; }
+}

@@ -1,0 +1,541 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Leaders
+   Reuses the shared page shell from AllWomen.css (.wa-root/.wa-body/
+   .wa-center/.wa-stats-bar/.wa-controls/.wa-filter-row/.wa-slide*/
+   .wa-comm-list) and the .ys-* form primitives from youth/AllStudents.css.
+   Only the leader card + open-roles + training bits below are
+   scoped here, prefix .ld-*.
+
+   Rose-gold pass: matches Life Stages / All Women — every widget is
+   a raised, embossed rose-gold-and-ivory surface (gradient fill +
+   soft shadow), reusing the --wa-3d-* tokens AllWomen.css defines on
+   .wms-page .wa-root (this page's wrapper, see Leaders.jsx) and the
+   --wms-* ink/accent tokens from WomensShell. Tier accents (green/
+   gold/red for active/training/overdue) stay as color-coded stripes
+   and text, just re-tuned for a light card instead of dark glass.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Sans, not cursive — page-wide carve-out ─────────────────────
+   AllWomen.css's shared rose-gold theme sets running text (h1–h4,
+   p, span, label, li, button, a) to a cursive script across every
+   .wa-root page. On Leaders that read as too decorative for a dense
+   roster/dashboard, so this page opts back out of it everywhere
+   except the WomensShell header title (which lives outside .wa-root
+   entirely and is unaffected either way). The extra .ld-root class
+   on this page's wrapper (see Leaders.jsx) gives these selectors one
+   more class than AllWomen.css's `.wms-page .wa-root …` rules, so
+   they win on specificity regardless of stylesheet load order. */
+.wms-page .wa-root.ld-root,
+.wms-page .wa-root.ld-root button {
+  font-family: var(--wa-sans);
+}
+.wms-page .wa-root.ld-root h1,
+.wms-page .wa-root.ld-root h2,
+.wms-page .wa-root.ld-root h3,
+.wms-page .wa-root.ld-root h4 {
+  font-family: var(--wa-sans);
+  font-weight: 800;
+  text-shadow: none;
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wms-page .wa-root.ld-root p,
+.wms-page .wa-root.ld-root span,
+.wms-page .wa-root.ld-root label,
+.wms-page .wa-root.ld-root li,
+.wms-page .wa-root.ld-root a {
+  font-family: var(--wa-sans);
+  font-weight: 600;
+}
+
+/* ── Area tiles — compact landing-view grid ──────────────────────
+   Dashboard-first: instead of every area's roster sitting expanded
+   on the page, this is a small grid of summary tiles (icon, leader
+   count, gap/overdue badges, a peek at who's in it). Clicking a
+   tile opens that area's full roster in the slide-over — see
+   .ld-roster below for that content. */
+.ld-area-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 26px;
+}
+.ld-area-tile {
+  appearance: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 26px 24px;
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--wa-sans);
+  color: var(--wms-ink, #3d1728);
+  box-shadow: var(--wa-3d-shadow-sm);
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.ld-area-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--wa-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+.ld-area-tile-hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ld-area-tile-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+.ld-area-tile-label {
+  font-size: 21px;
+  font-weight: 800;
+  font-family: var(--wa-sans);
+  color: var(--wms-ink, #3d1728);
+}
+.ld-area-tile-stack {
+  display: flex;
+  align-items: center;
+}
+.ld-area-tile-avatar {
+  margin-left: -10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--wa-3d-card, #fff6ee);
+}
+.ld-area-tile-avatar:first-child {
+  margin-left: 0;
+}
+.ld-area-tile-avatar .ld-avatar-dot,
+.ld-area-tile-avatar .ld-avatar-fallback {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+}
+.ld-area-tile-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(61,23,40,.1);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 12px;
+  font-weight: 700;
+}
+.ld-area-tile-empty {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.ld-area-tile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ld-area-tile-count {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* ── Area roster — full drill-in content for one area, shown in
+   the slide-over after a tile is clicked. Same building blocks the
+   old always-expanded panel used (leader cards, open roles, add
+   controls), just rendered on demand instead of inline. */
+.ld-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ld-roster-count {
+  margin-top: -6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--wa-sans);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.ld-area-gap {
+  background: rgba(212,160,23,.28);
+  color: #7a5a00;
+}
+.ld-area-add {
+  appearance: none;
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--wa-sans);
+  cursor: pointer;
+  transition: all .15s;
+}
+.ld-area-add:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.ld-area-empty {
+  font-size: 13px;
+  font-style: italic;
+  font-family: var(--wa-sans);
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  padding: 4px 0;
+}
+
+/* ── Back-to-roster link (top of leader detail, only when reached
+   by drilling in through an area tile) ─────────────────────────── */
+.ld-back-btn {
+  appearance: none;
+  align-self: flex-start;
+  margin-bottom: -4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--wms-rose-deep, #c2426a);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--wa-sans);
+}
+.ld-back-btn:hover {
+  text-decoration: underline;
+}
+
+/* ── Open roles list (rendered inside each area roster) ────────── */
+.ld-openroles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ld-openrole-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 11px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border-radius: 9px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.ld-openrole-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wa-sans);
+}
+.ld-openrole-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.ld-openrole-fill {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--wms-rose-deep, #c2426a);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--wa-sans);
+  padding: 0;
+}
+.ld-openrole-fill:hover {
+  text-decoration: underline;
+}
+.ld-openrole-del {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  line-height: 1;
+}
+.ld-openrole-del:hover {
+  color: #b91c1c;
+}
+.ld-openrole-add {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ld-openrole-add .ys-inp {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* ── Leader card grid ────────────────────────────────────────── */
+.ld-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.ld-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  padding: 18px 16px 14px;
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: var(--wa-sans);
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.ld-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--wa-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+
+.ld-card-stripe {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(196,19,60,.15);
+}
+.ld-card-stripe.tone-active     { background: linear-gradient(90deg, #2f8f5b, #4ade80); }
+.ld-card-stripe.tone-training   { background: linear-gradient(90deg, #b8860b, #fbbf24); }
+.ld-card-stripe.tone-on-leave   { background: rgba(61,23,40,.2); }
+.ld-card-stripe.tone-overdue    { background: linear-gradient(90deg, #c4133c, #f97316); }
+
+.ld-card-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 9px; font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: -.01em;
+}
+.ld-card-badge.tone-overdue { background: rgba(196,19,60,.18); color: #7a0e2c; }
+
+.ld-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.ld-card-id {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ld-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ld-card-role {
+  font-size: 12px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-avatar-dot {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.ld-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--wms-rose-deep, #c2426a), #e8749a);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ld-card-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ld-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(61,23,40,.08);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.ld-pill.status-active    { background: rgba(74,222,128,.28); color: #14532d; }
+.ld-pill.status-training  { background: rgba(251,191,36,.3);  color: #7c4a03; }
+.ld-pill.status-on-leave  { background: rgba(61,23,40,.08);   color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.ld-card-avail {
+  font-size: 12px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ld-card-leading {
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ld-leading-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer;
+  transition: all .15s;
+}
+.ld-leading-tag:hover {
+  color: var(--wms-rose-deep, #c2426a);
+  transform: translateY(-1px);
+}
+.ld-leading-more {
+  font-size: 10.5px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  align-self: center;
+}
+
+/* ── Detail slide-over extras ───────────────────────────────── */
+.ld-detail-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.ld-open-woman {
+  appearance: none;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--wms-rose-deep, #c2426a);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--wa-sans);
+}
+.ld-open-woman:hover {
+  text-decoration: underline;
+}
+
+.ld-leading-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.ld-leading-row {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 8px 11px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: none;
+  border-radius: 9px;
+  color: var(--wms-ink, #3d1728);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--wa-sans);
+  box-shadow: var(--wa-3d-shadow-sm);
+  transition: all .15s;
+}
+.ld-leading-row:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--wa-3d-shadow-sm), 0 0 0 2px rgba(47,143,91,.3);
+}
+
+/* ── Training checklist ─────────────────────────────────────── */
+.ld-training-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.ld-training-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  background: rgba(255,255,255,.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+}
+.ld-training-row.is-overdue {
+  border-color: rgba(196,19,60,.35);
+  background: rgba(196,19,60,.06);
+}
+.ld-training-check {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wa-sans);
+}
+.ld-training-check input[type="checkbox"] {
+  accent-color: #2f8f5b;
+  flex-shrink: 0;
+}
+.ld-training-check span.is-done {
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  text-decoration: line-through;
+}
+.ld-training-date {
+  flex-shrink: 0;
+  width: 132px;
+  padding: 4px 7px !important;
+  font-size: 11.5px !important;
+}
+.ld-training-del {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.ld-training-del:hover {
+  color: #b91c1c;
+}

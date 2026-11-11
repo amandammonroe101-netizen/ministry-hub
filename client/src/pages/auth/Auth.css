@@ -1,0 +1,180 @@
+/* ─────────────────────────────────────────────────────────────
+   Auth pages — Login + Register share this stylesheet.
+   Naming: .auth-*
+   ───────────────────────────────────────────────────────────── */
+
+.auth-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-deep, #0f0e0c);
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* Reuse the existing background-orb pattern from .app-bg if the host
+   page renders one. The auth pages add their own subtle gradient. */
+.auth-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(800px 600px at 20% 20%, rgba(167, 139, 250, 0.18), transparent 60%),
+    radial-gradient(700px 500px at 80% 80%, rgba(45, 212, 191, 0.14), transparent 60%);
+  pointer-events: none;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 28px 28px;
+  background: rgba(20, 18, 17, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 0.5px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.auth-brand-cross {
+  font-size: 22px;
+  color: #fb7185;
+}
+.auth-brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary, #f5f5f4);
+}
+.auth-brand-sub {
+  font-size: 11px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-left: 4px;
+}
+
+.auth-title {
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 0 4px;
+  color: var(--text-primary, #f5f5f4);
+  letter-spacing: -0.01em;
+}
+.auth-subtitle {
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 22px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
+}
+.auth-input {
+  height: 40px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: var(--text-primary, #f5f5f4);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.auth-input:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.auth-input:focus {
+  border-color: rgba(167, 139, 250, 0.55);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.14);
+}
+
+.auth-error {
+  background: rgba(239, 68, 68, 0.10);
+  border: 0.5px solid rgba(239, 68, 68, 0.40);
+  color: #fca5a5;
+  font-size: 12.5px;
+  line-height: 1.4;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.auth-submit {
+  height: 44px;
+  border-radius: 10px;
+  border: 0.5px solid rgba(167, 139, 250, 0.55);
+  background: linear-gradient(180deg, #a78bfa, #8b5cf6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+.auth-submit:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.30);
+}
+.auth-submit:active {
+  transform: translateY(0);
+}
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-foot {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
+}
+.auth-foot-link {
+  color: #c4b5fd;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.auth-foot-link:hover {
+  text-decoration: underline;
+  color: #ddd6fe;
+}
+
+.auth-hint {
+  font-size: 11px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.45));
+  line-height: 1.4;
+}

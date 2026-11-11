@@ -1,0 +1,224 @@
+/* Custom SVG avatar — fills its circular container */
+.cav {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Avatar builder modal
+   ───────────────────────────────────────────────────────────── */
+.avb-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 20, 0.62);
+  backdrop-filter: blur(6px);
+  z-index: 120;
+}
+
+.avb-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(680px, calc(100vw - 40px));
+  max-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #1c1830, #14101f);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  z-index: 121;
+  overflow: hidden;
+}
+
+.avb-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.avb-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.avb-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.avb-close:hover { background: rgba(255, 255, 255, 0.12); }
+
+.avb-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.avb-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+}
+.avb-preview-orb {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+.avb-tabs {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 4px;
+}
+.avb-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 9px 6px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.avb-tab:hover { color: #fff; }
+.avb-tab.on {
+  background: linear-gradient(135deg, #6c3fc9, #378add);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(108, 63, 201, 0.4);
+}
+
+.avb-surprise {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+.avb-surprise:hover { background: rgba(255, 255, 255, 0.14); }
+
+.avb-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.avb-section-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 7px;
+}
+
+.avb-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.avb-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease;
+}
+.avb-swatch:hover { transform: scale(1.12); }
+.avb-swatch.on {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(124, 119, 221, 0.8);
+}
+
+.avb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.avb-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.avb-chip:hover { background: rgba(255, 255, 255, 0.10); }
+.avb-chip.on {
+  background: linear-gradient(135deg, #6c3fc9, #378add);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* Emoji picker grid — a dense scroll-free wall of emoji buttons. */
+.avb-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  gap: 4px;
+}
+.avb-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  font-size: 20px;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease, background 0.12s ease;
+}
+.avb-emoji:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.12);
+}
+.avb-emoji.on {
+  background: linear-gradient(135deg, #6c3fc9, #378add);
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 2px rgba(124, 119, 221, 0.6);
+}
+
+.avb-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 560px) {
+  .avb-body { grid-template-columns: 1fr; }
+  .avb-preview { flex-direction: row; justify-content: center; }
+  .avb-preview-orb { width: 110px; height: 110px; }
+}

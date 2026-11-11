@@ -1,0 +1,281 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Engagement & Attendance
+   Read-only rollup: a life-stage breakdown up top (filter chips
+   below carry their own counts, so the old bucket-distribution bar
+   was redundant and has been removed), then a roster/detail split
+   — a dense person-first roster list
+   on the left and a persistent detail panel (score ring + merged
+   touchpoint timeline) on the right, so picking someone doesn't
+   cover the list the way a slide-over would. Stacks vertically
+   below 960px, same responsive fallback LifeStages' sidebar/detail
+   split uses. Naming: .eng-* (page-scoped). Reuses .wa-*/.ys-* shells.
+
+   Rose-gold pass: wrapping the page in .wa-root (see Engagement.jsx)
+   already ports Life Stages' raised-emboss treatment onto every
+   shared .wa-* class (search/sort, filter chips, timeline) for free —
+   see AllWomen.css's "Rose-gold 3D-emboss overrides" block. Everything
+   below re-derives that SAME recipe for the bespoke .eng-* widgets
+   that have no shared counterpart (distribution bar, life-stage
+   breakdown, roster rows, score ring, channel list, bucket-grouped
+   "roll call" section dividers), using the --wa-3d-*/--wms-* tokens
+   .wa-root defines.
+
+   Typography carve-out: AllWomen's port defaults body text (p/span/
+   li/button/a) to cursive, which reads fine for a card directory but
+   is harder to scan in Life Stages' dense data widgets — Life Stages
+   itself keeps body/data text in plain sans and reserves cursive for
+   panel headings only. The block below re-asserts that sans-first
+   default for this page specifically, matched in specificity
+   (.wms-page .eng-page, same weight as .wms-page .wa-root) and
+   winning on load order since this file imports last.
+   ───────────────────────────────────────────────────────────── */
+
+.eng-page { --wa-accent: #2dd4bf; }
+
+.wms-page .eng-page,
+.wms-page .eng-page button,
+.wms-page .eng-page span,
+.wms-page .eng-page label,
+.wms-page .eng-page li,
+.wms-page .eng-page a,
+.wms-page .eng-page p {
+  font-family: var(--wa-sans, -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif);
+  font-style: normal;
+}
+
+/* ── Life-stage breakdown ────────────────────────────────── */
+.eng-stages {
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+  box-shadow: var(--wa-3d-shadow-sm, none);
+}
+.eng-stages-title {
+  font-size: 11px; font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.eng-stage-list { display: flex; flex-direction: column; gap: 6px; }
+.eng-stage-row { display: grid; grid-template-columns: 110px 1fr 28px 22px; align-items: center; gap: 10px; }
+.eng-stage-lbl { font-size: 12px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eng-stage-track {
+  height: 7px; border-radius: 999px;
+  background: rgba(196,19,60,0.1);
+  overflow: hidden;
+}
+.eng-stage-fill { height: 100%; border-radius: 999px; transition: width .2s; }
+.eng-stage-val { font-size: 12px; font-weight: 700; color: var(--wms-ink, #3d1728); text-align: right; }
+.eng-stage-count { font-size: 10px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); text-align: right; }
+
+/* ── Roster + detail split ────────────────────────────────── */
+.eng-split {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.eng-split-list { flex: 1; min-width: 0; }
+
+/* Sticky so the detail panel stays in view while the roster scrolls —
+   same pattern as .wls-sidebar in LifeStages.css, anchored to
+   .wms-content (the shared scroll container every Women's page mounts
+   inside of). */
+.eng-split-detail {
+  position: sticky;
+  top: 8px;
+  flex-shrink: 0;
+  width: 380px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--wa-3d-shadow-sm, none);
+  /* .ys-section/.ys-inp primitives key off --ys-accent — same hookup
+     every other Women's page does (see AllWomen.css's .wa-slide-body). */
+  --ys-accent: var(--wa-accent);
+}
+.eng-detail-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.eng-detail-topbar-lbl {
+  font-size: 11px; font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.eng-detail-close {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--wa-3d-chip, rgba(255,255,255,0.5));
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 12px; line-height: 1; cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.eng-detail-close:hover { background: rgba(196,19,60,0.12); color: var(--wms-ink, #3d1728); }
+
+.eng-detail-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; min-height: 240px; text-align: center; padding: 12px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-size: 13px;
+}
+.eng-detail-empty-icon { font-size: 30px; opacity: .55; }
+
+@media (max-width: 960px) {
+  .eng-split { flex-direction: column; }
+  .eng-split-detail { position: static; width: 100%; max-height: none; }
+}
+
+/* ── Filter tab counts ────────────────────────────────────── */
+.eng-filter-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px;
+  margin-left: 6px; padding: 0 5px;
+  border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  background: rgba(196,19,60,0.12);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wms-page .wa-root .wa-filter-chip.on .eng-filter-count {
+  background: rgba(255,255,255,0.5);
+  color: var(--wms-ink, #3d1728);
+}
+
+/* ── Roster (person-first list) ──────────────────────────── */
+.eng-roster { display: flex; flex-direction: column; gap: 8px; }
+
+/* "Roll call" bucket groups — section dividers between score-sorted
+   groups, styled as a rose-gold pill to match the rest of the page's
+   raised-emboss chips (see AllWomen.css's .wa-filter-chip.on). */
+.eng-ledger-group { display: flex; flex-direction: column; gap: 8px; }
+.eng-ledger-group + .eng-ledger-group { margin-top: 6px; }
+.eng-ledger-divider {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--wa-3d-chip, rgba(255,255,255,0.5));
+  box-shadow: var(--wa-3d-shadow-sm, none);
+}
+.eng-ledger-divider-icon { font-size: 13px; }
+.eng-ledger-divider-lbl {
+  font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--wms-ink, #3d1728);
+}
+.eng-ledger-divider-count {
+  margin-left: auto;
+  font-size: 10px; font-weight: 700;
+  color: #fff;
+  background: var(--eng-ring, var(--wms-rose-deep, #c2426a));
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.eng-row {
+  --eng-ring: var(--wms-rose-deep, #c2426a);
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 12px;
+  cursor: pointer; font-family: inherit;
+  text-align: left; width: 100%;
+  box-shadow: var(--wa-3d-shadow-sm, none);
+  transition: all .15s;
+}
+.eng-row:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow: var(--wa-3d-shadow-sm, none), 0 0 0 2px color-mix(in srgb, var(--eng-ring) 45%, transparent);
+}
+.eng-row.selected {
+  box-shadow: var(--wa-3d-shadow-sm, none), 0 0 0 2px var(--eng-ring);
+}
+.eng-row-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff;
+  background: var(--eng-ring);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 0 0 2px #fff5f8;
+}
+.eng-row-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.eng-row-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.eng-row-name {
+  font-size: 14px; font-weight: 700; color: var(--wms-ink, #3d1728);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.eng-row-stage {
+  font-size: 10px; font-weight: 600; color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  padding: 1px 8px; border-radius: 999px;
+  background: var(--wa-3d-chip, rgba(255,255,255,0.5));
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  flex-shrink: 0;
+}
+.eng-row-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.eng-row-touch { font-size: 11px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.eng-row-channels { display: flex; gap: 4px; }
+.eng-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 6px;
+  background: var(--wa-3d-chip, rgba(255,255,255,0.5));
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  font-size: 11px;
+}
+.eng-chip-more { font-size: 9px; font-weight: 700; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); width: auto; padding: 0 5px; }
+
+.eng-row-score { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.eng-bucket-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px;
+  border: 1px solid;
+  background: rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+.eng-score-n { font-size: 15px; font-weight: 800; color: var(--wms-ink, #3d1728); letter-spacing: -.02em; }
+
+/* ── Detail panel content ─────────────────────────────────── */
+.eng-detail-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.eng-detail-head-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.eng-detail-name { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+.eng-detail-stage { font-size: 12px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+
+.eng-ring {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--wa-3d-shadow-sm, none);
+}
+.eng-ring-inner {
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(145deg, #fff6ee, #ffffff);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.eng-ring-n { font-size: 16px; font-weight: 800; color: var(--wms-ink, #3d1728); line-height: 1; }
+.eng-ring-lbl { font-size: 8px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); margin-top: 1px; }
+
+.eng-profile-btn { margin: 12px 0 4px; width: 100%; justify-content: center; }
+
+.eng-empty-note {
+  font-size: 12px; color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic; padding: 4px 0;
+}
+
+.eng-channel-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.eng-channel-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 4px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.eng-channel-row:first-child { border-top: none; }
+.eng-channel-icon { font-size: 15px; line-height: 1.3; flex-shrink: 0; }
+.eng-channel-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.eng-channel-label { font-size: 13px; color: var(--wms-ink, #3d1728); font-weight: 600; }
+.eng-channel-detail { font-size: 11px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+
+@media (max-width: 720px) {
+  .eng-stage-row { grid-template-columns: 88px 1fr 26px 20px; gap: 6px; }
+}

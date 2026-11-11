@@ -1,0 +1,611 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Fellowship & Crafts
+   Reuses the shared page shell from AllWomen.css (.wa-root/.wa-body/
+   .wa-center/.wa-card-grid/.wa-slide-.../.wa-stats-bar…) and the .ys-*
+   form primitives from youth/AllStudents.css. Only the page tabs,
+   cards, and tab-specific bits below are scoped to this page,
+   prefix .wf-. Card hover / tab-active color uses the amber accent
+   (matches this page's Events group color in the nav), not the
+   page-shell's rose --wa-accent.
+
+   "Craft table" theme: the stats bar is replaced by a corkboard
+   pinboard strip (.wf-pin-*), everything below sits on a corkboard
+   wash (.wf-corkboard), and cards/tabs read as taped-up index cards
+   (washi-tape strip + slight alternating rotation, .wf-card::before /
+   .wf-tab::before). Card titles and tab labels borrow 'Caveat'
+   (already loaded globally in index.html for another page's theme,
+   unused here otherwise) for the handwritten touch; body copy stays
+   on the app's normal sans font for legibility.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Corkboard backdrop ─────────────────────────────────────── */
+.wf-corkboard {
+  position: relative;
+  border-radius: 18px;
+  padding: 18px 16px 22px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.05) 0, transparent 45%),
+    radial-gradient(circle at 82% 68%, rgba(0,0,0,0.20) 0, transparent 50%),
+    linear-gradient(155deg, #8a6a4a 0%, #6f5138 55%, #5c4028 100%);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,.35), inset 0 -2px 14px rgba(0,0,0,.25);
+}
+.wf-corkboard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(0,0,0,.14) 1px, transparent 1.4px),
+    radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.4px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 4px 5px;
+  border-radius: inherit;
+  opacity: .55;
+  pointer-events: none;
+}
+.wf-corkboard > * { position: relative; }
+
+/* ── Pinboard landing strip (replaces the old stats bar) ────── */
+.wf-pin-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px 16px;
+  margin-bottom: 6px;
+  padding-top: 6px;
+}
+.wf-pin-card {
+  position: relative;
+  background: linear-gradient(160deg, #fffaf0, #f3e6c8 85%);
+  color: #4a3a22;
+  border: none;
+  border-radius: 3px;
+  padding: 16px 14px 13px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.6);
+  transform: rotate(var(--tilt, -1deg));
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.wf-pin-strip > .wf-pin-card:nth-child(1) { --tilt: -1.6deg; }
+.wf-pin-strip > .wf-pin-card:nth-child(2) { --tilt: 1.3deg; }
+.wf-pin-strip > .wf-pin-card:nth-child(3) { --tilt: -0.8deg; }
+.wf-pin-card:hover {
+  transform: rotate(0deg) translateY(-4px);
+  box-shadow: 0 16px 26px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.6);
+}
+.wf-pin-card::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff9d9d, #c23b3b 75%);
+  box-shadow: 0 2px 3px rgba(0,0,0,.5);
+}
+.wf-pin-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8a5a2b;
+}
+.wf-pin-value {
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 6px;
+  line-height: 1.3;
+  color: #3a2c18;
+}
+.wf-pin-sub { font-size: 11.5px; color: rgba(74,58,34,.65); margin-top: 3px; }
+.wf-pin-empty { font-size: 12.5px; font-style: italic; color: rgba(74,58,34,.55); margin-top: 6px; line-height: 1.4; }
+
+.wf-page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.wf-page-icon { font-size: 26px; line-height: 1.3; flex-shrink: 0; }
+.wf-page-title { font-size: 20px; font-weight: 700; color: white; margin: 0; letter-spacing: -.01em; }
+.wf-page-sub { font-size: 13px; color: rgba(255,255,255,.6); margin: 4px 0 0; line-height: 1.4; }
+
+/* ── Page-level tabs (Gatherings / Craft Ideas / Book Club / Supplies) ── */
+.wf-tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: none;
+  flex-wrap: wrap;
+  padding: 4px 2px 12px;
+}
+.wf-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.05);
+  border: 1px dashed rgba(255,255,255,.16);
+  border-radius: 3px 3px 9px 9px;
+  padding: 9px 14px 8px;
+  color: rgba(255,255,255,.6);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Caveat', cursive;
+  cursor: pointer;
+  transform: rotate(var(--tabtilt, -1deg));
+  transition: color .15s, background .15s, border-color .15s, transform .15s;
+}
+.wf-tabs > .wf-tab:nth-child(odd)  { --tabtilt: -1.4deg; }
+.wf-tabs > .wf-tab:nth-child(even) { --tabtilt: 1.1deg; }
+.wf-tab::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 32px;
+  height: 12px;
+  background: repeating-linear-gradient(45deg,
+    rgba(251,191,36,.55), rgba(251,191,36,.55) 4px,
+    rgba(255,255,255,.28) 4px, rgba(255,255,255,.28) 8px);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.wf-tab:hover { color: rgba(255,255,255,.9); }
+.wf-tab.on {
+  color: #fde68a;
+  background: rgba(251,191,36,.14);
+  border-color: rgba(251,191,36,.5);
+  transform: rotate(0deg) translateY(-2px);
+}
+.wf-tab.on::before { opacity: 1; }
+.wf-tab-badge {
+  font-family: var(--font-body, inherit);
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(255,255,255,.10);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.wf-tab-body { display: flex; flex-direction: column; gap: 16px; }
+.wf-panel { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Shared card (Gatherings + Craft Ideas both use .wf-card) ──
+   Pinned-up look: slight alternating rotation + a washi-tape strip
+   taped across the top-left corner, straightening out on hover as
+   if you'd lifted it off the board. */
+.wf-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  padding: 18px 16px 14px;
+  background: rgba(255,255,255,.04);
+  border: .5px solid rgba(255,255,255,.09);
+  border-radius: 3px 10px 10px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: rgba(255,255,255,.85);
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+  transform: rotate(var(--card-tilt, -0.6deg));
+}
+.wa-card-grid > .wf-card:nth-child(3n+1) { --card-tilt: -1deg; }
+.wa-card-grid > .wf-card:nth-child(3n+2) { --card-tilt: 0.8deg; }
+.wa-card-grid > .wf-card:nth-child(3n+3) { --card-tilt: -0.3deg; }
+.wf-card::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 18px;
+  width: 44px;
+  height: 15px;
+  background: repeating-linear-gradient(45deg,
+    rgba(251,191,36,.55), rgba(251,191,36,.55) 5px,
+    rgba(255,255,255,.3) 5px, rgba(255,255,255,.3) 10px);
+  transform: rotate(-4deg);
+  box-shadow: 0 2px 3px rgba(0,0,0,.3);
+  border-radius: 2px;
+  opacity: .95;
+}
+.wf-card:hover {
+  background: rgba(255,255,255,.07);
+  border-color: color-mix(in srgb, var(--accent-amber, #fbbf24) 40%, transparent);
+  transform: rotate(0deg) translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.25);
+}
+.wf-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.wf-card-title {
+  font-family: 'Caveat', cursive;
+  font-size: 19px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+}
+
+/* Craft Ideas cards read as cream index/recipe cards — a light
+   card on the dark corkboard, teal tape instead of amber, to feel
+   like an actual project card rather than a duplicate of the
+   Gatherings cards. */
+.wf-card.wf-craft-card {
+  background: linear-gradient(165deg, #fffaf0, #f0e2c4 88%);
+  border-color: rgba(0,0,0,.10);
+  color: #4a3a22;
+}
+.wf-card.wf-craft-card::before {
+  background: repeating-linear-gradient(45deg,
+    rgba(45,212,191,.55), rgba(45,212,191,.55) 5px,
+    rgba(255,255,255,.35) 5px, rgba(255,255,255,.35) 10px);
+}
+.wf-card.wf-craft-card:hover {
+  background: linear-gradient(165deg, #fffdf5, #f5e8cc 88%);
+  border-color: rgba(45,212,191,.5);
+}
+.wf-card.wf-craft-card .wf-card-title { color: #3a2c18; }
+.wf-card.wf-craft-card .wf-card-line,
+.wf-card.wf-craft-card .wf-card-materials { color: rgba(58,44,24,.72); }
+.wf-card.wf-craft-card .wf-card-materials b { color: rgba(58,44,24,.9); }
+.wf-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(251,191,36,.16);
+  color: #fde68a;
+}
+.wf-card-line { font-size: 12.5px; color: rgba(255,255,255,.65); }
+.wf-card-craft {
+  font-size: 12.5px;
+  color: rgba(255,255,255,.8);
+  font-style: italic;
+  margin-top: 2px;
+}
+.wf-card-materials {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.wf-card-foot {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: .5px solid rgba(255,255,255,.08);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wf-card-rsvp { font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,.55); }
+.wf-card-chip { font-size: 11px; color: rgba(255,255,255,.5); }
+
+.wf-diff-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wf-diff-badge.diff-easy   { background: rgba(74,222,128,.18); color: #86efac; }
+.wf-diff-badge.diff-medium { background: rgba(251,191,36,.18); color: #fde68a; }
+.wf-diff-badge.diff-hard   { background: rgba(239,68,68,.18);  color: #fca5a5; }
+/* Cream craft-card background needs darker badge text for contrast. */
+.wf-craft-card .wf-diff-badge.diff-easy   { background: rgba(22,101,52,.14);  color: #166534; }
+.wf-craft-card .wf-diff-badge.diff-medium { background: rgba(146,64,14,.14);  color: #92400e; }
+.wf-craft-card .wf-diff-badge.diff-hard   { background: rgba(153,27,27,.14);  color: #991b1b; }
+
+/* ── Slide-over detail shared bits ─────────────────────────── */
+.wf-detail-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+.wf-title-inp {
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+/* Section headings + history titles pick up the same handwritten
+   voice as card titles, scoped to this page only (.ys-section-title
+   is a shared class from youth/AllStudents.css used on other pages). */
+.wf-panel .ys-section-title,
+.wf-history-title,
+.wf-pin-value {
+  font-family: 'Caveat', cursive;
+}
+.wf-panel .ys-section-title { font-size: 18px; }
+.wf-history-title { font-size: 16px; }
+.wf-title-inp:focus {
+  background: rgba(255,255,255,.04);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.wf-schedule-btn { align-self: flex-start; }
+
+.wf-linked-craft {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wf-linked-craft-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  flex-wrap: wrap;
+}
+.wf-linked-craft-open { padding: 5px 10px; font-size: 11.5px; }
+.wf-linked-craft-materials { font-size: 12.5px; color: rgba(255,255,255,.75); }
+
+/* ── Attendee (RSVP) picker ─────────────────────────────────── */
+.wf-attendees { display: flex; flex-direction: column; gap: 10px; }
+.wf-attendee-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.wf-attendee-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-amber, #fbbf24) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-amber, #fbbf24) 35%, transparent);
+}
+.wf-attendee-chip-name {
+  appearance: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 2px 0;
+}
+.wf-attendee-chip-x {
+  appearance: none;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.6);
+  font-size: 11px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+.wf-attendee-chip-x:hover { background: rgba(239,68,68,.25); color: #fca5a5; }
+
+.wf-attend-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.wf-attend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.03);
+  border: .5px solid rgba(255,255,255,.07);
+  font-size: 12.5px;
+  cursor: pointer;
+  color: rgba(255,255,255,.75);
+}
+.wf-attend-row.on {
+  background: color-mix(in srgb, var(--accent-amber, #fbbf24) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent-amber, #fbbf24) 45%, transparent);
+  color: white;
+}
+.wf-attend-row input { accent-color: var(--accent-amber, #fbbf24); }
+.wf-attend-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Supply checklist (shared by per-gathering + master list) ── */
+.wf-supply-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wf-supply-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.wf-supply-row.is-got { opacity: .55; }
+.wf-supply-row.is-got .wf-supply-check span,
+.wf-supply-row.is-got .wf-supply-inline-inp { text-decoration: line-through; }
+.wf-supply-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
+  cursor: pointer;
+}
+.wf-supply-check input { accent-color: var(--accent-amber, #fbbf24); flex-shrink: 0; }
+.wf-supply-who {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,.5);
+}
+.wf-supply-inline-inp {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 2px 0;
+}
+.wf-supply-inline-inp:focus {
+  background: rgba(255,255,255,.05);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.wf-supply-who-inp {
+  flex: 0 0 110px;
+  text-align: right;
+  font-size: 11.5px;
+  color: rgba(255,255,255,.55);
+}
+
+/* ── Book Club ──────────────────────────────────────────────── */
+.wf-current-book {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 14px;
+}
+.wf-current-book::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -8px;
+  width: 9px;
+  height: 32px;
+  background: linear-gradient(180deg, var(--accent-amber, #fbbf24), #d97706);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+}
+.wf-book-icon { font-size: 26px; flex-shrink: 0; }
+.wf-book-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.wf-finish-form {
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wf-stars { display: flex; gap: 2px; }
+.wf-star {
+  appearance: none;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: rgba(255,255,255,.25);
+  cursor: pointer;
+  padding: 0 1px;
+}
+.wf-star.on { color: var(--accent-amber, #fbbf24); }
+.wf-star:disabled { cursor: default; }
+
+.wf-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wf-history-row {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wf-history-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wf-history-title { font-size: 13.5px; font-weight: 700; color: white; }
+.wf-history-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: rgba(255,255,255,.5);
+}
+.wf-history-notes { font-size: 12.5px; color: rgba(255,255,255,.7); font-style: italic; }
+
+/* ── Supplies tab: rollup of what's still needed per gathering ── */
+.wf-gathering-needs {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.wf-gathering-needs-hd {
+  appearance: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  text-align: left;
+}
+.wf-gathering-needs-hd:hover { color: var(--accent-amber, #fbbf24); }
+.wf-gathering-needs-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: rgba(255,255,255,.65);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

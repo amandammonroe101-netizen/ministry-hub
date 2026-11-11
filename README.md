@@ -1,150 +1,161 @@
-# Elite Journal Hub
+# Ministry Hub
 
-A local-first personal-growth desktop app for journaling, prayer tracking, relationship-keeping, and habit-building — all wired together with a unified calendar. Built with **Electron + React + Node/Express + SQLite**.
+A cross-platform desktop application for church and ministry teams — combining day-to-day ministry
+operations (people, prayer, discipleship, scheduling, communications) with a full creative production
+suite (multitrack audio recording, podcast studio, setlists, stage plots) and a website/blog
+management back office.
 
-Everything is saved on your own machine; no account, no cloud, no telemetry.
-
----
-
-## Features
-
-### 📖 Journal
-- Rich prayer-journal entries with title, body, scripture references, and mood tagging (Peaceful, Grateful, Wrestling, Joyful, etc.).
-- Auto-loads verse text from a public Bible API when you type a reference (e.g. `John 3:16`).
-- Optional cover photo per entry.
-- Daily reflection prompt on the dashboard.
-- Recurring **journal reminders** (time + days of the week) that show up on the Calendar.
-- Insights: writing rhythm heatmap, spiritual season detection, scripture coverage, themes & words, weekly memory verse.
-
-### 🙏 Prayers
-- Smart sidebar sections — Urgent, Daily List, Active, Long-Standing (30+ days), Answered Testimonies, Praise & Thanksgiving, plus a By Category accordion.
-- Tabbed detail view per prayer: **Updates** (running journal of how God is moving), **Request** (content + scripture + status changer), **Praying For** (link friends), **Insights** (per-prayer stats).
-- Mark prayers as urgent, daily, or as a Praise entry.
-- Friends can be linked to any prayer, with deep-linking back to that friend.
-
-### 👥 Friends
-- Per-friend tabbed profile: **Profile & Reach Out**, **Prayer Requests** (linked to Prayers tab), **Events & Birthdays**, **Notes**.
-- Day-of-week reach-out schedule per friend, with real due dates ("Due Wed, May 20", "3 days overdue", "Due today").
-- Friend status dropdown (Close friend, Family, Co-worker, Church friend, Prayer partner, Mentor, Mentee, Neighbor, Acquaintance, Other).
-- Smart sections in the sidebar: Reach Out Soon, Upcoming Birthdays, Close Friends, Family, Co-workers, Church Community, Prayer Partners, Mentors & Mentees, All Friends.
-- Inline notes/timeline, events, and a quick "Reached Out Today" action.
-
-### 📅 Calendar
-- Google-like month + week view.
-- Aggregates events from **every other tab automatically** — friend birthdays, reach-out due dates, daily prayer reminders, journal entry days, friend events, journal reminders, scheduled habits.
-- Add your own custom events with title, description, date, time, and color.
-- Filter sidebar to toggle any event type on/off.
-- Click any event's "Open" to jump to its source (Friends/Prayers/Journal/Habits) with the right item already selected.
-
-### ✅ Habits
-- Daily checklist sidebar with one-tap completion.
-- Per-habit detail card with **weekly flow** view: current week pills + last 3 weeks compact strip.
-- Streak tracker, target-per-week progress bar, lifetime check-ins.
-- Day-of-week schedule per habit (e.g. Mon/Wed/Fri) + optional reminder time, both feed into the Calendar.
-- One-click "Seed starter pack" — Bible reading, Prayer time, Devotion / Quiet time, Scripture memory, Gratitude practice, Journal entry.
-- Add fully custom habits with emoji, color, weekly target, schedule, and reminder time.
+Built with **Electron + React (Vite)** on a **Firebase** backend — Authentication, Cloud Firestore,
+Cloud Storage, and Cloud Functions — with offline persistence and real-time sync across windows and
+devices.
 
 ---
 
-## Tech Stack
+## Scope
 
-| Layer | Technology |
-|-------|-----------|
-| Desktop wrapper | Electron |
-| Frontend | React 18 + Vite + react-router-dom + date-fns |
-| Backend | Node.js + Express |
-| Database | SQLite (via `sql.js`, file-backed) |
-
----
-
-## Project Structure
-
-```
-elite-journal-hub/
-├── electron/
-│   ├── main.js              Electron main process (window + spawns server)
-│   └── preload.js           Context bridge (renderer <-> main)
-├── client/                  React + Vite frontend
-│   └── src/
-│       ├── components/layout/NavRail.jsx
-│       ├── pages/
-│       │   ├── journal/     Journal + dashboard
-│       │   ├── prayers/     Prayers (smart sections + tabbed detail)
-│       │   ├── friends/     Friends (smart sections + tabbed detail)
-│       │   ├── calendar/    Calendar (month + week, custom events)
-│       │   └── habits/      Habits (weekly flow, scheduling)
-│       ├── services/        API clients (one per resource)
-│       ├── App.jsx          Routes
-│       ├── main.jsx         Vite entry
-│       └── index.css        Global tokens + shared utility classes
-├── server/                  Express API backend
-│   ├── config/db.js         sql.js initialization + schema + migrations
-│   ├── controllers/         One per resource
-│   ├── routes/              One per resource
-│   ├── database/data.db     Local SQLite file (gitignored)
-│   └── index.js             Express entry
-├── assets/                  Icon + brand assets
-└── package.json             Root — Electron scripts & build config
-```
-
-### Resources / endpoints
-
-| Resource | Endpoints |
+| | |
 |---|---|
-| Journal entries | `GET/POST/PUT/DELETE /api/journal` |
-| Journal reminders | `GET/POST/DELETE /api/journal-reminders` |
-| Prayers | `GET/POST/PUT/DELETE /api/prayer`, `POST /:id/updates`, `PUT /:id/friends` |
-| Friends | `GET/POST/PUT/DELETE /api/friends/list`, plus per-friend prayers/events/timeline |
-| Calendar events | `GET/POST/PUT/DELETE /api/calendar` |
-| Habits | `GET/POST/PUT/DELETE /api/habits`, `POST /:id/toggle`, `POST /starter-pack` |
+| Feature modules | 78 |
+| React components | ~250 |
+| Shared domain libraries | 35 |
+| Platforms | macOS (dmg/zip), Windows (nsis/portable), Linux (AppImage/deb) |
+
+Roughly grouped:
+
+- **People & care** — contacts, friends, pastoral care, visitors, outreach, missions, hospitality, discipleship
+- **Prayer & journaling** — prayer lists with status tracking, journal, testimony, daily verse and briefing
+- **Planning** — calendar, day planner, scheduling, rosters, subs, meetings, countdowns, budget
+- **Worship & production** — songs, setlists, CCLI tracking, multitrack recorder, stems library, mix notes, drums, stage plots, lyrics display, soundscapes
+- **Media** — podcast studio, recording, scenes, editor
+- **Writing** — long-form documents organized into series and folders
+- **Web presence** — blog (posts, series, authors, comments, newsletters, ideas, quotes, performance), site pages, forms, SEO health, tech stack, issue tracking
+- **Administration** — roles and permissions, inventory, maintenance, update log, style guide, settings
 
 ---
 
-## Getting Started
+## Project status
 
-### Prerequisites
-- Node.js 18+
-- npm 9+
+This is an active, in-progress build, not a finished product. Being specific about where the line
+sits:
 
-### Install dependencies (all three projects)
+**Working**
+
+- Worship & production — the Web Audio multitrack recorder, instruments, and the piano
+- Journal, prayer, testimony, daily verse and briefing
+- Writing — long-form documents, series, and folders
+- Auth, role-gated routing, Firestore sync, offline persistence, multi-window sync
+- Packaged builds and auto-update on all three platforms
+
+**In progress**
+
+- Page design is inconsistent across the ministry modules — each one was built as its own
+  surface and they have not yet been unified behind a shared layout and component set
+- Some personal-user features are broken and under repair
+- No automated test suite yet
+
+The 78 modules are at uneven depth by design — breadth came first to find out which parts a
+ministry team actually reaches for, and the surfaces that got used are the ones that got finished.
+
+---
+
+## Architecture
+
+```
+ministry-hub/
+├── electron/
+│   ├── main.js            Main process — windows, auto-update, native menus
+│   └── preload.js         Context bridge (contextIsolation enabled)
+├── client/                React + Vite renderer
+│   └── src/
+│       ├── pages/         78 feature modules, one directory each
+│       ├── components/    Shared UI — nav rail, onboarding, tour, profile, error boundary
+│       ├── context/       AuthContext — session, role, founder/protected routing
+│       ├── lib/           35 domain modules (Firestore access, audio, chat, sync, exports)
+│       └── services/      Per-resource data services
+├── functions/             Firebase Cloud Functions (privileged server-side operations)
+├── docs/
+│   ├── firestore.rules    Security rules
+│   ├── storage.rules      Storage rules
+│   ├── firebase-migration.md
+│   └── *_HOW_TO_USE.md    Per-module user documentation
+└── tools/analytics/       Local usage reporting scripts
+```
+
+### Notable engineering decisions
+
+**Local-first → cloud sync.** The app began on an Express + SQLite backend. It was migrated to
+Firestore to support multi-device sync and shared ministry teams, while keeping offline persistence
+so the app stays usable without a connection. Migration notes are in
+[`docs/firebase-migration.md`](docs/firebase-migration.md).
+
+**One document per record.** Writing documents, studio projects, and similar collections are stored
+one-per-Firestore-document rather than as arrays inside a parent. This keeps writes small, avoids
+document size ceilings, and prevents concurrent edits in two windows from clobbering each other.
+
+**Authorization lives in security rules, not the client.** Role gating (`ProtectedRoute`,
+`FounderRoute`) is a UX affordance; actual enforcement is in
+[`docs/firestore.rules`](docs/firestore.rules), so a modified client cannot read or write data it
+shouldn't.
+
+**Multi-window state sync.** `WindowSync` keeps detached windows consistent with the main window, so
+a setlist open on a second display reflects edits made in the primary one.
+
+**Web Audio multitrack engine.** The recorder handles per-track arming, monitoring, and mixdown in
+the renderer using the Web Audio API, with takes persisted to Cloud Storage.
+
+**Auto-update.** Packaged builds update via `electron-updater` against GitHub Releases, with
+`electron-log` for diagnostics from installed copies.
+
+---
+
+## Getting started
+
+Requires Node.js 18+ and npm 9+.
 
 ```bash
 npm install
-cd server && npm install && cd ..
 cd client && npm install && cd ..
 ```
 
-### Run in development
+Create `client/.env` from the template and fill in a Firebase web app config:
+
+```bash
+cp client/.env.example client/.env
+```
+
+| Variable | |
+|---|---|
+| `VITE_FIREBASE_API_KEY` | Firebase web API key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | |
+| `VITE_FIREBASE_PROJECT_ID` | |
+| `VITE_FIREBASE_STORAGE_BUCKET` | |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | |
+| `VITE_FIREBASE_APP_ID` | |
+
+Run in development — starts Vite, then opens Electron once the dev server is ready:
 
 ```bash
 npm run dev
 ```
 
-This concurrently starts:
-
-1. The Express API on http://localhost:5000
-2. The Vite dev server on http://localhost:5173
-3. The Electron window (waits for both)
-
-### Build for distribution
+Build installers:
 
 ```bash
-npm run build          # current platform
-npm run dist:mac       # macOS .dmg
-npm run dist:win       # Windows .exe installer
-npm run dist:linux     # Linux .AppImage / .deb
+npm run dist:mac      # .dmg + .zip
+npm run dist:win      # NSIS installer + portable
+npm run dist:linux    # AppImage + .deb
 ```
 
-Output goes to `dist-electron/`.
+Output lands in `dist-electron/`.
 
 ---
 
-## Data & Privacy
+## Data & privacy
 
-- **All data is stored locally** in a single SQLite file at `server/database/data.db`.
-- That file is **gitignored** — each install / each machine has its own.
-- No accounts, no telemetry, no cloud sync.
-- See the discussion in the repo's history for notes on moving the DB to Electron's user-data directory for packaged builds.
+- Each user's data is scoped to their Firebase Auth account and enforced server-side by Firestore
+  security rules.
+- No analytics or telemetry are sent anywhere; `tools/analytics/` runs locally against your own data.
+- `client/.env` is gitignored — credentials never enter version control.
 
 ---
 

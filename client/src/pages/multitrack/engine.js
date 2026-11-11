@@ -47,12 +47,14 @@ export const clipDuration = (track) => {
   return Math.max(0, full - (track.trimStart || 0) - (track.trimEnd || 0));
 };
 
-/** Total project length (seconds). */
+/** Total project length (seconds) — the latest-ending clip across all tracks. */
 export const projectDuration = (tracks) => {
   let max = 0;
   for (const t of tracks) {
-    if (!t.buffer) continue;
-    max = Math.max(max, (t.clipOffset || 0) + clipDuration(t));
+    for (const c of (t.clips || [])) {
+      if (!c.buffer) continue;
+      max = Math.max(max, (c.clipOffset || 0) + clipDuration(c));
+    }
   }
   return max;
 };
@@ -129,8 +131,9 @@ const readLevel = (analyser) => {
   return peak;
 };
 
-/** Build one track's channel strip: source → vol → EQ×3 → comp → pan → master + reverb send. */
-const buildChannelStrip = (ctx, src, tr, masterGain, reverbNode) => {
+/** Build one track's channel strip. `vol` is the input node — every clip
+ *  source on the track connects into it. vol → EQ×3 → comp → pan → master + reverb send. */
+const buildChannelStrip = (ctx, tr, masterGain, reverbNode) => {
   const fx = tr.effects || {};
   const vol = ctx.createGain();
   vol.gain.value = tr.volume ?? 1;
@@ -152,7 +155,7 @@ const buildChannelStrip = (ctx, src, tr, masterGain, reverbNode) => {
   const panner = ctx.createStereoPanner();
   panner.pan.value = tr.pan ?? 0;
 
-  src.connect(vol).connect(eqLow).connect(eqMid).connect(eqHigh).connect(comp).connect(panner);
+  vol.connect(eqLow).connect(eqMid).connect(eqHigh).connect(comp).connect(panner);
   panner.connect(masterGain);                       // dry path
 
   const send = ctx.createGain();
@@ -181,7 +184,8 @@ export class MultitrackPlayer {
     this.masterAnalyser = bus.analyser;
   }
 
-  /** tracks: [{ id, buffer, volume, pan, muted, solo, clipOffset, trimStart, trimEnd, effects }] */
+  /** tracks: [{ id, volume, pan, muted, solo, effects,
+   *             clips: [{ id, buffer, clipOffset, trimStart, trimEnd }] }] */
   play(tracks, fromTime = 0, onEnded) {
     this.stop();
     const ctx = this.ctx;
@@ -194,29 +198,37 @@ export class MultitrackPlayer {
     let endsAt = 0;
 
     tracks.forEach(tr => {
-      if (!tr.buffer || tr.muted) return;
+      if (tr.muted) return;
       if (anySolo && !tr.solo) return;
 
-      const src = ctx.createBufferSource();
-      src.buffer = tr.buffer;
-      this.strips[tr.id] = buildChannelStrip(ctx, src, tr, this.masterGain, this.reverb);
+      // one channel strip per track; every clip on the track feeds strip.vol
+      const strip = buildChannelStrip(ctx, tr, this.masterGain, this.reverb);
+      this.strips[tr.id] = strip;
 
-      const dur = clipDuration(tr);
-      const clipStart = tr.clipOffset || 0;
-      const clipEndProj = clipStart + dur;
-      if (clipEndProj <= fromTime) return;            // clip already finished
+      (tr.clips || []).forEach(clip => {
+        if (!clip.buffer) return;
+        const dur = clipDuration(clip);
+        if (dur <= 0) return;
+        const clipStart = clip.clipOffset || 0;
+        const clipEndProj = clipStart + dur;
+        if (clipEndProj <= fromTime) return;          // clip already finished
 
-      if (clipStart >= fromTime) {
-        const at = t0 + (clipStart - fromTime);
-        src.start(at, tr.trimStart || 0, dur);
-        endsAt = Math.max(endsAt, at + dur);
-      } else {
-        // playhead is mid-clip — start partway in
-        const into = fromTime - clipStart;
-        src.start(t0, (tr.trimStart || 0) + into, dur - into);
-        endsAt = Math.max(endsAt, t0 + (dur - into));
-      }
-      this.sources.push(src);
+        const src = ctx.createBufferSource();
+        src.buffer = clip.buffer;
+        src.connect(strip.vol);
+
+        if (clipStart >= fromTime) {
+          const at = t0 + (clipStart - fromTime);
+          src.start(at, clip.trimStart || 0, dur);
+          endsAt = Math.max(endsAt, at + dur);
+        } else {
+          // playhead is mid-clip — start partway in
+          const into = fromTime - clipStart;
+          src.start(t0, (clip.trimStart || 0) + into, dur - into);
+          endsAt = Math.max(endsAt, t0 + (dur - into));
+        }
+        this.sources.push(src);
+      });
     });
 
     if (onEnded && endsAt > 0) {
@@ -329,6 +341,10 @@ export const startMicRecording = async ({ monitor = false } = {}) => {
   return {
     recStartCtxTime,
     getLevel: () => readLevel(analyser),
+    /* Exposed so the UI can tap the live time-domain waveform for
+       an oscilloscope display ("voice vibrations") while recording.
+       Returns the same AnalyserNode used by getLevel. */
+    getAnalyser: () => analyser,
     setMonitor(on) { monitorGain.gain.value = on ? 1 : 0; },
     stop() {
       return new Promise((resolve) => {
@@ -436,12 +452,18 @@ export const mixdown = async (tracks, masterVolume = 1) => {
   const bus = makeMasterBus(offline, offline.destination, masterVolume);
 
   tracks.forEach(tr => {
-    if (!tr.buffer || tr.muted) return;
+    if (tr.muted) return;
     if (anySolo && !tr.solo) return;
-    const src = offline.createBufferSource();
-    src.buffer = tr.buffer;
-    buildChannelStrip(offline, src, tr, bus.masterGain, bus.reverb);
-    src.start(tr.clipOffset || 0, tr.trimStart || 0, clipDuration(tr));
+    const strip = buildChannelStrip(offline, tr, bus.masterGain, bus.reverb);
+    (tr.clips || []).forEach(clip => {
+      if (!clip.buffer) return;
+      const dur = clipDuration(clip);
+      if (dur <= 0) return;
+      const src = offline.createBufferSource();
+      src.buffer = clip.buffer;
+      src.connect(strip.vol);
+      src.start(clip.clipOffset || 0, clip.trimStart || 0, dur);
+    });
   });
 
   return offline.startRendering();
@@ -496,3 +518,198 @@ export const blobToDataUrl = (blob) =>
     reader.onloadend = () => resolve(reader.result);
     reader.readAsDataURL(blob);
   });
+
+/* ─────────────────────────────────────────────────────────────
+   Pitch detection & Autotune  (Console Phase 2)
+   All offline + non-destructive — autotuneRender returns a brand
+   new AudioBuffer and never mutates its input.
+   ───────────────────────────────────────────────────────────── */
+export const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+export const SCALES = {
+  chromatic:          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  major:              [0, 2, 4, 5, 7, 9, 11],
+  minor:              [0, 2, 3, 5, 7, 8, 10],
+  'major pentatonic': [0, 2, 4, 7, 9],
+  'minor pentatonic': [0, 3, 5, 7, 10],
+};
+
+const freqToMidi = (f) => 69 + 12 * Math.log2(f / 440);
+const midiToFreq = (m) => 440 * Math.pow(2, (m - 69) / 12);
+export const midiToName = (m) => {
+  if (!isFinite(m)) return '–';
+  const r = Math.round(m);
+  return NOTE_NAMES[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1);
+};
+
+/** Block-average downsample of mono Float32 data by an integer factor. */
+const downsample = (data, factor) => {
+  const outLen = Math.floor(data.length / factor);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    let s = 0;
+    for (let j = 0; j < factor; j++) s += data[i * factor + j] || 0;
+    out[i] = s / factor;
+  }
+  return out;
+};
+
+/** Normalised-autocorrelation fundamental-frequency estimate for one frame.
+ *  Returns Hz, or 0 when the frame is unvoiced / too quiet. */
+const detectF0 = (data, start, size, rate) => {
+  let rms = 0;
+  for (let i = 0; i < size; i++) { const s = data[start + i] || 0; rms += s * s; }
+  if (Math.sqrt(rms / size) < 0.006) return 0;            // silent / unvoiced
+  const minLag = Math.max(2, Math.floor(rate / 1000));    // ceiling ~1000 Hz
+  const maxLag = Math.min(size - 1, Math.floor(rate / 70)); // floor ~70 Hz
+  const ac = (lag) => {
+    let corr = 0, e = 0;
+    for (let i = 0; i < size - lag; i++) {
+      const a = data[start + i] || 0, b = data[start + i + lag] || 0;
+      corr += a * b; e += b * b;
+    }
+    return e > 0 ? corr / Math.sqrt(e) : 0;
+  };
+  let bestLag = -1, bestVal = 0;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    const nc = ac(lag);
+    if (nc > bestVal) { bestVal = nc; bestLag = lag; }
+  }
+  if (bestLag < 0 || bestVal < 0.3) return 0;             // no clear period
+  // parabolic interpolation for sub-sample precision
+  const y0 = ac(bestLag - 1), y1 = bestVal, y2 = ac(bestLag + 1);
+  const denom = y0 - 2 * y1 + y2;
+  const shift = denom !== 0 ? Math.max(-1, Math.min(1, 0.5 * (y0 - y2) / denom)) : 0;
+  return rate / (bestLag + shift);
+};
+
+/** Analyse pitch across an AudioBuffer.
+ *  → { frames: dense [{t,freq,midi,cents,voiced}], stats: {...} } */
+export const analyzePitch = (audioBuffer) => {
+  const sr = audioBuffer.sampleRate;
+  const factor = 4;
+  const ds = downsample(audioBuffer.getChannelData(0), factor);
+  const dsRate = sr / factor;
+  const size = 1024, hop = 256;
+  const hopS = hop / dsRate;
+  const frames = [];
+  for (let pos = 0; pos + size <= ds.length; pos += hop) {
+    const f = detectF0(ds, pos, size, dsRate);
+    if (f > 0) {
+      const midi = freqToMidi(f);
+      frames.push({ t: pos / dsRate, freq: f, midi, cents: (midi - Math.round(midi)) * 100, voiced: true });
+    } else {
+      frames.push({ t: pos / dsRate, freq: 0, midi: 0, cents: 0, voiced: false });
+    }
+  }
+  const voiced = frames.filter(fr => fr.voiced);
+  let absCents = 0, signedCents = 0, inTune = 0, lo = Infinity, hi = -Infinity;
+  for (const fr of voiced) {
+    absCents += Math.abs(fr.cents);
+    signedCents += fr.cents;
+    if (Math.abs(fr.cents) <= 20) inTune++;
+    if (fr.midi < lo) lo = fr.midi;
+    if (fr.midi > hi) hi = fr.midi;
+  }
+  const stats = {
+    durationS: audioBuffer.duration,
+    frameCount: frames.length,
+    voicedCount: voiced.length,
+    voicedPct: frames.length ? Math.round((100 * voiced.length) / frames.length) : 0,
+    avgCents: voiced.length ? Math.round(absCents / voiced.length) : 0,
+    biasCents: voiced.length ? Math.round(signedCents / voiced.length) : 0,
+    inTunePct: voiced.length ? Math.round((100 * inTune) / voiced.length) : 0,
+    lowNote: voiced.length ? midiToName(lo) : '–',
+    highNote: voiced.length ? midiToName(hi) : '–',
+    hopS,
+  };
+  return { frames, stats };
+};
+
+/** Nearest in-scale note (as a MIDI number) to a given MIDI pitch. */
+const snapToScale = (midi, keyRoot, scaleSet) => {
+  let best = midi, bestDist = Infinity;
+  for (const deg of scaleSet) {
+    const oct = Math.round((midi - keyRoot - deg) / 12);
+    const cand = keyRoot + deg + 12 * oct;
+    const d = Math.abs(cand - midi);
+    if (d < bestDist) { bestDist = d; best = cand; }
+  }
+  return best;
+};
+
+const hannWindow = (n) => {
+  const w = new Float32Array(n);
+  for (let i = 0; i < n; i++) w[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (n - 1));
+  return w;
+};
+
+/** Granular overlap-add pitch shift with a time-varying ratio.
+ *  ratioAt(sampleIndex) → desired pitch ratio at that output position. */
+const granularShift = (input, ratioAt) => {
+  const N = input.length;
+  const out = new Float32Array(N);
+  const norm = new Float32Array(N);
+  const frameLen = 1024, hop = 256;
+  const win = hannWindow(frameLen);
+  for (let outStart = 0; outStart + frameLen <= N; outStart += hop) {
+    const center = outStart + frameLen / 2;
+    let r = ratioAt(center);
+    if (!isFinite(r) || r <= 0) r = 1;
+    r = Math.max(0.5, Math.min(2, r));
+    const grainLen = Math.max(2, Math.round(frameLen * r));
+    const inStart = center - grainLen / 2;
+    for (let j = 0; j < frameLen; j++) {
+      const srcF = inStart + (j / frameLen) * grainLen;
+      const i0 = Math.floor(srcF);
+      const frac = srcF - i0;
+      const s0 = (i0 >= 0 && i0 < N) ? input[i0] : 0;
+      const s1 = (i0 + 1 >= 0 && i0 + 1 < N) ? input[i0 + 1] : 0;
+      const w = win[j];
+      out[outStart + j] += (s0 + (s1 - s0) * frac) * w;
+      norm[outStart + j] += w;
+    }
+  }
+  for (let i = 0; i < N; i++) out[i] = norm[i] > 1e-6 ? out[i] / norm[i] : input[i];
+  return out;
+};
+
+/** Render a pitch-corrected copy of an AudioBuffer.
+ *  Returns a NEW AudioBuffer — the input is never mutated.
+ *  opts: { keyRoot 0-11, scale name, strength 0-1, speed 0-1 } */
+export const autotuneRender = (audioBuffer, { keyRoot = 0, scale = 'chromatic', strength = 0.8, speed = 0.5 } = {}) => {
+  const ctx = getCtx();
+  const sr = audioBuffer.sampleRate;
+  const { frames, stats } = analyzePitch(audioBuffer);
+  const scaleSet = SCALES[scale] || SCALES.chromatic;
+  const hopS = stats.hopS;
+
+  // smoothed correction-ratio curve over the frame grid
+  const ratios = new Float32Array(frames.length || 1);
+  let smoothed = 1;
+  const a = Math.max(0.03, Math.min(1, speed));   // retune-speed smoothing coefficient
+  for (let k = 0; k < frames.length; k++) {
+    const fr = frames[k];
+    let target = 1;
+    if (fr.voiced) {
+      const corrected = fr.midi + (snapToScale(fr.midi, keyRoot, scaleSet) - fr.midi) * strength;
+      target = Math.pow(2, (corrected - fr.midi) / 12);
+    }
+    smoothed += (target - smoothed) * a;
+    ratios[k] = smoothed;
+  }
+
+  const ratioAt = (sampleIdx) => {
+    if (!ratios.length) return 1;
+    const fk = (sampleIdx / sr) / hopS;
+    const k0 = Math.floor(fk);
+    if (k0 < 0) return ratios[0];
+    if (k0 >= ratios.length - 1) return ratios[ratios.length - 1];
+    return ratios[k0] + (ratios[k0 + 1] - ratios[k0]) * (fk - k0);
+  };
+
+  const outBuf = ctx.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, sr);
+  for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+    outBuf.getChannelData(ch).set(granularShift(audioBuffer.getChannelData(ch), ratioAt));
+  }
+  return outBuf;
+};

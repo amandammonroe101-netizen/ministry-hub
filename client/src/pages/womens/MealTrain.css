@@ -1,0 +1,639 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Meal Train
+   Reuses the shared page shell from AllWomen.css, the .ys-* form
+   primitives from youth/AllStudents.css, and the day-accordion /
+   row-list bits from Retreats.css (.wr-day*, .wr-team-list,
+   .wr-checkbox-row, .wr-row-del…). Only the card + drill-in bits
+   below are scoped to this page, prefix .mt-*.
+
+   Rose-gold pass: this page wraps its content in .wa-root (same
+   wrapper All Women uses), which is what triggers AllWomen.css's
+   rose-gold-emboss + cursive overrides for the shared .wa-*/.ys-*
+   classes (stats bar, search, filter chips, section panels, inputs,
+   buttons) for free. The overrides below extend that same treatment
+   — same --wa-3d-* tokens, same cursive/sans split — to the classes
+   that are unique to this page (.mt-*) plus the reused Retreats
+   .wr-* bits, which have no rose-gold pass anywhere else since
+   Retreats itself doesn't wrap in .wa-root.
+   ───────────────────────────────────────────────────────────── */
+
+:root { --mt-accent: var(--accent-pink, #f472b6); }
+
+.mt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  padding: 16px 16px 14px;
+  background: rgba(255,255,255,.04);
+  border: .5px solid rgba(255,255,255,.09);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: rgba(255,255,255,.85);
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.mt-card:hover {
+  background: rgba(255,255,255,.07);
+  border-color: color-mix(in srgb, var(--mt-accent) 40%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.25);
+}
+
+.mt-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.mt-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+.mt-card-line {
+  font-size: 12.5px;
+  color: rgba(255,255,255,.65);
+}
+.mt-card-allergy { color: #fca5a5; font-weight: 600; }
+
+.mt-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,.7);
+}
+
+.mt-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.7);
+}
+.mt-badge.status-planning  { background: rgba(148,163,184,.18); color: #cbd5e1; }
+.mt-badge.status-active    { background: rgba(74,222,128,.18); color: #86efac; }
+.mt-badge.status-paused    { background: rgba(251,191,36,.18); color: #fde68a; }
+.mt-badge.status-completed { background: rgba(255,255,255,.08); color: rgba(255,255,255,.5); }
+.mt-badge.status-open      { background: rgba(239,68,68,.16); color: #fca5a5; }
+.mt-badge.status-claimed   { background: rgba(251,191,36,.18); color: #fde68a; }
+.mt-badge.status-delivered { background: rgba(74,222,128,.18); color: #86efac; }
+
+.mt-card-foot {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: .5px solid rgba(255,255,255,.08);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mt-card-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.6);
+}
+.mt-card-chip.is-over { background: rgba(239,68,68,.18); color: #fca5a5; }
+
+/* Delivery progress — a little train chugging along a track, engine
+   position reflects filled/total days. */
+.mt-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.mt-progress-track {
+  position: relative;
+  flex: 1;
+  min-width: 60px;
+  height: 14px;
+}
+.mt-progress-rail {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,.4) 0px, rgba(255,255,255,.4) 2px,
+      transparent 2px, transparent 8px),
+    rgba(255,255,255,.10);
+}
+.mt-progress-fill {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  height: 3px;
+  width: 0%;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--mt-accent);
+  transition: width .6s ease;
+}
+.mt-progress-engine {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  font-size: 14px;
+  line-height: 1;
+  transform: translate(-50%, -55%) scaleX(-1);
+  transition: left .6s ease;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+}
+.mt-progress-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mt-progress-sm { min-width: 130px; }
+.mt-progress-sm .mt-progress-track { height: 12px; }
+.mt-progress-sm .mt-progress-engine { font-size: 12px; }
+.mt-progress-md { min-width: 170px; }
+
+/* ── Meal train drill-in (dedicated in-page view) ───────────── */
+
+.mt-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 28px 40px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mt-view-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.55);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 2px;
+}
+.mt-view-back:hover { color: var(--mt-accent); }
+
+.mt-view-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mt-view-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.mt-title-inp {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.mt-title-inp:focus {
+  background: rgba(255,255,255,.04);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.mt-view-title-inp { flex: 1; min-width: 200px; font-size: 20px; }
+.mt-view-status-sel { max-width: 190px; }
+
+.mt-view-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mt-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: .5px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.7);
+}
+.mt-chip.is-over { background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.35); color: #fca5a5; }
+
+/* Allergy banner — persistent above the tabs, visible on every view */
+.mt-allergy-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(239,68,68,.14);
+  border: 1px solid rgba(239,68,68,.4);
+  color: #fecaca;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.mt-allergy-icon { font-size: 15px; flex-shrink: 0; }
+.mt-allergy-inp {
+  border-color: rgba(239,68,68,.3) !important;
+}
+
+.mt-view-body { display: flex; flex-direction: column; gap: 16px; }
+
+/* Delivery calendar rendered as a train route — each day is a car
+   riding the rail, connected end-to-end by a track segment drawn
+   per-row (so it stretches correctly whether the day above/below it
+   is collapsed or expanded, instead of relying on a fixed-height
+   line down the whole list). */
+.mt-track-cap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 38px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(255,255,255,.4);
+}
+.mt-track-cap-icon { font-size: 13px; font-style: normal; }
+.mt-track-cap-end { margin-top: 14px; }
+
+.mt-track-list { display: flex; flex-direction: column; }
+.mt-track-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.mt-track-row.is-last { margin-bottom: 0; }
+.mt-track-row > .wr-day { flex: 1; min-width: 0; }
+
+.mt-track-node-col {
+  position: relative;
+  width: 28px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+.mt-track-node-col::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-1.5px);
+  width: 3px;
+  height: calc(100% + 14px);
+  background: repeating-linear-gradient(180deg,
+    rgba(255,255,255,.35) 0px, rgba(255,255,255,.35) 3px,
+    transparent 3px, transparent 8px);
+}
+.mt-track-row.is-last .mt-track-node-col::before { height: 0; }
+
+.mt-track-node {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  margin-top: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.16);
+}
+.mt-track-node.status-open { background: rgba(148,163,184,.16); border-color: rgba(148,163,184,.3); }
+.mt-track-node.status-claimed { background: rgba(251,191,36,.18); border-color: rgba(251,191,36,.35); }
+.mt-track-node.status-delivered { background: rgba(74,222,128,.18); border-color: rgba(74,222,128,.35); }
+
+/* Volunteers tab */
+.mt-vol-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 130px 1.3fr auto auto;
+  gap: 6px;
+  align-items: center;
+}
+.mt-vol-check { padding: 8px; white-space: nowrap; }
+
+/* Communication tab */
+.mt-rem-row {
+  display: grid;
+  grid-template-columns: 160px 150px 1.6fr auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Notes tab */
+.mt-note-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.mt-note-list { display: flex; flex-direction: column; gap: 8px; }
+.mt-note-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: .5px solid rgba(255,255,255,.09);
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+}
+.mt-note-body { display: flex; flex-direction: column; gap: 4px; }
+.mt-note-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,.45);
+}
+.mt-note-text {
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
+  white-space: pre-wrap;
+}
+
+@media (max-width: 760px) {
+  .mt-vol-row,
+  .mt-rem-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Rose-gold 3D-emboss overrides — matches Life Stages
+   (LifeStages.css .wls-panel/.wls-stat/.wls-roster-row/
+   .wls-filter-chip) and All Women (AllWomen.css .wa-fc/.wa-stat).
+   Reuses the --wa-3d-*/--wms-* tokens AllWomen.css defines under
+   .wms-page .wa-root, which this page's content is now wrapped in.
+   Everything below is scoped the same way, so it only ever applies
+   here and can't leak onto Retreats, which reuses the same .wr-*
+   classes but doesn't wrap in .wa-root.
+   ───────────────────────────────────────────────────────────── */
+
+.wms-page .wa-root .mt-view { padding: 0; }
+
+.wms-page .wa-root .mt-card {
+  background: var(--wa-3d-card);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink);
+}
+.wms-page .wa-root .mt-card:hover {
+  background: var(--wa-3d-card);
+  transform: translateY(-2px);
+  box-shadow: var(--wa-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+.wms-page .wa-root .mt-card-title {
+  font-family: var(--wa-cursive);
+  font-weight: 700;
+  color: #ff1436;
+  text-shadow: 0 2px 8px rgba(255, 20, 54, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25);
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+.wms-page .wa-root .mt-card-line { color: var(--wms-ink-soft); }
+.wms-page .wa-root .mt-card-allergy { color: var(--wms-red); font-weight: 700; }
+.wms-page .wa-root .mt-cat-chip {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-soft);
+}
+
+.wms-page .wa-root .mt-badge {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  background: rgba(196,19,60,0.08);
+  color: var(--wms-ink-soft);
+}
+.wms-page .wa-root .mt-badge.status-planning  { background: rgba(148,163,184,.25); color: #475569; }
+.wms-page .wa-root .mt-badge.status-active    { background: rgba(34,197,94,.20); color: #166534; }
+.wms-page .wa-root .mt-badge.status-paused    { background: rgba(212,160,23,.24); color: #92610a; }
+.wms-page .wa-root .mt-badge.status-completed { background: rgba(196,19,60,.08); color: var(--wms-ink-faint); }
+.wms-page .wa-root .mt-badge.status-open      { background: rgba(196,19,60,.14); color: var(--wms-red); }
+.wms-page .wa-root .mt-badge.status-claimed   { background: rgba(212,160,23,.24); color: #92610a; }
+.wms-page .wa-root .mt-badge.status-delivered { background: rgba(34,197,94,.20); color: #166534; }
+
+.wms-page .wa-root .mt-card-foot { border-top-color: var(--wms-border); }
+.wms-page .wa-root .mt-card-chip {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  background: var(--wa-3d-chip);
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink-soft);
+}
+.wms-page .wa-root .mt-card-chip.is-over { background: rgba(196,19,60,.14); color: var(--wms-red); }
+
+.wms-page .wa-root .mt-progress-rail {
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(196,19,60,.22) 0px, rgba(196,19,60,.22) 2px,
+      transparent 2px, transparent 8px),
+    rgba(196,19,60,.06);
+}
+.wms-page .wa-root .mt-progress-fill { background: var(--wa-3d-bg); }
+.wms-page .wa-root .mt-progress-engine { filter: drop-shadow(0 1px 3px rgba(196,19,60,.4)); }
+.wms-page .wa-root .mt-progress-label {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-soft);
+}
+
+.wms-page .wa-root .mt-view-back {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-soft);
+}
+.wms-page .wa-root .mt-view-back:hover { color: var(--wms-rose-deep); }
+
+.wms-page .wa-root .mt-title-inp:focus { background: rgba(196,19,60,0.06); }
+.wms-page .wa-root .mt-view-status-sel {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border);
+  border-radius: 8px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+
+.wms-page .wa-root .mt-chip {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink-soft);
+}
+.wms-page .wa-root .mt-chip.is-over { background: rgba(196,19,60,.14); border: none; color: var(--wms-red); }
+
+.wms-page .wa-root .mt-allergy-banner {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  background: linear-gradient(135deg, rgba(196,19,60,0.12), rgba(196,19,60,0.04));
+  border: 1px solid rgba(196,19,60,0.35);
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink);
+}
+.wms-page .wa-root .mt-allergy-banner strong { color: var(--wms-red); }
+.wms-page .wa-root .mt-allergy-inp { border-color: rgba(196,19,60,0.4) !important; }
+
+.wms-page .wa-root .mt-vol-row,
+.wms-page .wa-root .mt-rem-row {
+  background: var(--wa-3d-card);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .mt-vol-check {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-soft);
+}
+
+.wms-page .wa-root .mt-note-row {
+  background: var(--wa-3d-card);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .mt-note-date {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-faint);
+}
+.wms-page .wa-root .mt-note-text {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink);
+}
+
+.wms-page .wa-root .mt-track-cap { color: var(--wms-ink-faint); }
+.wms-page .wa-root .mt-track-node-col::before {
+  background: repeating-linear-gradient(180deg,
+    rgba(196,19,60,.25) 0px, rgba(196,19,60,.25) 3px,
+    transparent 3px, transparent 8px);
+}
+.wms-page .wa-root .mt-track-node {
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .mt-track-node.status-open { background: rgba(148,163,184,.28); }
+.wms-page .wa-root .mt-track-node.status-claimed { background: rgba(212,160,23,.28); }
+.wms-page .wa-root .mt-track-node.status-delivered { background: rgba(34,197,94,.28); }
+
+/* Reused Retreats day-accordion / row-list bits (.wr-*) — no
+   rose-gold pass anywhere else, since Retreats itself doesn't wrap
+   in .wa-root. Scoped here so it only ever applies on this page. */
+.wms-page .wa-root .wr-day {
+  background: var(--wa-3d-card);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .wr-day-head {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink);
+}
+.wms-page .wa-root .wr-day-date {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-faint);
+}
+.wms-page .wa-root .wr-day-label {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink);
+}
+.wms-page .wa-root .wr-day-summary,
+.wms-page .wa-root .wr-chevron { color: var(--wms-ink-faint); }
+.wms-page .wa-root .wr-day-body { border-top-color: var(--wms-border); }
+.wms-page .wa-root .wr-empty-hint {
+  font-family: var(--wa-sans);
+  color: var(--wms-ink-faint);
+}
+.wms-page .wa-root .wr-checkbox-row {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink-soft);
+}
+.wms-page .wa-root .wr-row-del {
+  font-family: var(--wa-sans);
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-rose-deep);
+}
+.wms-page .wa-root .wr-row-del:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #b91c1c; }
+
+/* At-a-glance dash row + tab bar, reused from Retreats.css (.wr-dash-*,
+   .wr-tabs/.wr-tab) — same "dashboard header" pattern as the retreat
+   drill-in, so Meal Train's detail view now reads as tabbed panels
+   instead of one long stacked scroll. Retreats.css bakes its own
+   --wr-accent/--wr-3d-* custom properties into these rules, which
+   only exist under .wr-root; since this page stays wrapped in
+   .wa-root instead, every var() with no fallback is re-pointed here
+   at the .wa-root rose-gold tokens this page already defines. */
+.wms-page .wa-root .mt-dash-row { grid-template-columns: repeat(4, 1fr); }
+.wms-page .wa-root .wr-dash-stat {
+  background: var(--wa-3d-card);
+  border-top: 3px solid var(--wms-rose-deep, #c2426a);
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .wr-dash-stat.is-over { border-top-color: var(--wms-red, #c4133c); }
+.wms-page .wa-root .wr-dash-stat.is-good { border-top-color: #2f8f5b; }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-good { border-top-color: #2f8f5b; }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-warn { border-top-color: #b8860b; }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-bad  { border-top-color: var(--wms-red, #c4133c); }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-none { border-top-color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-good .wr-dash-n { color: #2f8f5b; }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-warn .wr-dash-n { color: #b8860b; }
+.wms-page .wa-root .wr-dash-stat.is-days.tier-bad  .wr-dash-n { color: var(--wms-red, #c4133c); }
+.wms-page .wa-root .wr-dash-n {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink, #3d1728);
+}
+.wms-page .wa-root .wr-dash-lbl {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wms-page .wa-root .wr-tabs { border-bottom-color: var(--wms-border, rgba(196,19,60,0.14)); }
+.wms-page .wa-root .wr-tab {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wms-page .wa-root .wr-tab:hover { color: var(--wms-ink, #3d1728); }
+.wms-page .wa-root .wr-tab.on { color: var(--wms-rose-deep, #c2426a); border-bottom-color: var(--wms-rose-deep, #c2426a); }
+.wms-page .wa-root .wr-tab-badge {
+  font-family: var(--wa-sans);
+  background: rgba(196,19,60,0.12);
+  color: var(--wms-rose-deep, #c2426a);
+}
+
+@media (max-width: 860px) {
+  .wms-page .wa-root .mt-dash-row { grid-template-columns: repeat(2, 1fr); }
+}

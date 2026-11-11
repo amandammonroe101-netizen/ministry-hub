@@ -1,0 +1,319 @@
+/* Prayer Page Settings — bespoke styles for the rows, toggles,
+   day pickers, custom-category chip cloud, and archived list
+   that live inside the Profile modal's Page Settings tab.
+   The pill bar + section headers are inherited from
+   ProfileModal.css (`pm-ps-*`). */
+
+.pps-root { /* hook for future overrides */ }
+
+/* Toggle row — generic checkbox + label pattern. */
+.pps-toggle {
+  display:flex; align-items:center; gap:8px;
+  font-size:12px; color:rgba(255,255,255,.78);
+  cursor:pointer; user-select:none;
+  padding:4px 0;
+}
+.pps-toggle input[type="checkbox"] {
+  accent-color:#a78bfa;
+  width:14px; height:14px; cursor:pointer; margin:0;
+}
+.pps-toggle-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:4px 14px;
+  margin-top:4px;
+}
+
+/* Two-column row used by the reminder time + days controls. */
+.pps-row { display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+.pps-field { display:flex; flex-direction:column; gap:5px; flex:1; min-width:140px; }
+.pps-field-narrow { flex:0 0 140px; min-width:0; }
+.pps-field-hint {
+  font-size:10px; color:rgba(255,255,255,.4);
+}
+
+/* "View in Calendar" link — shown under the Sync to Calendar toggle
+   once events have actually been materialized. Gives the user a
+   one-click verification path so the sync feels real instead of
+   silent. */
+.pps-sync-link-row { display: flex; margin-top: 4px; }
+.pps-sync-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(167,139,250,.10);
+  border: .5px solid rgba(167,139,250,.32);
+  border-radius: 8px;
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.pps-sync-link:hover {
+  background: rgba(167,139,250,.18);
+  border-color: rgba(167,139,250,.50);
+  color: #fff;
+}
+
+/* ── Encouragement verse picker (Display tab) ──
+   Self-contained card so the input + lookup spinner + preview read
+   as one related block instead of three loose form elements. */
+.pps-enc-card {
+  margin-top: 12px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(140,100,255,.07), rgba(200,60,130,.04));
+  border: .5px solid rgba(167,139,250,.22);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pps-enc-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+}
+.pps-enc-icon { font-size: 14px; }
+.pps-enc-title { letter-spacing: .01em; }
+.pps-enc-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  line-height: 1.5;
+}
+.pps-enc-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pps-enc-input {
+  /* slightly bigger than the default pm-input for emphasis */
+  font-size: 13px;
+  padding-right: 38px;
+}
+.pps-enc-spinner {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+}
+.pps-enc-spinner > span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(167,139,250,.55);
+  animation: pps-enc-pulse 1s infinite ease-in-out;
+}
+.pps-enc-spinner > span:nth-child(2) { animation-delay: .15s; }
+.pps-enc-spinner > span:nth-child(3) { animation-delay: .30s; }
+@keyframes pps-enc-pulse {
+  0%, 80%, 100% { opacity: .25; transform: scale(.85); }
+  40%           { opacity: 1;   transform: scale(1);    }
+}
+.pps-enc-preview {
+  padding: 10px 12px;
+  background: rgba(0,0,0,.18);
+  border: .5px solid rgba(167,139,250,.18);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: pps-enc-fade .18s ease;
+}
+@keyframes pps-enc-fade {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.pps-enc-preview-text {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(255,255,255,.85);
+}
+.pps-enc-preview-ref {
+  align-self: flex-end;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+.pps-enc-miss, .pps-enc-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,.40);
+  line-height: 1.5;
+  padding-left: 2px;
+}
+
+/* Day picker — small toggle buttons for Sun..Sat. */
+.pps-day-row { display:flex; gap:4px; flex-wrap:wrap; }
+.pps-day {
+  padding:5px 8px; min-width:36px;
+  border-radius:6px;
+  background:rgba(255,255,255,.05);
+  border:.5px solid rgba(255,255,255,.12);
+  font-size:11px; font-weight:600;
+  color:rgba(255,255,255,.55);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pps-day:hover:not(:disabled) {
+  background:rgba(140,100,255,.12);
+  border-color:rgba(140,100,255,.28);
+  color:rgba(255,255,255,.9);
+}
+.pps-day.on {
+  background:rgba(140,100,255,.22);
+  border-color:rgba(140,100,255,.5);
+  color:#c4b5fd;
+}
+.pps-day:disabled { opacity:.4; cursor:not-allowed; }
+
+/* Custom category input + chip cloud. */
+.pps-cat-add { display:flex; gap:8px; }
+.pps-cat-add input { flex:1; }
+.pps-cat-add-btn {
+  padding:7px 14px; border-radius:8px;
+  background:linear-gradient(135deg, rgba(140,100,255,.85), rgba(180,60,130,.75));
+  border:.5px solid rgba(255,255,255,.2);
+  color:white; font-size:12px; font-weight:600;
+  cursor:pointer; font-family:inherit;
+  box-shadow:0 2px 10px rgba(140,100,255,.18);
+  white-space:nowrap;
+}
+.pps-cat-add-btn:hover { opacity:.88; }
+
+.pps-cat-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.pps-cat-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 10px; border-radius:18px;
+  background:rgba(140,100,255,.14);
+  border:.5px solid rgba(140,100,255,.3);
+  font-size:11px; color:#c4b5fd;
+}
+.pps-cat-chip-x {
+  background:transparent; border:none;
+  color:rgba(255,255,255,.5);
+  font-size:11px; cursor:pointer; font-family:inherit;
+  padding:0 2px; line-height:1;
+  transition:color .15s;
+}
+.pps-cat-chip-x:hover { color:#fca5a5; }
+
+/* Archived list — mirrors the Journal j-ps-mv-* pattern so the
+   archived layout feels consistent across pages. */
+.pps-mv-list { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.pps-mv-item {
+  display:flex; gap:10px; align-items:flex-start;
+  background:rgba(255,255,255,.04);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  padding:10px 12px;
+}
+.pps-mv-info { flex:1; display:flex; flex-direction:column; gap:3px; min-width:0; }
+.pps-mv-ref  { font-size:12px; font-weight:600; color:#6ee7b7; }
+.pps-mv-text {
+  font-size:12px; color:rgba(255,255,255,.55);
+  font-style:italic; line-height:1.5;
+  overflow-wrap:break-word;
+}
+.pps-mv-date { font-size:10px; color:rgba(255,255,255,.3); }
+.pps-mv-acts {
+  display:flex; flex-direction:column; gap:5px;
+  align-items:flex-end; flex-shrink:0;
+}
+.pps-mv-activate {
+  font-size:11px; color:#c4b5fd;
+  background:rgba(140,100,255,.12);
+  border:.5px solid rgba(140,100,255,.22);
+  border-radius:5px; padding:4px 9px;
+  cursor:pointer; font-family:inherit;
+  white-space:nowrap; transition:all .15s;
+}
+.pps-mv-activate:hover {
+  background:rgba(140,100,255,.2);
+  border-color:rgba(140,100,255,.35);
+}
+.pps-mv-delete {
+  font-size:11px; color:rgba(239,68,68,.7);
+  background:rgba(239,68,68,.08);
+  border:.5px solid rgba(239,68,68,.18);
+  border-radius:5px; padding:4px 8px;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pps-mv-delete:hover { background:rgba(239,68,68,.18); color:#fca5a5; }
+
+/* Export button. */
+.pps-export-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  align-self:flex-start;
+  padding:9px 16px; border-radius:8px;
+  background:rgba(140,100,255,.12);
+  border:.5px solid rgba(140,100,255,.28);
+  color:#c4b5fd; font-size:12px; font-weight:600;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pps-export-btn:hover {
+  background:rgba(140,100,255,.2);
+  border-color:rgba(140,100,255,.45);
+}
+
+/* ── How to Use guide (Page Settings → How to Use sub-tab) ──
+   A typed-out, in-app reference so users don't have to leave the
+   app to learn the page. Reuses .pm-ps-section-title from
+   ProfileModal.css for the top header. */
+.pps-howto-title-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+}
+.pps-howto-download {
+  flex-shrink:0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px; font-weight: 700; color: #1a1206;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  cursor:pointer; transition: opacity .15s;
+}
+.pps-howto-download:hover { opacity: .85; }
+.pps-howto-intro {
+  font-size:11.5px; color:rgba(255,255,255,.6); line-height:1.6;
+  background:rgba(140,100,255,.06);
+  border:.5px solid rgba(140,100,255,.16);
+  border-radius:8px; padding:10px 12px;
+}
+/* Feedback callout — pinned to the top of the guide so it's the
+   first thing a user sees, styled distinctly (amber) from the
+   purple intro box below it so it reads as "action", not "info". */
+.pps-howto-feedback {
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:11.5px; color:rgba(255,255,255,.72); line-height:1.6;
+  background:rgba(245,158,11,.08);
+  border:.5px solid rgba(245,158,11,.25);
+  border-radius:8px; padding:10px 12px;
+}
+.pps-howto-feedback b { color:#fbbf24; }
+.pps-howto-feedback-ic { font-size:14px; flex-shrink:0; line-height:1.4; }
+.pps-howto-block { display:flex; flex-direction:column; gap:5px; }
+.pps-howto-block + .pps-howto-block { margin-top:12px; }
+.pps-howto-h {
+  font-size:12px; font-weight:700; color:rgba(255,255,255,.9);
+  display:flex; align-items:center; gap:6px;
+}
+.pps-howto-p {
+  font-size:11.5px; color:rgba(255,255,255,.62); line-height:1.6;
+}
+.pps-howto-p b, .pps-howto-list b { color:rgba(255,255,255,.88); }
+.pps-howto-list {
+  margin:0; padding-left:16px;
+  display:flex; flex-direction:column; gap:4px;
+  font-size:11.5px; color:rgba(255,255,255,.62); line-height:1.55;
+}
+.pps-howto-list li::marker { color:#a78bfa; }

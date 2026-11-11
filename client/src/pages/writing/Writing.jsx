@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
 import { useUserStoreKey } from '../../lib/userStore';
+import MinistryBrand from '../../components/layout/MinistryBrand';
 import { useWritingDocs } from '../../lib/writingDocsStore';
 import { fetchVerseText } from '../../lib/bibleLookup';
 import { ProfileModal, useProfileTopbar } from '../../components/profile/ProfileModal';
+import PageTourHost from '../../components/tour/PageTourHost';
+import writingGuideDocxUrl from '../../assets/writing-how-to-guide.docx?url';
 import './Writing.css';
 
 /* ─────────────────────────────────────────────────────────────
@@ -65,6 +68,10 @@ const SOUNDSCAPES = [
 
 const SPRINT_PRESETS = [5, 10, 15, 25];
 
+/* ─────────────────────────────────────────────────────────────
+   In-app "How to Use" guide, shown in the Profile modal's
+   Writing tab (mirrors docs/WRITING_HOW_TO_USE.md) and offered
+   as a plain-text download via the ⬇ Download Guide button. */
 /* Block style options for the Styles gallery. Maps a label to the
    HTML tag applied via execCommand('formatBlock'). */
 const STYLE_OPTIONS = [
@@ -266,7 +273,7 @@ const countWords = (s) => {
 };
 
 const isHtmlBody = (s) =>
-  /^\s*<(p|div|h[1-6]|ul|ol|blockquote|br)/i.test(s || '');
+  /^\s*<[a-z]/i.test(s || '');
 
 /* Convert a legacy plain-text body into paragraph HTML for the
    rich-text editor. Bodies already in HTML pass through untouched. */
@@ -344,6 +351,7 @@ export default function Writing() {
   const [folders, setFolders] = useUserStoreKey('writing:folders', []);
   const [prefs, setPrefs] = useUserStoreKey('writing:prefs', DEFAULT_PREFS);
   const [openId, setOpenId] = useState(null);
+  const [openMode, setOpenMode] = useState('edit'); // mode FocusWriter starts in: 'view' | 'edit'
   const [lastSession, setLastSession] = useState(null);
   const [openSeriesId, setOpenSeriesId] = useState(null); // series whose document page is open
   const [seriesDraft, setSeriesDraft] = useState(null); // { mode:'create'|'rename', id, value, desc }
@@ -351,6 +359,7 @@ export default function Writing() {
 
   /* Topbar: notification bell + profile avatar (shared modal). */
   const [showProfile, setShowProfile] = useState(false);
+  const [psSub, setPsSub] = useState('prefs'); // Profile modal's "Writing" tab: 'prefs' | 'howto'
   const { avatarSourceName, initials } = useProfileTopbar();
   const [showBell, setShowBell] = useState(false);
   const bellTimer = useRef(null);
@@ -424,12 +433,14 @@ export default function Writing() {
   const create = () => {
     const doc = newDoc();
     createDocFs(doc);
+    setOpenMode('edit');
     setOpenId(doc.id);
   };
 
   const createInSeries = (folderId) => {
     const doc = { ...newDoc(), folderId };
     createDocFs(doc);
+    setOpenMode('edit');
     setOpenId(doc.id);
   };
 
@@ -441,6 +452,11 @@ export default function Writing() {
     removeDocFs(id);
     if (openId === id) setOpenId(null);
   };
+
+  /* Documents open in a read-only view inside FocusWriter; its
+     Edit button flips that same page into the full editor. */
+  const viewDocument = (id) => { setOpenMode('view'); setOpenId(id); };
+  const editDocument = (id) => { setOpenMode('edit'); setOpenId(id); };
 
   const assignDoc = (id, folderId) => patchDoc(id, { folderId });
 
@@ -470,7 +486,7 @@ export default function Writing() {
   const deleteFolder = (id) => {
     const members = docsByFolder[id] || [];
     if (members.length > 0 &&
-        !window.confirm(`Delete this series? Its ${members.length} document${members.length === 1 ? '' : 's'} will stay, just un-filed.`)) {
+        !window.confirm(`Delete this folder? Its ${members.length} document${members.length === 1 ? '' : 's'} will stay, just un-filed.`)) {
       return;
     }
     updateManyFs(members.map(d => d.id), { folderId: null });
@@ -484,15 +500,15 @@ export default function Writing() {
 
   return (
     <>
+      <PageTourHost pageId="writing" />
+
       {/* TOPBAR — logo · writing nudges bell · profile avatar, matching
           the bell + avatar pattern used on Journal / Friends. Rendered
           as a direct app-shell child (sibling of .wm-wrap) so it sits
           flush at the top like the shared header it replaces. */}
-      <div className="app-topbar" style={{ '--wm-accent': ACCENT }}>
+      <div className="app-topbar" data-tour="tour-topbar" style={{ '--wm-accent': ACCENT }}>
         <div className="app-logo">
-          <div className="app-logo-gem">✝</div>
-          <span className="app-logo-name">Elite Journal Hub</span>
-          <span className="app-logo-sep">·</span>
+          <MinistryBrand />
           <span className="app-tab-tag">Writing Mode</span>
         </div>
         <div className="app-tb-actions">
@@ -531,7 +547,7 @@ export default function Writing() {
                       <button
                         key={n.id}
                         className="wm-bell-item"
-                        onClick={() => { setShowBell(false); setOpenId(n.docId); }}
+                        onClick={() => { setShowBell(false); viewDocument(n.docId); }}
                       >
                         <span className="wm-bell-icon">{n.icon}</span>
                         <div className="wm-bell-text">
@@ -548,6 +564,7 @@ export default function Writing() {
 
           <button
             className="pm-tb-avatar"
+            data-tour="tour-settings"
             onClick={() => setShowProfile(true)}
             title={avatarSourceName || 'Profile'}
             aria-label="Open profile"
@@ -563,7 +580,7 @@ export default function Writing() {
             docs={docsByFolder[openSeries.id] || []}
             allFolders={foldersList}
             onBack={() => setOpenSeriesId(null)}
-            onOpenDoc={setOpenId}
+            onOpenDoc={viewDocument}
             onDeleteDoc={removeDoc}
             onAssign={assignDoc}
             onNewDoc={() => createInSeries(openSeries.id)}
@@ -604,16 +621,16 @@ export default function Writing() {
         )}
 
         <div className="wm-toolbar">
-          <button className="app-btn primary" onClick={create}>+ New document</button>
+          <button className="app-btn primary" data-tour="tour-primary-action" onClick={create}>+ New document</button>
           {sorted.length > 0 && (
             <button
               className="app-btn ghost"
-              onClick={() => setOpenId(sorted[0].id)}
+              onClick={() => editDocument(sorted[0].id)}
               title={`Resume “${sorted[0].title || 'Untitled'}”`}
             >▶ Resume last</button>
           )}
-          <button className="app-btn ghost" onClick={createFolder} title="Bundle documents into a series">
-            📚 New series
+          <button className="app-btn ghost" onClick={createFolder} title="Bundle documents into a folder">
+            📚 New Folder
           </button>
         </div>
 
@@ -641,7 +658,7 @@ export default function Writing() {
             <div className="wm-empty">
               <div className="wm-empty-icon">📚</div>
               <div className="wm-empty-title">No folders yet</div>
-              <div className="wm-empty-sub">Make one with “📚 New series” to bundle documents together.</div>
+              <div className="wm-empty-sub">Make one with “📚 New Folder” to bundle documents together.</div>
             </div>
           ) : (
             <div className="wm-folder-list">
@@ -671,7 +688,7 @@ export default function Writing() {
                   key={d.id}
                   doc={d}
                   folders={foldersList}
-                  onOpen={() => setOpenId(d.id)}
+                  onOpen={() => viewDocument(d.id)}
                   onDelete={() => removeDoc(d.id)}
                   onAssign={assignDoc}
                 />
@@ -686,11 +703,13 @@ export default function Writing() {
         <FocusWriter
           key={openDoc.id}
           doc={openDoc}
+          initialMode={openMode}
           prefs={safePrefs}
           onPrefs={setPrefs}
           onPatch={patchDoc}
           onSession={addSession}
           onClose={() => setOpenId(null)}
+          onDiscard={removeDoc}
         />
       )}
 
@@ -699,17 +718,17 @@ export default function Writing() {
           <div
             className="wm-series-modal"
             role="dialog"
-            aria-label={seriesDraft.mode === 'create' ? 'New series' : 'Rename series'}
+            aria-label={seriesDraft.mode === 'create' ? 'New Folder' : 'Rename folder'}
             onClick={e => e.stopPropagation()}
           >
             <h3 className="wm-series-modal-title">
-              {seriesDraft.mode === 'create' ? '📚 New series' : 'Rename series'}
+              {seriesDraft.mode === 'create' ? '📚 New Folder' : 'Rename folder'}
             </h3>
             <input
               className="wm-series-modal-input"
               autoFocus
               value={seriesDraft.value}
-              placeholder="Series name…"
+              placeholder="Folder name…"
               onChange={e => setSeriesDraft(d => ({ ...d, value: e.target.value }))}
               onKeyDown={e => {
                 if (e.key === 'Enter') commitSeries();
@@ -744,18 +763,368 @@ export default function Writing() {
         pageTabLabel="📋 Writing"
         pageSettings={
           <div className="pm-body">
-            <p style={{ margin: '0 0 8px', color: 'var(--text-faint)' }}>
-              Writing Mode preferences — themes, flow aids (paragraph dimming,
-              typewriter scrolling, hardcore mode), writing sprints, and ambient
-              soundscapes — live inside the editor toolbar. Open any document to
-              adjust them; your choices are remembered for next time.
-            </p>
+            <div className="wm-ps-subtabs">
+              <button
+                type="button"
+                className={`wm-ps-subtab ${psSub === 'prefs' ? 'on' : ''}`}
+                onClick={() => setPsSub('prefs')}
+              >
+                <span className="wm-ps-subtab-icon">⚙️</span>
+                <span className="wm-ps-subtab-name">Preferences</span>
+              </button>
+              <button
+                type="button"
+                className={`wm-ps-subtab ${psSub === 'howto' ? 'on' : ''}`}
+                onClick={() => setPsSub('howto')}
+              >
+                <span className="wm-ps-subtab-icon">❓</span>
+                <span className="wm-ps-subtab-name">How to Use</span>
+              </button>
+            </div>
+
+            {psSub === 'prefs' && (
+              <div className="wm-ps-section">
+                <div className="wm-ps-section-title">⚙️ Preferences</div>
+                <p style={{ margin: '0 0 8px', color: 'var(--text-faint)' }}>
+                  Writing Mode preferences — themes, flow aids (paragraph dimming,
+                  typewriter scrolling, hardcore mode), writing sprints, and ambient
+                  soundscapes — live inside the editor toolbar. Open any document to
+                  adjust them; your choices are remembered for next time.
+                </p>
+              </div>
+            )}
+
+            {psSub === 'howto' && (
+              /* ───────── ❓ How to Use (typed-out in-app guide) ─────────
+                  Mirrors docs/WRITING_HOW_TO_USE.md so users don't have
+                  to go hunting for documentation. The same content is
+                  offered as a real Word doc download via the button below. */
+              <div className="wm-ps-section">
+                <div className="wm-ps-howto-header">
+                  <div className="wm-ps-section-title">❓ How to Use Writing Mode</div>
+                  <a
+                    className="wm-ps-howto-download"
+                    href={writingGuideDocxUrl}
+                    download="Writing Mode - How to Use.docx"
+                  >
+                    ⬇ Download as Word doc
+                  </a>
+                </div>
+
+                <div className="wm-ps-howto-feedback">
+                  <span className="wm-ps-howto-feedback-ic">🛠</span>
+                  <span>
+                    <b>Something not working?</b> Go to <b>Settings → Feedback &amp; Requests</b> and
+                    click <b>+ New Request</b> to submit a bug report — it goes straight to the Founder.
+                  </span>
+                </div>
+
+                <div className="wm-ps-howto-intro">
+                  A full walkthrough of Writing Mode — the Library, folders, the Focus
+                  Editor, formatting, scripture lookups, flow tools, sprints, soundscapes,
+                  and more. Skim the headers below, or download the whole guide as a file.
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🏠 The Library</div>
+                  <div className="wm-ps-howto-p">
+                    Click <b>Writing</b> in the nav rail to land on the Library, with
+                    <b> Folders</b> and <b>Other Documents</b> tabs.
+                  </div>
+                  <ul className="wm-ps-howto-list">
+                    <li><b>New document</b> — creates a blank document and opens it immediately.</li>
+                    <li><b>📚 New Folder</b> — opens a naming modal to create a folder/series.</li>
+                    <li><b>Resume Last</b> — reopens your most recently edited document.</li>
+                    <li><b>Last session summary</b> — a dismissible line like "240 words in 12 min."</li>
+                    <li><b>Library stats</b> — total documents and total words.</li>
+                  </ul>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">📚 Folders (Series)</div>
+                  <div className="wm-ps-howto-p">
+                    Folders group related documents — a sermon series, a devotional set,
+                    chapters of the same project.
+                  </div>
+                  <ul className="wm-ps-howto-list">
+                    <li>Create with <b>📚 New Folder</b> — name (required) and an optional description shown on the card face.</li>
+                    <li>Hover a folder card for <b>✎ Rename</b> and <b>🗑 Delete</b>.</li>
+                    <li>Click a folder to drill into its <b>Series view</b>, with a back button, totals, and "+ New document in this folder."</li>
+                    <li>Deleting a folder asks for confirmation; its documents become un-filed rather than deleted.</li>
+                  </ul>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">📄 Creating & Opening Documents</div>
+                  <div className="wm-ps-howto-p">
+                    <b>New document</b> opens a blank, untitled document straight into the
+                    Focus Editor. Documents opened from a <b>writing nudge</b> (🔔 bell)
+                    open in view mode instead of edit mode. Empty documents you back out of
+                    are auto-discarded, so peeking in and exiting won't clutter your library.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🖥 The Focus Editor</div>
+                  <ul className="wm-ps-howto-list">
+                    <li><b>← Exit</b> (or Esc) saves and returns to the Library.</li>
+                    <li><b>Title</b> autosaves shortly after you stop typing.</li>
+                    <li>A <b>word goal bar</b> appears once you've set a goal, turning green when met.</li>
+                    <li>The ribbon and top bar <b>auto-hide</b> after a few idle seconds — move the mouse or type to bring them back.</li>
+                    <li><b>Footer</b> shows live word/page count, reading time, save status, and zoom.</li>
+                    <li><b>Themes</b> — Paper, Sepia, Midnight, Forest — and <b>font size</b> (A−/A+) are remembered across documents.</li>
+                  </ul>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🧰 The Ribbon (Formatting Tools)</div>
+                  <ul className="wm-ps-howto-list">
+                    <li><b>Home</b> — undo/redo, fonts, bold/italic/underline/strike, case changer, lists, alignment, line spacing, block styles, Find & Replace.</li>
+                    <li><b>Insert</b> — tables, pictures, symbols, header/footer, page numbers, date, horizontal line, scripture verses, page breaks.</li>
+                    <li><b>Layout</b> — margins, orientation, page size.</li>
+                    <li><b>References</b> — insert/update a Table of Contents from your headings.</li>
+                    <li><b>View</b> — Outline pane, formatting marks, zoom, word count, Print, Export to Word, and a Focus button that hides all chrome.</li>
+                  </ul>
+                  <div className="wm-ps-howto-p">
+                    Shortcuts: <b>Ctrl/Cmd+B/I/U</b> bold/italic/underline, <b>Ctrl/Cmd+F</b> find,
+                    <b> Ctrl/Cmd+H</b> find & replace, <b>Ctrl/Cmd+S</b> save now, <b>Esc</b> exit.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">📖 Scripture Lookup</div>
+                  <div className="wm-ps-howto-p">
+                    From the <b>Insert</b> tab's Verse/Scripture tool, type a reference (e.g.
+                    <i> John 3:16</i>), pick a translation (KJV, WEB, BBE, OEB, ASV), and the
+                    verse is fetched and inserted as a formatted, citation-labeled quote.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🌊 Flow Tools</div>
+                  <ul className="wm-ps-howto-list">
+                    <li><b>✅ Grammar Check</b> — a built-in, pattern-based side panel (no external service).</li>
+                    <li><b>◐ Paragraph Dimming</b> — fades every paragraph except your current one.</li>
+                    <li><b>⌖ Typewriter Scrolling</b> — keeps your current line vertically centered.</li>
+                    <li><b>🔒 Hardcore Mode</b> — disables backspace/delete for a forward-only rough draft.</li>
+                  </ul>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">⏱ Writing Sprints</div>
+                  <div className="wm-ps-howto-p">
+                    Click <b>⏱ Sprint</b> and pick 5/10/15/25 minutes. A chime plays and a
+                    toast shows your word count when time's up — dismiss with "Keep writing"
+                    or stop early with <b>Stop</b>.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🎧 Soundscapes</div>
+                  <div className="wm-ps-howto-p">
+                    Click <b>🎧</b> for ambient sound, generated live in your browser: Rain,
+                    Ocean waves, Wind, Deep noise, or White noise, with a volume slider. Your
+                    pick and volume are remembered; sound stops when you exit the editor.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🎯 Word Goals & Word Count</div>
+                  <div className="wm-ps-howto-p">
+                    Set a target near the top bar to get a progress bar that turns green when
+                    met. Click <b>📊 Count</b> (View tab) for word/character counts and an
+                    estimated reading time.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🖨 Page Setup, Print & Export</div>
+                  <div className="wm-ps-howto-p">
+                    Set page size, orientation, and margins under <b>Layout</b> — the document
+                    re-paginates automatically. From <b>View</b>: <b>🖨 Print</b>, or
+                    <b> ⬇ Word</b> to export a Word-compatible .doc file.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">👁 View-Only Mode</div>
+                  <div className="wm-ps-howto-p">
+                    Documents opened from a nudge open read-only with a <b>👁 Viewing</b>
+                    badge. Grammar Check still works; click <b>✎ Edit</b> to switch to full
+                    edit mode.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">💾 Saving & Multi-Device Sync</div>
+                  <div className="wm-ps-howto-p">
+                    Writing Mode autosaves as you type (footer shows "Saving…" → "Saved");
+                    <b> Ctrl/Cmd+S</b> forces a save now. Each document is stored as its own
+                    record, so a large document — especially one with embedded images —
+                    won't hold up any of your others, and changes sync across devices once saved.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🔔 Writing Nudges</div>
+                  <div className="wm-ps-howto-p">
+                    Click the bell to see "You haven't written today" and per-document unmet
+                    word-goal nudges. Clicking one opens that document in view mode.
+                  </div>
+                </div>
+
+                <div className="wm-ps-howto-block">
+                  <div className="wm-ps-howto-h">🛠 Troubleshooting</div>
+                  <ul className="wm-ps-howto-list">
+                    <li><b>Soundscape doesn't play at first</b> — browsers block audio until you've clicked something on the page; click the option again.</li>
+                    <li><b>Scripture verse won't insert</b> — check the reference format or your connection.</li>
+                    <li><b>Backspace/Delete does nothing</b> — Hardcore Mode is on; turn it off in the flow toggles.</li>
+                    <li><b>A blank "Untitled" doc disappeared</b> — expected; empty documents are discarded automatically on exit.</li>
+                    <li><b>Latest edits missing on another device</b> — give autosave a moment to finish before switching devices.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         }
       />
       </div>
     </>
   );
+}
+
+/* ── Lightweight, dependency-free grammar/spell checker ─────────
+   Not a real NLP model — a set of pattern-based heuristics (typo
+   dictionary, repeated words, article agreement, punctuation and
+   capitalization slips) good enough to surface obvious mistakes
+   inside the editor's Grammar Check panel without shipping an
+   external service. */
+const GRAMMAR_DICTIONARY = {
+  alot: 'a lot', becuase: 'because', definately: 'definitely', definitly: 'definitely',
+  seperate: 'separate', seperately: 'separately', occured: 'occurred', occurence: 'occurrence',
+  recieve: 'receive', wich: 'which', teh: 'the', thier: 'their', untill: 'until',
+  apparant: 'apparent', arguement: 'argument', acheive: 'achieve', adress: 'address',
+  begining: 'beginning', beleive: 'believe', calender: 'calendar', cemetary: 'cemetery',
+  collegue: 'colleague', comming: 'coming', commited: 'committed', concious: 'conscious',
+  embarass: 'embarrass', enviroment: 'environment', existance: 'existence', familar: 'familiar',
+  finaly: 'finally', foriegn: 'foreign', goverment: 'government', grammer: 'grammar',
+  happend: 'happened', harrass: 'harass', immediatly: 'immediately', independant: 'independent',
+  knowlege: 'knowledge', liason: 'liaison', maintainance: 'maintenance', mispell: 'misspell',
+  neccessary: 'necessary', noticable: 'noticeable', occassion: 'occasion',
+  perseverence: 'perseverance', personel: 'personnel', posession: 'possession',
+  prefered: 'preferred', priviledge: 'privilege', publically: 'publicly',
+  questionaire: 'questionnaire', reccommend: 'recommend', refering: 'referring',
+  relevent: 'relevant', religous: 'religious', remeber: 'remember', similiar: 'similar',
+  succesful: 'successful', suprise: 'surprise', tommorow: 'tomorrow', truely: 'truly',
+  writting: 'writing', irregardless: 'regardless',
+};
+
+function checkGrammar(text) {
+  if (!text) return [];
+  const issues = [];
+
+  const addAll = (re, build) => {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(text))) {
+      const built = build(m);
+      if (built) {
+        const start = built.start ?? m.index;
+        const end = built.end ?? (m.index + m[0].length);
+        issues.push({
+          start, end, match: built.match ?? m[0],
+          type: built.type, label: built.label,
+          message: built.message, suggestion: built.suggestion,
+        });
+      }
+      if (m[0].length === 0) re.lastIndex += 1;
+    }
+  };
+
+  // Repeated word, e.g. "the the"
+  addAll(/\b([A-Za-z]+)\s+\1\b/gi, (m) => ({
+    type: 'repetition', label: 'Repeated word',
+    message: `"${m[1]}" appears twice in a row.`,
+    suggestion: m[1],
+  }));
+
+  // Space before punctuation
+  addAll(/ +([,.!?;:])/g, (m) => ({
+    type: 'spacing', label: 'Extra space',
+    message: 'Remove the space before punctuation.',
+    suggestion: m[1],
+  }));
+
+  // Missing space after a sentence-ending punctuation mark
+  addAll(/([a-z])([.!?])([A-Z])/g, (m) => ({
+    type: 'spacing', label: 'Missing space',
+    message: 'Add a space after the sentence.',
+    suggestion: `${m[1]}${m[2]} ${m[3]}`,
+  }));
+
+  // Doubled punctuation, e.g. "wait,, really??"
+  addAll(/([!?,;:])\1+/g, (m) => ({
+    type: 'punctuation', label: 'Repeated punctuation',
+    message: 'Simplify the repeated punctuation.',
+    suggestion: m[1],
+  }));
+
+  // "could of" / "should of" / "would of" / "must of"
+  addAll(/\b(could|should|would|must)\s+of\b/gi, (m) => ({
+    type: 'grammar', label: 'Grammar',
+    message: `Use "have" instead of "of" after "${m[1]}".`,
+    suggestion: `${m[1]} have`,
+  }));
+
+  // Common misspellings
+  addAll(/\b[a-zA-Z]+\b/g, (m) => {
+    const fix = GRAMMAR_DICTIONARY[m[0].toLowerCase()];
+    if (!fix) return null;
+    return {
+      type: 'spelling', label: 'Spelling',
+      message: `"${m[0]}" may be misspelled.`,
+      suggestion: fix,
+    };
+  });
+
+  // "a"/"an" article agreement
+  addAll(/\b(a|an)\s+([a-zA-Z]+)/gi, (m) => {
+    const article = m[1].toLowerCase();
+    const word = m[2].toLowerCase();
+    const wantAnExceptions = new Set(['hour', 'hours', 'honest', 'honor', 'honorable', 'heir']);
+    const wantAExceptions = new Set(['university', 'unicorn', 'european', 'one', 'once', 'user', 'usual', 'uniform', 'unique']);
+    let wantAn = /^[aeiou]/.test(word);
+    if (wantAnExceptions.has(word)) wantAn = true;
+    if (wantAExceptions.has(word)) wantAn = false;
+    const start = m.index;
+    const end = m.index + m[1].length;
+    if (wantAn && article === 'a') {
+      return { start, end, match: m[1], type: 'grammar', label: 'Article', message: `Use "an" before "${m[2]}".`, suggestion: 'an' };
+    }
+    if (!wantAn && article === 'an') {
+      return { start, end, match: m[1], type: 'grammar', label: 'Article', message: `Use "a" before "${m[2]}".`, suggestion: 'a' };
+    }
+    return null;
+  });
+
+  // Sentence should start with a capital letter
+  addAll(/(^|[.!?]\s+)([a-z])/g, (m) => {
+    const start = m.index + m[1].length;
+    return {
+      start, end: start + 1, match: m[2],
+      type: 'capitalization', label: 'Capitalize',
+      message: 'Sentences should start with a capital letter.',
+      suggestion: m[2].toUpperCase(),
+    };
+  });
+
+  issues.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  const clean = [];
+  let lastEnd = -1;
+  for (const iss of issues) {
+    if (iss.start >= lastEnd) { clean.push(iss); lastEnd = iss.end; }
+  }
+  return clean.slice(0, 200);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -783,20 +1152,20 @@ function DocCard({ doc, folders, onOpen, onDelete, onAssign }) {
         <span>· {timeAgo(doc.updatedAt || doc.createdAt)}</span>
       </div>
       <div className="wm-doc-actions" onClick={e => e.stopPropagation()}>
-        <button className="app-btn ghost" onClick={onOpen}>▶ Open</button>
+        <button className="app-btn ghost" onClick={onOpen}>👁 View</button>
         <div className="wm-doc-menu-wrap">
           <button
             className="app-btn ghost icon-only"
-            title="Add to a series"
+            title="Add to a folder"
             onClick={() => setMenu(v => !v)}
           >🗂</button>
           {menu && (
             <>
               <div className="wm-doc-menu-scrim" onClick={() => setMenu(false)} />
               <div className="wm-doc-menu" role="menu">
-                <div className="wm-doc-menu-label">Move to series</div>
+                <div className="wm-doc-menu-label">Move to folder</div>
                 {folders.length === 0 && (
-                  <div className="wm-doc-menu-empty">No series yet — make one with “📚 New series”.</div>
+                  <div className="wm-doc-menu-empty">No folders yet — make one with “📚 New Folder”.</div>
                 )}
                 {folders.map(f => (
                   <button
@@ -811,7 +1180,7 @@ function DocCard({ doc, folders, onOpen, onDelete, onAssign }) {
                   <button
                     className="wm-doc-menu-item danger"
                     onClick={() => { onAssign(doc.id, null); setMenu(false); }}
-                  >Remove from series</button>
+                  >Remove from folder</button>
                 )}
               </div>
             </>
@@ -849,8 +1218,8 @@ function FolderBlock({ folder, docs, onOpen, onRename, onDelete }) {
           </div>
         </div>
         <div className="wm-folder-head-actions" onClick={e => e.stopPropagation()}>
-          <button className="app-btn ghost icon-only" title="Rename series" onClick={onRename}>✎</button>
-          <button className="app-btn ghost icon-only" title="Delete series" onClick={onDelete}>🗑</button>
+          <button className="app-btn ghost icon-only" title="Rename folder" onClick={onRename}>✎</button>
+          <button className="app-btn ghost icon-only" title="Delete folder" onClick={onDelete}>🗑</button>
         </div>
         <span className="wm-folder-chev" aria-hidden="true">▸</span>
       </div>
@@ -889,13 +1258,13 @@ function SeriesView({
           </div>
         </div>
         <div className="wm-series-header-actions">
-          <button className="app-btn ghost icon-only" title="Rename series" onClick={onRename}>✎</button>
-          <button className="app-btn ghost icon-only" title="Delete series" onClick={onDelete}>🗑</button>
+          <button className="app-btn ghost icon-only" title="Rename folder" onClick={onRename}>✎</button>
+          <button className="app-btn ghost icon-only" title="Delete folder" onClick={onDelete}>🗑</button>
         </div>
       </header>
 
       <div className="wm-toolbar">
-        <button className="app-btn primary" onClick={onNewDoc}>+ New document in this series</button>
+        <button className="app-btn primary" onClick={onNewDoc}>+ New document in this folder</button>
       </div>
 
       {docs.length === 0 ? (
@@ -950,7 +1319,11 @@ function Grp({ label, children }) {
    marks via execCommand. Paragraph dimming fades every direct child
    block except the one the caret sits in (.wm-active).
    ───────────────────────────────────────────────────────────── */
-function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
+function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose, onDiscard, initialMode }) {
+  const [mode, setMode] = useState(initialMode === 'view' ? 'view' : 'edit'); // 'view' | 'edit'
+  const viewOnly = mode === 'view';
+  const [showGrammar, setShowGrammar] = useState(false);
+  const [grammarIssues, setGrammarIssues] = useState([]);
   const [title, setTitle] = useState(doc.title || 'Untitled');
   const [words, setWords] = useState(() => countWords(doc.body));
   const [saveState, setSaveState] = useState('saved'); // 'saving' | 'saved'
@@ -1021,6 +1394,14 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
     soundRef.current?.setVolume(soundVol);
   }, [soundVol]);
   useEffect(() => () => { soundRef.current?.destroy(); soundRef.current = null; }, []);
+
+  /* While a document is open, hide the global NavRail ☰ trigger so the
+     writing surface is distraction-free. Exit via the "← Exit" button. */
+  useEffect(() => {
+    document.body.classList.add('wm-in-document');
+    return () => document.body.classList.remove('wm-in-document');
+  }, []);
+
   const setSound = (key) => onPrefs({ ...prefs, soundscape: key });
   const setSoundVol = (v) => onPrefs({ ...prefs, soundVolume: v });
 
@@ -1314,9 +1695,48 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
     if (edRef.current) onPatch(doc.id, { body: cleanBody() });
   }, [doc.id, onPatch, cleanBody]);
 
+  /* Grammar Check — scans the current text (live editor content if
+     mounted, otherwise the saved body) with the lightweight
+     checkGrammar() heuristic and lists results in a side panel. */
+  const runGrammarCheck = useCallback(() => {
+    const text = edRef.current ? (edRef.current.innerText || '') : stripHtml(doc.body);
+    setGrammarIssues(checkGrammar(text));
+  }, [doc.body]);
+
+  const toggleGrammar = () => {
+    setShowGrammar(v => {
+      const next = !v;
+      if (next) runGrammarCheck();
+      return next;
+    });
+  };
+
+  /* Set once we begin closing so the unmount / beforeunload flush
+     below never fires a second save (which, combined with the
+     optimistic store, was leaving a stray blank doc behind on exit). */
+  const closingRef = useRef(false);
+
   const finish = useCallback(() => {
+    closingRef.current = true;
     const html = edRef.current ? cleanBody() : doc.body;
-    onPatch(doc.id, { body: html, title: title.trim() || 'Untitled' });
+    const cleanTitle = title.trim();
+
+    /* Discard-on-exit for a still-empty document: if the writer is
+       leaving a doc with no title (or the default "Untitled"), no text,
+       and no images, drop it instead of saving. This stops blank
+       "Untitled" docs from piling up every time the user opens a new
+       document and backs out without writing. */
+    const isEmptyDoc =
+      countWords(html) === 0 &&
+      !/<img\b/i.test(html || '') &&
+      (!cleanTitle || cleanTitle.toLowerCase() === 'untitled');
+    if (isEmptyDoc && onDiscard) {
+      onDiscard(doc.id);
+      onClose();
+      return;
+    }
+
+    onPatch(doc.id, { body: html, title: cleanTitle || 'Untitled' });
     const durationSec = Math.round((Date.now() - sessionStart.current.at) / 1000);
     const wordsAdded = Math.max(0, countWords(html) - sessionStart.current.words);
     if (durationSec >= 5 || wordsAdded > 0) {
@@ -1329,7 +1749,32 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
       });
     }
     onClose();
-  }, [doc.id, doc.body, title, onPatch, onSession, onClose]);
+  }, [doc.id, doc.body, title, onPatch, onSession, onClose, onDiscard]);
+
+  /* Persist any pending edits when leaving without Esc/Exit — e.g.
+     navigating away from Writing (component unmount) or closing the
+     app/window. Kept in a ref so the listeners always see the latest
+     body + title without re-subscribing on every keystroke. */
+  const saveRef = useRef(null);
+  saveRef.current = () => {
+    /* Skip if we're already closing via finish() — it has handled the
+       save (or the discard) and a second write here is what created the
+       stray duplicate document on exit. */
+    if (closingRef.current) return;
+    if (!edRef.current) return;
+    onPatch(doc.id, { body: cleanBody(), title: title.trim() || 'Untitled' });
+  };
+  useEffect(() => {
+    const flush = () => saveRef.current?.();
+    window.addEventListener('beforeunload', flush);
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('beforeunload', flush);
+      window.removeEventListener('pagehide', flush);
+      clearTimeout(saveTimer.current);
+      flush();
+    };
+  }, []);
 
   /* Esc exits (or closes a popover first). */
   useEffect(() => {
@@ -1384,6 +1829,7 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
      the state survives innerHTML serialization, and sync the strike.
      Also handle image alignment buttons and image selection. */
   const onEditorClick = (e) => {
+    if (viewOnly) return;
     const t = e.target;
     if (t && t.tagName === 'INPUT' && t.type === 'checkbox') {
       if (t.checked) t.setAttribute('checked', ''); else t.removeAttribute('checked');
@@ -1427,6 +1873,7 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
      tracked in layout px (rects divided by the zoom factor); height
      stays auto so the aspect ratio is preserved — like a Word image. */
   const onEditorMouseDown = (e) => {
+    if (viewOnly) return;
     const z = (zoom || 100) / 100;
 
     /* Corner handle → resize. */
@@ -1791,13 +2238,20 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
         <div className="wm-focus-bar">
           <div className="wm-fb-left">
             <button className="wm-fb-exit" onClick={finish} title="Exit (Esc)">← Exit</button>
-            <input
-              className="wm-fb-title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Untitled"
-              spellCheck={false}
-            />
+            {viewOnly ? (
+              <>
+                <span className="wm-fb-title-view">{title || 'Untitled'}</span>
+                <span className="wm-view-badge">👁 Viewing</span>
+              </>
+            ) : (
+              <input
+                className="wm-fb-title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="Untitled"
+                spellCheck={false}
+              />
+            )}
           </div>
 
           <div className="wm-fb-center">
@@ -1810,7 +2264,19 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
           </div>
 
           <div className="wm-fb-right">
+            {viewOnly ? (
+              <>
+                <button
+                  className={`wm-flow ${showGrammar ? 'on' : ''}`}
+                  onClick={toggleGrammar}
+                  title="Grammar & spelling check"
+                >✅ Grammar</button>
+                <button className="app-btn primary" onClick={() => setMode('edit')}>✎ Edit</button>
+              </>
+            ) : (
+            <>
             <div className="wm-flowtoggles">
+              <button className={`wm-flow ${showGrammar ? 'on' : ''}`} onClick={toggleGrammar} title="Grammar & spelling check">✅</button>
               <button className={`wm-flow ${prefs.dim ? 'on' : ''}`} onClick={() => toggle('dim')} title="Focus paragraph (dim the rest)">◐</button>
               <button className={`wm-flow ${prefs.typewriter ? 'on' : ''}`} onClick={() => toggle('typewriter')} title="Typewriter scrolling">⌖</button>
               <button className={`wm-flow ${prefs.hardcore ? 'on' : ''}`} onClick={() => toggle('hardcore')} title="Hardcore — no deleting">🔒</button>
@@ -1880,10 +2346,20 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
               <button onClick={() => bumpFont(-2)} title="Smaller page font">A−</button>
               <button onClick={() => bumpFont(2)} title="Larger page font">A+</button>
             </div>
+            </>
+            )}
           </div>
         </div>
 
-        {/* Ribbon tab strip */}
+        {/* Ribbon tab strip — hidden in view mode, there's nothing to format */}
+        {viewOnly && (
+          <div className="wm-view-hint">
+            👁 Viewing — this document is read-only. Click <b>Edit</b> to make changes.
+          </div>
+        )}
+
+        {!viewOnly && (
+        <>
         <div className="wm-ribbon-tabs">
           {RIBBON_TABS.map(t => (
             <button
@@ -2111,10 +2587,12 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
             <button className="wm-rt-btn" onClick={() => setShowFind(false)} title="Close">✕</button>
           </div>
         )}
+        </>
+        )}
       </div>
 
       <div className="wm-workspace">
-        {showOutline && (
+        {showOutline && !viewOnly && (
           <aside className="wm-outline">
             <div className="wm-outline-title">Outline</div>
             {outline.length === 0 ? (
@@ -2150,16 +2628,16 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
             <div className="wm-pagebody">
               {doc.hasHeader && (
                 <div className="wm-band wm-band-h">
-                  <div className="wm-band-edit" contentEditable suppressContentEditableWarning ref={headerRef} onBlur={saveHeader} data-ph="Header" />
+                  <div className="wm-band-edit" contentEditable={!viewOnly} suppressContentEditableWarning ref={headerRef} onBlur={saveHeader} data-ph="Header" />
                 </div>
               )}
 
               <div
                 ref={edRef}
-                className={`wm-body ${prefs.dim ? 'wm-dim-on' : ''} ${showMarks ? 'wm-show-marks' : ''}`}
-                contentEditable
+                className={`wm-body ${prefs.dim ? 'wm-dim-on' : ''} ${showMarks ? 'wm-show-marks' : ''} ${viewOnly ? 'wm-body-readonly' : ''}`}
+                contentEditable={!viewOnly}
                 suppressContentEditableWarning
-                spellCheck={true}
+                spellCheck={!viewOnly}
                 onInput={onInput}
                 onBeforeInput={onBeforeInput}
                 onKeyDown={onKeyDown}
@@ -2170,12 +2648,38 @@ function FocusWriter({ doc, prefs, onPrefs, onPatch, onSession, onClose }) {
 
               {doc.hasFooter && (
                 <div className="wm-band wm-band-f">
-                  <div className="wm-band-edit" contentEditable suppressContentEditableWarning ref={footerRef} onBlur={saveFooter} data-ph="Footer" />
+                  <div className="wm-band-edit" contentEditable={!viewOnly} suppressContentEditableWarning ref={footerRef} onBlur={saveFooter} data-ph="Footer" />
                 </div>
               )}
             </div>
           </div>
         </div>
+
+        {showGrammar && (
+          <aside className="wm-grammar">
+            <div className="wm-grammar-head">
+              <span>
+                {grammarIssues.length === 0
+                  ? 'Grammar Check'
+                  : `${grammarIssues.length} suggestion${grammarIssues.length === 1 ? '' : 's'}`}
+              </span>
+              <button onClick={runGrammarCheck} title="Re-check the current text">🔄</button>
+            </div>
+            {grammarIssues.length === 0 ? (
+              <div className="wm-grammar-empty">No issues found 🎉</div>
+            ) : (
+              grammarIssues.map((iss, i) => (
+                <div key={i} className="wm-gm-issue-card">
+                  <span className={`wm-gm-tag wm-gm-tag-${iss.type}`}>{iss.label}</span>
+                  <div className="wm-gm-issue-text">
+                    “{iss.match}”{iss.suggestion ? <> → <strong>{iss.suggestion}</strong></> : null}
+                  </div>
+                  <div className="wm-gm-issue-msg">{iss.message}</div>
+                </div>
+              ))
+            )}
+          </aside>
+        )}
       </div>
 
       <div className={`wm-focus-foot ${chromeVisible ? 'show' : 'hide'}`}>

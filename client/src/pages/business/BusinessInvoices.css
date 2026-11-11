@@ -1,0 +1,466 @@
+/* ─────────────────────────────────────────────────────────────
+   Business Ministry — Invoices & Payments
+   Naming: .bzi-*
+   ───────────────────────────────────────────────────────────── */
+
+.bzi-root {
+  width: 100%;
+}
+
+.bzi-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  border: 1px solid var(--border-hi);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.bzi-btn:hover { background: var(--bg-hover); }
+.bzi-btn.primary {
+  background: linear-gradient(135deg, #059669, #d4a537);
+  border-color: transparent;
+  color: #04160f;
+}
+.bzi-btn.primary:hover { filter: brightness(1.08); }
+.bzi-btn.tiny { height: 28px; padding: 0 10px; font-size: var(--fs-sm); }
+.bzi-btn.danger { color: #fca5a5; border-color: rgba(239,68,68,0.35); }
+.bzi-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.bzi-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.bzi-icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.bzi-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: rgba(239,68,68,0.12);
+  border: 0.5px solid rgba(239,68,68,0.35);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: #fca5a5;
+}
+.bzi-error button { background: none; border: none; color: inherit; cursor: pointer; }
+
+/* ── AR summary strip ───────────────────────────────────────── */
+.bzi-summary-strip {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.bzi-summary-card {
+  flex: 1;
+  min-width: 160px;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bzi-summary-card.overdue { border-color: rgba(239,68,68,0.35); }
+.bzi-summary-card.duesoon { border-color: rgba(217,119,6,0.35); }
+.bzi-summary-label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+.bzi-summary-value { font-size: var(--fs-xl); font-weight: 700; color: var(--text-primary); }
+.bzi-summary-card.overdue .bzi-summary-value { color: #fca5a5; }
+.bzi-summary-card.duesoon .bzi-summary-value { color: #fbbf24; }
+
+/* ── Tabs (Active / Past Invoices) ──────────────────────────── */
+.bzi-tabs {
+  display: inline-flex;
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  width: fit-content;
+  margin-bottom: 16px;
+}
+.bzi-tabs button {
+  padding: 8px 18px;
+  border: none;
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bzi-tabs button.is-active { background: rgba(5,150,105,0.22); color: #6ee7b7; }
+.bzi-tab-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.1);
+}
+.bzi-tabs button.is-active .bzi-tab-count { background: rgba(5,150,105,0.35); }
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.bzi-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.bzi-search {
+  flex: 1;
+  min-width: 220px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hi);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  font-family: inherit;
+}
+.bzi-select {
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hi);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.bzi-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-secondary);
+  gap: 8px;
+}
+.bzi-empty-icon { font-size: 40px; margin-bottom: 6px; }
+.bzi-empty h2 { color: var(--text-primary); font-size: var(--fs-xl); }
+
+/* ── Invoice list ────────────────────────────────────────────── */
+.bzi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bzi-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  transition: all var(--transition);
+}
+.bzi-row:hover { border-color: var(--border-hi); }
+.bzi-row.inv-not_invoiced { border-left-color: #6b7280; }
+.bzi-row.inv-draft { border-left-color: #0ea5e9; }
+.bzi-row.inv-sent { border-left-color: #d4a537; }
+.bzi-row.inv-overdue { border-left-color: #ef4444; }
+.bzi-row.inv-paid { border-left-color: #059669; }
+
+.bzi-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+}
+.bzi-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.bzi-row-name { font-size: var(--fs-md); font-weight: 700; color: var(--text-primary); }
+
+.bzi-status-pill,
+.bzi-pay-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--border-hi);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+}
+.bzi-status-pill.inv-not_invoiced { color: var(--text-secondary); }
+.bzi-status-pill.inv-draft { color: #7dd3fc; border-color: rgba(14,165,233,0.4); background: rgba(14,165,233,0.12); }
+.bzi-status-pill.inv-sent { color: #f3d386; border-color: rgba(212,165,55,0.4); background: rgba(212,165,55,0.12); }
+.bzi-status-pill.inv-overdue { color: #fca5a5; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.12); }
+.bzi-status-pill.inv-paid { color: #6ee7b7; border-color: rgba(5,150,105,0.4); background: rgba(5,150,105,0.12); }
+
+.bzi-pay-pill.pay-unpaid { color: #fca5a5; border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.1); }
+.bzi-pay-pill.pay-deposit { color: #fcd34d; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.1); }
+.bzi-pay-pill.pay-paid { color: #6ee7b7; border-color: rgba(5,150,105,0.4); background: rgba(5,150,105,0.12); }
+
+.bzi-duesoon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fbbf24;
+  border: 1px solid rgba(217,119,6,0.4);
+  background: rgba(217,119,6,0.14);
+}
+
+.bzi-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.bzi-row-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  min-width: 120px;
+}
+.bzi-row-total { font-size: var(--fs-lg); font-weight: 700; color: var(--accent-green); }
+.bzi-row-balance { font-size: 11px; font-weight: 700; color: #fca5a5; }
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.bzi-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 20px;
+}
+.bzi-modal {
+  width: min(640px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+.bzi-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+.bzi-modal-head h2 { font-size: var(--fs-xl); color: var(--text-primary); }
+.bzi-modal-body {
+  padding: 16px 24px 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bzi-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 22px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+.bzi-view-head-actions { display: flex; align-items: center; gap: 4px; }
+.bzi-view-pills { display: flex; gap: 8px; }
+
+.bzi-due-editor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-glass);
+}
+.bzi-due-editor label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.bzi-due-editor input[type="date"] {
+  width: auto;
+  padding: 6px 10px;
+}
+.bzi-due-editor input[type="date"]:disabled { opacity: 0.6; cursor: not-allowed; }
+.bzi-due-editor-hint { font-size: var(--fs-xs); color: var(--text-secondary); font-style: italic; }
+
+.bzi-not-invoiced {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 30px 10px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.bzi-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bzi-share-link {
+  display: flex;
+  gap: 8px;
+}
+.bzi-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hi);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* ── Printable invoice sheet ─────────────────────────────────── */
+.bzi-print-area {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  background: var(--bg-glass);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.bzi-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+}
+.bzi-sheet-biz { display: flex; align-items: center; gap: 8px; }
+.bzi-sheet-biz-icon { font-size: 22px; }
+.bzi-sheet-biz-name { font-size: var(--fs-lg); font-weight: 700; color: var(--text-primary); }
+.bzi-sheet-meta { text-align: right; font-size: var(--fs-sm); color: var(--text-secondary); }
+.bzi-sheet-meta strong { color: var(--text-primary); font-size: var(--fs-md); }
+
+.bzi-sheet-bill-to { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-sm); color: var(--text-primary); }
+.bzi-sheet-label { font-size: var(--fs-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+.bzi-sheet-customer-name { font-size: var(--fs-md); font-weight: 700; }
+
+.bzi-sheet-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.bzi-sheet-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+
+.bzi-sheet-message {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.bzi-sheet-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.bzi-sheet-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+.bzi-sheet-total-row strong { color: var(--accent-green); }
+.bzi-sheet-total-row strong.due { color: #fca5a5; }
+
+@media (max-width: 640px) {
+  .bzi-row { flex-direction: column; }
+  .bzi-row-side { flex-direction: row; align-items: center; justify-content: space-between; }
+  .bzi-sheet-head { flex-direction: column; }
+  .bzi-sheet-meta { text-align: left; }
+}
+
+/* ── Print — only the invoice sheet is visible when printing ──── */
+@media print {
+  body * { visibility: hidden; }
+  .bzi-print-area, .bzi-print-area * { visibility: visible; }
+  .bzi-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border: none;
+    background: #fff;
+    color: #000;
+  }
+  .bzi-sheet-biz-name, .bzi-sheet-customer-name, .bzi-sheet-meta strong,
+  .bzi-sheet-item, .bzi-sheet-total-row, .bzi-sheet-message,
+  .bzi-sheet-meta, .bzi-sheet-bill-to, .bzi-sheet-label {
+    color: #000 !important;
+  }
+  .bzi-sheet-total-row strong { color: #000 !important; }
+}

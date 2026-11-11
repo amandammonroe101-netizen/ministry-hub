@@ -1,0 +1,869 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → All Women
+   Styled to match the Friends page: bespoke topbar, photo-card
+   directory grid, right-side slide-over detail panel.
+   Naming: .wa-* (page-scoped). Reuses global .app-topbar /
+   .app-btn / .app-empty / .pm-tb-avatar and the .ys-section /
+   .ys-field / .ys-inp form primitives from youth/AllStudents.css.
+   ───────────────────────────────────────────────────────────── */
+
+.wa-root {
+  --wa-accent: #fb7185;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--text, #e5e7eb);
+}
+
+/* ── Rose-gold 3D-emboss + cursive theme ────────────────────────
+   Ports the Life Stages page's bespoke treatment (see LifeStages.css
+   .wls-root) onto All Women: every panel/card reads as a raised,
+   embossed rose-gold surface (gradient fill + inset highlight/shadow
+   + drop shadow), and running text is set in cursive ('Dancing
+   Script') with headings picked out in vivid rose with a soft glow.
+   Actual form controls (input/select/textarea/option) stay in a
+   plain sans font with solid ink so they're legible while typing —
+   same carve-out Life Stages makes. Scoped under .wms-page .wa-root
+   so it only ever applies inside this page's own WomensShell mount,
+   and beats WomensShell.css's plainer .wa-* overrides on specificity
+   (three classes vs. two) regardless of CSS load order. */
+.wms-page .wa-root {
+  --wa-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --wa-3d-card: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  --wa-3d-chip: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  --wa-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --wa-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --wa-cursive: 'Dancing Script', 'Caveat', cursive;
+  --wa-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--wa-cursive);
+}
+.wms-page .wa-root,
+.wms-page .wa-root button {
+  font-family: var(--wa-cursive);
+}
+.wms-page .wa-root h1, .wms-page .wa-root h2, .wms-page .wa-root h3, .wms-page .wa-root h4 {
+  font-family: var(--wa-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  color: #ff1436;
+  text-shadow: 0 2px 8px rgba(255, 20, 54, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.wms-page .wa-root p, .wms-page .wa-root span, .wms-page .wa-root label,
+.wms-page .wa-root li, .wms-page .wa-root button, .wms-page .wa-root a {
+  font-family: var(--wa-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+/* Form controls stay sans + solid ink — cursive script is hard to
+   read while typing or scanning a dropdown list. */
+.wms-page .wa-root input,
+.wms-page .wa-root textarea,
+.wms-page .wa-root select,
+.wms-page .wa-root option {
+  font-family: var(--wa-sans);
+  font-weight: 500;
+  color: var(--wms-ink, #3d1728);
+}
+/* Field labels: sans + italic, not cursive — same carve-out Life
+   Stages makes for .ys-field-lbl, so labels stay quick to scan. */
+.wms-page .wa-root .ys-field-lbl,
+.wms-page .wa-root .wa-sort-lbl {
+  font-family: var(--wa-sans);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+}
+
+.wa-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+/* ── Directory ───────────────────────────────────────────── */
+.wa-directory {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 28px 36px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wa-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.wa-stat {
+  background: rgba(255,255,255,.04);
+  border: .5px solid rgba(255,255,255,.08);
+  border-radius: 11px;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+  border-top: 3px solid rgba(255,255,255,.15);
+}
+.wa-stat.is-warn { border-top-color: rgba(251,146,60,.55); }
+.wa-stat-n {
+  font-size: 26px; font-weight: 800;
+  color: white; line-height: 1;
+  letter-spacing: -.02em;
+}
+.wa-stat.is-warn .wa-stat-n { color: #fdba74; }
+.wa-stat-lbl {
+  font-size: 11px; color: rgba(255,255,255,.5);
+  font-weight: 500;
+}
+
+.wa-controls {
+  display: flex; gap: 10px; align-items: center;
+}
+.wa-search-wrap {
+  flex: 1;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 11px;
+  background: rgba(255,255,255,.04);
+  border: .5px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+}
+.wa-search-wrap input {
+  flex: 1;
+  background: transparent; border: none;
+  color: white; font-size: 12px; font-family: inherit;
+  outline: none;
+}
+.wa-search-wrap input::placeholder { color: rgba(255,255,255,.35); }
+.wa-search-clear {
+  appearance: none; background: none; border: none;
+  color: rgba(255,255,255,.45); cursor: pointer; font-size: 12px;
+  padding: 2px;
+}
+.wa-search-clear:hover { color: rgba(255,255,255,.85); }
+
+.wa-sort-wrap { display: flex; align-items: center; gap: 6px; }
+.wa-sort-lbl {
+  font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,.45);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.wa-sort-sel {
+  background: rgba(255,255,255,.06);
+  border: .5px solid rgba(255,255,255,.12);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 12px; color: white;
+  font-family: inherit;
+}
+
+.wa-filter-row {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.wa-filter-chip {
+  display: inline-flex; align-items: center;
+  padding: 5px 11px; border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  border: .5px solid rgba(255,255,255,.1);
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,.6);
+  cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.wa-filter-chip:hover {
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.9);
+}
+.wa-filter-chip.on {
+  background: color-mix(in srgb, var(--wa-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--wa-accent) 45%, transparent);
+  color: var(--wa-accent);
+}
+
+.wa-directory-empty {
+  padding: 38px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  font-style: italic;
+}
+
+/* ── Card grid (photo-first, matches Friends' FriendCard) ──── */
+.wa-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+.wa-fc {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+  padding: 18px 14px 14px;
+  background: rgba(255,255,255,.04);
+  border: .5px solid rgba(255,255,255,.09);
+  border-radius: 12px;
+  cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,.85);
+  text-align: center;
+  overflow: hidden;
+  transition: all .18s;
+}
+.wa-fc:hover {
+  background: rgba(255,255,255,.07);
+  border-color: color-mix(in srgb, var(--wa-accent) 40%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.25);
+}
+.wa-fc-stripe {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,.12);
+}
+.wa-fc-stripe.tone-overdue { background: linear-gradient(90deg, #ef4444, #f97316); }
+.wa-fc-stripe.tone-today   { background: linear-gradient(90deg, #f59e0b, #facc15); }
+.wa-fc-stripe.tone-bday    { background: linear-gradient(90deg, #ec4899, #f9a8d4); }
+.wa-fc-stripe.tone-neutral {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--wa-accent) 55%, transparent),
+    color-mix(in srgb, var(--wa-accent) 25%, transparent));
+}
+
+.wa-fc-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 9px; font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.4);
+  color: rgba(255,255,255,.92);
+  letter-spacing: -.01em;
+}
+.wa-fc-badge.tone-overdue { background: rgba(239,68,68,.32); color: #fecaca; }
+.wa-fc-badge.tone-today   { background: rgba(245,158,11,.36); color: #fde68a; }
+.wa-fc-badge.tone-bday    { background: rgba(236,72,153,.32); color: #fbcfe8; }
+
+.wa-fc-name {
+  font-size: 14px; font-weight: 700;
+  color: white;
+  margin-top: 8px;
+  letter-spacing: -.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%;
+}
+.wa-fc-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
+  display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;
+}
+.wa-fc-status {
+  font-size: 10px; font-weight: 600;
+  color: rgba(251,191,146,.9);
+  padding: 2px 9px; border-radius: 999px;
+  background: rgba(251,146,60,.12);
+  border: .5px solid rgba(251,146,60,.25);
+  margin-top: 2px;
+}
+.wa-fc-status.inactive {
+  color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.14);
+}
+.wa-fc-foot {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: .5px solid rgba(255,255,255,.06);
+  font-size: 10px;
+}
+.wa-fc-foot-lbl { color: rgba(255,255,255,.4); }
+.wa-fc-foot-val { color: rgba(255,255,255,.7); font-weight: 600; }
+
+/* ── Slide-over detail panel (matches Friends' FriendSlideOver) ─ */
+.wa-slide-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8,6,18,.5);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  animation: waSlideOvIn .18s ease-out;
+}
+@keyframes waSlideOvIn { from { opacity: 0; } to { opacity: 1; } }
+
+.wa-slide {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(440px, 92vw);
+  background: rgba(14,10,30,.98);
+  backdrop-filter: blur(20px);
+  border-left: .5px solid rgba(255,255,255,.14);
+  box-shadow: -10px 0 40px rgba(0,0,0,.5);
+  z-index: 999;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: waSlideIn .22s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes waSlideIn {
+  from { transform: translateX(8%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+.wa-slide-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,.06);
+  border: .5px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.55);
+  width: 30px; height: 30px; border-radius: 50%;
+  font-size: 14px; line-height: 1;
+  cursor: pointer; font-family: inherit;
+  z-index: 2;
+  transition: all .15s;
+}
+.wa-slide-close:hover {
+  background: rgba(239,68,68,.18);
+  color: #fca5a5;
+  border-color: rgba(239,68,68,.32);
+}
+.wa-slide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 22px 32px;
+  /* The reused .ys-* form primitives key off --ys-accent (focus
+     rings, add-buttons) — point it at this page's rose accent. */
+  --ys-accent: var(--wa-accent);
+}
+
+@media (max-width: 720px) {
+  .wa-slide { width: 100vw; }
+}
+
+/* ── Scheduled communications list ──────────────────────────── */
+.wa-comm-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wa-comm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.wa-comm-row.done {
+  opacity: 0.6;
+}
+.wa-comm-icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.wa-comm-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 1px;
+}
+.wa-comm-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wa-accent);
+}
+.wa-comm-note {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wa-comm-done {
+  appearance: none;
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(34,197,94,0.14);
+  border: 1px solid rgba(34,197,94,0.45);
+  color: #86efac;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.wa-comm-done:hover {
+  background: rgba(34,197,94,0.24);
+}
+.wa-comm-del {
+  appearance: none;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+.wa-comm-del:hover {
+  background: rgba(239,68,68,0.18);
+  color: #fca5a5;
+}
+.wa-comm-history {
+  margin-top: 2px;
+}
+.wa-comm-history summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 600;
+  padding: 2px 0;
+}
+.wa-comm-history summary:hover {
+  color: rgba(255,255,255,0.8);
+}
+.wa-comm-history .wa-comm-list {
+  margin-top: 6px;
+}
+
+/* ── Engagement history timeline ────────────────────────────── */
+.wa-timeline {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wa-timeline-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 4px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.wa-timeline-row:first-child {
+  border-top: none;
+}
+.wa-timeline-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--wa-accent);
+  flex-shrink: 0;
+}
+.wa-timeline-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+.wa-timeline-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+}
+.wa-timeline-content {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+.wa-timeline-del {
+  appearance: none;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+.wa-timeline-del:hover {
+  background: rgba(239,68,68,0.18);
+  border-color: rgba(239,68,68,0.35);
+  color: #fca5a5;
+}
+
+/* ── Read-only view rows (WomanView) ────────────────────────── */
+.wa-view-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: .5px solid rgba(255,255,255,.05);
+  font-size: 13px;
+}
+.wa-view-row:last-child { border-bottom: none; }
+.wa-view-lbl { color: rgba(255,255,255,.5); flex-shrink: 0; }
+.wa-view-val { color: rgba(255,255,255,.92); text-align: right; }
+
+/* ── Name field — typeahead against accepted Contacts ───────── */
+.wa-name-suggest-wrap { position: relative; display: flex; flex-direction: column; }
+.wa-name-suggest {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(20,16,35,.98);
+  backdrop-filter: blur(20px);
+  border: .5px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+}
+.wa-name-suggest-hd {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: rgba(255,255,255,.4);
+  padding: 6px 8px 4px;
+}
+.wa-name-suggest-item {
+  background: none;
+  border: none;
+  text-align: left;
+  color: rgba(255,255,255,.9);
+  font-size: 13px;
+  padding: 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.wa-name-suggest-item:hover { background: rgba(255,255,255,.08); }
+.wa-name-suggest-status {
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  margin-top: 4px;
+}
+
+/* ── Contacts link pill + Chat button + Request-info flow ────── */
+.wa-linked-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700;
+  color: var(--wms-rose-deep, #c2426a);
+  margin-top: 4px;
+  width: fit-content;
+}
+.wa-chat-btn {
+  appearance: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  background: color-mix(in srgb, var(--wa-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wa-accent) 45%, transparent);
+  color: var(--wa-accent);
+  cursor: pointer; font-family: inherit;
+  width: fit-content;
+  transition: background .12s ease;
+}
+.wa-chat-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--wa-accent) 28%, transparent); }
+.wa-chat-btn:disabled { opacity: .6; cursor: not-allowed; }
+.wa-info-request {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-radius: 9px;
+  background: rgba(220,38,38,.06);
+  border: 1px solid rgba(220,38,38,.22);
+  margin-top: 4px;
+}
+.wa-info-request.pending {
+  background: rgba(196,19,60,.08); border-color: rgba(196,19,60,.28);
+}
+.wa-info-request.declined {
+  background: rgba(61,23,40,.05); border-color: var(--wms-border, rgba(196,19,60,0.14));
+}
+.wa-info-request-text { font-size: 12px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); line-height: 1.4; }
+.wa-info-request-msg { font-size: 12px !important; padding: 6px 9px !important; }
+.wa-info-request-btn { align-self: flex-start; padding: 5px 12px !important; font-size: 12px !important; }
+.wa-info-request-error { font-size: 11px; color: #b91c1c; }
+
+/* Archive — collapsible sections, .wa-archive-* */
+.wa-archive-section {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+}
+.wa-archive-summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  list-style: none;
+}
+.wa-archive-summary::-webkit-details-marker { display: none; }
+.wa-archive-summary-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.wa-archive-legend {
+  font-size: 12px;
+  color: rgba(255,255,255,.45);
+  font-style: italic;
+  margin: 6px 2px 4px;
+}
+.wa-archive-year {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  margin: 10px 2px 2px;
+}
+.wa-archive-crosslink {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,.55);
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Rose-gold 3D-emboss overrides — matches Life Stages
+   (LifeStages.css .wls-panel / .wls-stat / .wls-roster-row /
+   .wls-filter-chip). Every selector below is doubled up on the
+   .wa-root class (".wms-page .wa-root .wa-X.wa-X" would be
+   overkill — three real classes, ".wms-page .wa-root .wa-X", is
+   already higher-specificity than WomensShell.css's two-class
+   ".wms-page .wa-X" overrides, so these win regardless of CSS
+   file load order.
+   ───────────────────────────────────────────────────────────── */
+
+.wms-page .wa-root .wa-stat {
+  background: var(--wa-3d-card);
+  border: none;
+  border-top: 3px solid var(--wms-rose-deep, #c2426a);
+  border-radius: 12px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .wa-stat.is-warn { border-top-color: #d4a017; }
+.wms-page .wa-root .wa-stat-n {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  color: var(--wms-ink, #3d1728);
+}
+.wms-page .wa-root .wa-stat.is-warn .wa-stat-n { color: #b8860b; }
+.wms-page .wa-root .wa-stat-n.is-pulsing { animation: wmsStatPulse .6s ease; }
+.wms-page .wa-root .wa-stat-lbl {
+  font-family: var(--wa-sans);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wms-page .wa-root .wa-search-wrap,
+.wms-page .wa-root .wa-sort-sel {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .wa-search-wrap input { color: var(--wms-ink, #3d1728); }
+.wms-page .wa-root .wa-search-wrap input::placeholder { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wms-page .wa-root .wa-search-clear { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wms-page .wa-root .wa-search-clear:hover { color: var(--wms-ink, #3d1728); }
+
+.wms-page .wa-root .wa-filter-chip {
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+  transition: all .15s;
+}
+.wms-page .wa-root .wa-filter-chip:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.wms-page .wa-root .wa-filter-chip.on {
+  background: var(--wa-3d-bg);
+  box-shadow: var(--wa-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+  color: var(--wms-ink, #3d1728);
+}
+
+.wms-page .wa-root .wa-directory-empty { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.wms-page .wa-root .wa-fc {
+  background: var(--wa-3d-card);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+}
+.wms-page .wa-root .wa-fc:hover {
+  background: var(--wa-3d-card);
+  transform: translateY(-2px);
+  box-shadow: var(--wa-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+.wms-page .wa-root .wa-fc-name {
+  font-family: var(--wa-cursive);
+  font-weight: 700;
+  color: #ff1436;
+  text-shadow: 0 2px 8px rgba(255, 20, 54, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25);
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+.wms-page .wa-root .wa-fc-meta { color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wms-page .wa-root .wa-fc-foot { border-top-color: var(--wms-border, rgba(196,19,60,0.14)); }
+.wms-page .wa-root .wa-fc-foot-lbl { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wms-page .wa-root .wa-fc-foot-val { color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+
+.wms-page .wa-root .wa-slide {
+  background: linear-gradient(165deg, #fffaf6 0%, #fff1e6 60%, #fbe8cd 130%);
+  border-left: none;
+  box-shadow: var(--wa-3d-shadow), -14px 0 40px rgba(196,19,60,0.14);
+}
+.wms-page .wa-root .wa-slide-close {
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wms-page .wa-root .wa-slide-close:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #b91c1c; }
+
+.wms-page .wa-root .wa-comm-row,
+.wms-page .wa-root .wa-timeline-row {
+  background: var(--wa-3d-card);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .wa-timeline-row { border-top: none; margin-bottom: 6px; }
+.wms-page .wa-root .wa-comm-note,
+.wms-page .wa-root .wa-timeline-content,
+.wms-page .wa-root .wa-view-val { color: var(--wms-ink, #3d1728); }
+.wms-page .wa-root .wa-comm-date { color: var(--wms-rose-deep, #c2426a); font-family: var(--wa-sans); }
+.wms-page .wa-root .wa-timeline-date,
+.wms-page .wa-root .wa-view-lbl,
+.wms-page .wa-root .wa-comm-history summary { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); font-family: var(--wa-sans); }
+.wms-page .wa-root .wa-view-row { border-bottom-color: var(--wms-border, rgba(196,19,60,0.14)); }
+.wms-page .wa-root .wa-timeline-dot { background: var(--wms-rose-deep, #c2426a); }
+.wms-page .wa-root .wa-comm-done {
+  background: linear-gradient(145deg, #d9f7c4, #86efac 70%, #4ade80);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: #14532d;
+  font-family: var(--wa-sans);
+}
+.wms-page .wa-root .wa-comm-del,
+.wms-page .wa-root .wa-timeline-del {
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wms-page .wa-root .wa-comm-del:hover,
+.wms-page .wa-root .wa-timeline-del:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #b91c1c; }
+
+.wms-page .wa-root .wa-name-suggest {
+  background: #fffaf9;
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: 0 14px 30px rgba(196,19,60,0.2);
+}
+.wms-page .wa-root .wa-name-suggest-item {
+  font-family: var(--wa-sans);
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+}
+.wms-page .wa-root .wa-name-suggest-item:hover { background: rgba(196,19,60,0.08); }
+.wms-page .wa-root .wa-name-suggest-hd { font-family: var(--wa-sans); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.wms-page .wa-root .wa-name-suggest-status { font-family: var(--wa-sans); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.wms-page .wa-root .wa-linked-pill { font-family: var(--wa-sans); font-weight: 700; }
+.wms-page .wa-root .wa-chat-btn {
+  font-family: var(--wa-sans);
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wms-page .wa-root .wa-chat-btn:hover:not(:disabled) { filter: brightness(1.05); }
+.wms-page .wa-root .wa-info-request-text,
+.wms-page .wa-root .wa-info-request-error { font-family: var(--wa-sans); font-weight: 500; }
+
+/* Form panels (Section/ys-section reused from Youth roster) —
+   raised embossed cards, matching .wls-panel. */
+.wms-page .wa-root .ys-section {
+  background: var(--wa-3d-card);
+  border: none;
+  border-top: none;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wms-page .wa-root .ys-section-title {
+  font-family: var(--wa-cursive);
+  color: #ff1436;
+  text-shadow: 0 2px 8px rgba(255, 20, 54, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.wms-page .wa-root .ys-form-title {
+  font-family: var(--wa-cursive);
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: #ff1436;
+  text-shadow: 0 2px 8px rgba(255, 20, 54, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25);
+  animation: none;
+}
+.wms-page .wa-root .ys-inp {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+}
+.wms-page .wa-root .ys-inp:focus { border-color: var(--wms-gold, #e8b3ae); }
+.wms-page .wa-root .ys-add-btn {
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+  font-family: var(--wa-sans);
+  font-weight: 600;
+}
+.wms-page .wa-root .ys-del-btn {
+  font-family: var(--wa-sans);
+}
+.wms-page .wa-root .app-btn {
+  font-family: var(--wa-sans);
+  background: var(--wa-3d-chip);
+  border: none;
+  box-shadow: var(--wa-3d-shadow-sm);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wms-page .wa-root .app-btn:hover { filter: brightness(1.05); }
+.wms-page .wa-root .app-btn.primary {
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  color: #fff;
+}
+.wms-page .wa-root .app-btn.ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wms-page .wa-root .app-btn.ghost:hover { background: rgba(196,19,60,0.06); color: var(--wms-ink, #3d1728); }

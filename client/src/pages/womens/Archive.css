@@ -1,0 +1,108 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Archive
+   Only the handful of widgets with no Life-Stages equivalent live
+   here — everything else (panels, stat tile, search field, roster
+   rows, ghost buttons) reuses .wls-* wholesale from LifeStages.css,
+   which this file is always imported alongside.
+   ───────────────────────────────────────────────────────────── */
+
+.wa-archive-stats .wls-stat-row {
+  grid-template-columns: 1fr;
+}
+
+.wa-archive-crosslink {
+  cursor: default;
+}
+
+.wa-archive-search {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+.wa-archive-search .wls-mini-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.wa-archive-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* <details>/<summary> repurposed as a plain clickable panel row —
+   strip the native disclosure triangle in both engines. */
+.wa-archive-section > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.wa-archive-section > summary::-webkit-details-marker,
+.wa-archive-section > summary::marker {
+  display: none;
+  content: '';
+}
+
+.wa-archive-summary-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.wa-archive-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--wls-sans);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  background: linear-gradient(145deg, #e8749a, var(--wms-rose-deep, #c2426a));
+  box-shadow: var(--wls-3d-shadow-sm);
+  animation: none;
+}
+
+.wa-archive-legend {
+  padding-top: 0;
+}
+
+.wa-archive-year {
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 700;
+  background: var(--wms-poppygold, linear-gradient(100deg, #c81e3a 0%, #e0453f 28%, #e8823f 55%, #d4a017 80%, #c81e3a 100%));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: wlsShine 6s linear infinite;
+  margin: 4px 2px 6px;
+}
+
+.wa-archive-row {
+  cursor: pointer;
+  transition: transform .15s, filter .15s;
+}
+.wa-archive-row:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.wa-archive-meta {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+@media (max-width: 860px) {
+  .wa-archive-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

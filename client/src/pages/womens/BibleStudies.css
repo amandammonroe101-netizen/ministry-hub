@@ -1,0 +1,505 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Bible Studies
+   Rose-gold pass: this page shares LifeStages.css's .wls-* system
+   directly (sidebar, panels, stats, filter chips, roster rows,
+   buttons — same embossed rose-gold surfaces and tokens, scoped to
+   the .wls-root wrapper this page also renders inside of) and the
+   .ys-* form primitives from youth/AllStudents.css. Only the study
+   card, tab strip, and per-tab widgets below are their own styling,
+   prefix .wbs-
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Studies panel stat row — 4 stats, not the default 5 ───────── */
+.wbs-stat-row { grid-template-columns: repeat(4, 1fr); }
+
+/* ── Search box (Studies panel) ────────────────────────────────── */
+.wbs-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wls-3d-shadow-sm);
+}
+.wbs-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wls-sans);
+}
+.wbs-search input:focus { outline: none; }
+.wbs-search-clear {
+  appearance: none;
+  border: none;
+  background: none;
+  font-size: 12px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Study card (grid item in the Studies panel) ──────────────── */
+.wbs-study-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  padding: 13px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--wls-3d-shadow-sm);
+  transition: all .15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.wbs-study-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+.wbs-study-card.on {
+  box-shadow: var(--wls-3d-shadow-sm), 0 0 0 3px rgba(196,19,60,0.35);
+}
+
+.wbs-study-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.wbs-study-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+
+.wbs-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255,255,255,0.55);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wbs-badge.status-active    { background: rgba(74,222,128,.30);  color: #14532d; }
+.wbs-badge.status-upcoming  { background: rgba(251,191,36,.32);  color: #7a4a05; }
+.wbs-badge.status-break     { background: rgba(96,165,250,.30);  color: #1e3a8a; }
+.wbs-badge.status-completed { background: rgba(255,255,255,0.5); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.wbs-study-card-line {
+  font-size: 13px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wbs-study-card-book {
+  font-size: 13px;
+  color: var(--wms-ink, #3d1728);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.wbs-study-card-foot {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(196,19,60,0.14);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wbs-study-card-roster {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wbs-study-card-roster.is-over { color: #c4133c; }
+.wbs-study-card-chip {
+  font-size: 11px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* ── Study detail panel ────────────────────────────────────────
+   .wls-panel (applied alongside it in JSX) gives it the same
+   embossed surface as every other widget on this page; the extra
+   ring here matches Life Stages' "incoming transitions" panel and
+   Support Groups' detail panel treatment. */
+.wbs-detail-panel {
+  box-shadow: var(--wls-3d-shadow), 0 0 0 2px rgba(232,116,154,0.35);
+}
+
+.wbs-view-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wbs-view-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.wbs-title-inp {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.wbs-title-inp:focus {
+  background: rgba(255,255,255,0.4);
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+}
+.wbs-view-title-inp { flex: 1; min-width: 200px; font-size: 20px; }
+.wbs-view-status-sel { max-width: 170px; }
+.wbs-view-title-text {
+  flex: 1;
+  min-width: 200px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+}
+
+/* ── View/Edit toggle (panel-level) ──────────────────────────────
+   Same "double-click to enter edit" convention as Life Stages'
+   LeaderField/CareFocusField, plus a standing ✎ Edit / ✓ Done
+   button for discoverability. */
+.wbs-edit-btn {
+  appearance: none;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--wls-3d-bg, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wbs-edit-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+.wbs-view-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wbs-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wbs-del-btn {
+  appearance: none;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.wbs-del-btn:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); }
+.wbs-del-btn.armed { background: linear-gradient(145deg, #ff9b9b, #ef4444); color: #fff; }
+
+.wbs-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  flex-wrap: wrap;
+}
+.wbs-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 14px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.wbs-tab:hover { color: var(--wms-ink, #3d1728); }
+.wbs-tab.on { color: var(--wms-rose-deep, #c2426a); border-bottom-color: var(--wms-rose-deep, #c2426a); }
+.wbs-tab-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.6);
+  border-radius: 999px;
+  padding: 1px 7px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wbs-view-body { display: flex; flex-direction: column; gap: 16px; }
+
+.wbs-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  box-shadow: var(--wls-3d-shadow-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Sessions tab */
+.wbs-session-add {
+  align-self: flex-start;
+}
+.wbs-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wbs-session {
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 12px;
+  background: linear-gradient(150deg, #fff9f4, #ffffff);
+  overflow: hidden;
+}
+.wbs-session-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+}
+.wbs-session-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  min-width: 92px;
+  flex-shrink: 0;
+}
+.wbs-session-topic {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wbs-session-summary {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  white-space: nowrap;
+}
+.wbs-session-chevron {
+  font-size: 11px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  transition: transform .15s;
+  flex-shrink: 0;
+}
+.wbs-session.open .wbs-session-chevron { transform: rotate(90deg); }
+.wbs-session-body {
+  padding: 2px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  margin-top: 2px;
+  padding-top: 12px;
+}
+.wbs-session-del-row { display: flex; justify-content: flex-end; }
+
+/* Attendance checklist */
+.wbs-attend-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.wbs-attend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wbs-attend-row.on {
+  background: rgba(74,222,128,.28);
+  border-color: rgba(74,222,128,.5);
+  color: #14532d;
+}
+.wbs-attend-row input { accent-color: var(--wms-rose-deep, #c2426a); }
+.wbs-attend-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── View-mode rows (Overview/Sessions read-only display) ────────── */
+.wbs-view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px 20px;
+}
+.wbs-view-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.wbs-view-item.block { grid-column: 1 / -1; }
+.wbs-view-item-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.wbs-view-item-val {
+  font-size: 14px;
+  color: var(--wms-ink, #3d1728);
+  white-space: pre-wrap;
+}
+.wbs-view-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  white-space: pre-wrap;
+}
+.wbs-attend-row.readonly { cursor: default; }
+
+/* Roster tab */
+.wbs-roster-frac {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.wbs-roster-via {
+  font-style: italic;
+}
+.wbs-roster-via-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.5);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  white-space: nowrap;
+}
+
+/* Roster tab — manual "add a woman" search */
+.wbs-roster-add { position: relative; }
+.wbs-roster-add-suggest {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(150deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 9px;
+  box-shadow: var(--wls-3d-shadow);
+  overflow: hidden;
+}
+.wbs-roster-add-suggest button {
+  appearance: none;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--wms-ink, #3d1728);
+  cursor: pointer;
+}
+.wbs-roster-add-suggest button:hover { background: rgba(196,19,60,0.08); }
+
+/* Materials tab */
+.wbs-materials-book {
+  font-size: 13px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wbs-material-view-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wbs-material-view-list li { font-size: 13px; }
+.wbs-material-view-list a {
+  color: var(--wms-rose-deep, #c2426a);
+  text-decoration: underline;
+}
+.wbs-material-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wbs-material-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wbs-material-row .ys-inp { flex: 1; min-width: 0; }
+.wbs-material-del {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.wbs-material-del:hover { background: rgba(239,68,68,.22); color: #c4133c; }
+.wbs-material-link {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--wms-rose-deep, #c2426a);
+  text-decoration: none;
+  padding: 0 4px;
+}

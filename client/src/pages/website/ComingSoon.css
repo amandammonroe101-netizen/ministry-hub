@@ -1,0 +1,100 @@
+/* ─────────────────────────────────────────────────────────────
+   Website — Coming Soon (safety fallback, rendered inside
+   WebsiteShell). Naming: .wc-*
+   Accent: var(--wc-accent) — supplied inline per page
+   ───────────────────────────────────────────────────────────── */
+
+.wc-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wc-card {
+  position: relative;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--wc-accent) 16%, transparent), transparent 60%),
+    var(--wbs-panel);
+  border: 1px solid var(--wbs-border);
+  border-radius: 18px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.wc-card-emblem { font-size: 40px; line-height: 1; margin-bottom: 4px; }
+.wc-card-title { margin: 0; font-size: 22px; font-weight: 700; color: var(--wbs-ink); }
+.wc-card-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--wbs-ink-soft);
+  max-width: 640px;
+}
+.wc-card-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+.wc-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: rgba(13, 52, 70, 0.06);
+  color: inherit;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wc-btn:hover  { background: rgba(13, 52, 70, 0.12); }
+.wc-btn-primary {
+  background: color-mix(in srgb, var(--wc-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--wc-accent) 55%, transparent);
+  color: var(--wc-accent);
+}
+.wc-btn-primary:hover { background: color-mix(in srgb, var(--wc-accent) 32%, transparent); }
+.wc-btn-ghost {
+  background: transparent;
+  border-color: var(--wbs-border);
+  color: var(--wbs-ink-soft);
+}
+.wc-btn-ghost:hover { background: rgba(13, 52, 70, 0.06); color: var(--wbs-ink); }
+
+.wc-map { display: flex; flex-direction: column; gap: 28px; }
+.wc-map-title { margin: 0; font-size: 20px; font-weight: 700; color: var(--wbs-ink); }
+.wc-map-sub { margin: -16px 0 0; font-size: 14px; color: var(--wbs-ink-faint); }
+.wc-map-group { display: flex; flex-direction: column; gap: 12px; }
+.wc-map-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wbs-ink-faint);
+}
+.wc-map-group-icon { font-size: 16px; }
+.wc-map-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.wc-map-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--wbs-panel);
+  border: 1px solid var(--wbs-border);
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.wc-map-card:hover {
+  background: color-mix(in srgb, var(--wc-card-accent) 12%, var(--wbs-panel-strong));
+  border-color: color-mix(in srgb, var(--wc-card-accent) 45%, transparent);
+}
+.wc-map-card-icon { font-size: 22px; line-height: 1; }
+.wc-map-card-label { font-size: 15px; font-weight: 700; color: var(--wbs-ink); }
+.wc-map-card-desc { font-size: 13px; line-height: 1.5; color: var(--wbs-ink-soft); }

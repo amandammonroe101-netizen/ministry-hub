@@ -1,0 +1,321 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Communication
+   Naming: .wc-* (page-scoped). Mounted inside .wa-root (see
+   Communication.jsx), so these rely on the rose-gold/emboss theme
+   vars AllWomen.css sets on .wa-root — --wa-3d-card (raised card
+   gradient), --wa-3d-chip (pill gradient), --wa-3d-shadow /
+   --wa-3d-shadow-sm (embossed shadows) — the same tokens Life
+   Stages defines as --wls-3d-bg/--wls-3d-shadow. Reuses .wa-*
+   shell/stats/filter-chip from AllWomen.css and .ys-inp/.ys-textarea
+   form primitives from youth/AllStudents.css (both already retinted
+   rose-gold by AllWomen.css/WomensShell.css under .wms-page).
+   ───────────────────────────────────────────────────────────── */
+
+/* Legibility carve-out — AllWomen.css's rose-gold pass sets every
+   heading/paragraph/label/button/link inside .wa-root to a cursive
+   script font, which reads fine as page chrome but is hard to scan
+   in a composer full of dense text and board cards. Force plain sans
+   everywhere in this page's own content; the page's actual header
+   title (WomensShell's .wms-title, rendered outside .wa-root) is
+   untouched and keeps its cursive. 3-class selector out-specifies
+   AllWomen.css's 2-class + tag rules, same carve-out Stories.css/
+   Engagement.css use for their own dense-content pages. */
+.wms-page .wa-root.wc-page,
+.wms-page .wa-root.wc-page * {
+  font-family: var(--wa-sans, -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif);
+}
+
+.wc-h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.wc-view-switch {
+  display: flex;
+  gap: 8px;
+}
+
+.wc-composer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wc-editing-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wc-editing-clear {
+  appearance: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: 1px dashed var(--wms-border, rgba(196,19,60,0.14));
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--wms-rose-deep, #c2426a);
+  cursor: pointer;
+  transition: all .15s;
+}
+.wc-editing-clear:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+.wc-composer {
+  background: var(--wa-3d-bg, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  border: none;
+  border-radius: var(--radius-lg, 16px);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--wa-3d-shadow);
+}
+
+.wc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wc-field-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wc-hint {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+
+.wc-recip-note {
+  font-size: 13px;
+  color: var(--wms-ink, #3d1728);
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 10px;
+  padding: 9px 12px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wc-recip-warn {
+  color: #8a4a12;
+  font-weight: 700;
+}
+
+.ys-textarea {
+  min-height: 100px;
+}
+
+/* Templates — reused audience/channel filter-chip look, plus a
+   small round delete button riding alongside each chip. */
+.wc-template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.wc-template-del {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 11px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  color: var(--wms-rose-deep, #c2426a);
+  cursor: pointer;
+  transition: all .15s;
+}
+.wc-template-del:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); transform: translateY(-1px); }
+
+.wc-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Composer — "track who has confirmed/responded" toggle. */
+.wc-track-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+  cursor: pointer;
+}
+.wc-track-toggle input { accent-color: var(--wms-rose-deep, #c2426a); }
+
+/* ── Responses tab ── */
+.wc-responses-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.wc-responses-empty {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  padding: 18px 12px;
+  border: 1px dashed var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 10px;
+}
+.wc-response-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wc-response-entry {
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border-radius: 14px;
+  border-left: 3px solid transparent;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--wa-3d-shadow-sm);
+}
+.wc-response-entry.overdue { border-left-color: #d9534f; }
+.wc-response-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wc-response-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  color: var(--wms-ink, #3d1728);
+}
+.wc-response-pill-campaign { color: var(--wms-rose-deep, #c2426a); }
+.wc-response-pill-overdue {
+  background: linear-gradient(145deg, #ffd7d7, #fca5a5);
+  border-color: #f3a5a5;
+  color: #9a2020;
+}
+.wc-response-date {
+  font-size: 11px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.wc-response-progress {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wc-response-subject {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wms-ink, #3d1728);
+}
+.wc-response-pending-summary {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wc-response-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wc-response-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wc-response-toggle {
+  appearance: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-align: left;
+  font-family: inherit;
+  font-size: 12px;
+  background: rgba(255,255,255,0.45);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--wms-ink, #3d1728);
+  cursor: pointer;
+  transition: all .12s;
+}
+.wc-response-toggle:hover { transform: translateY(-1px); box-shadow: var(--wa-3d-shadow-sm); }
+.wc-response-row.done .wc-response-toggle {
+  background: rgba(143,191,159,0.28);
+  border-color: #8fbf9f;
+}
+.wc-response-check { flex-shrink: 0; }
+.wc-response-name { font-weight: 600; }
+.wc-response-contact {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wc-response-followup {
+  appearance: none;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 12px;
+  background: var(--wa-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  cursor: pointer;
+  transition: all .15s;
+}
+.wc-response-followup:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+.wc-campaign-filter {
+  width: auto;
+  min-width: 160px;
+}
+
+/* Save-as-template naming modal — small centered dialog, same
+   raised rose-gold surface as everything else on this page.
+   Electron-safe stand-in for window.prompt(). */
+.wc-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(61,23,40,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.wc-modal {
+  width: min(360px, 90vw);
+  background: var(--wa-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--wa-3d-shadow);
+}
+.wc-modal h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.wc-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

@@ -1,0 +1,2614 @@
+/* ─────────────────────────────────────────────────────────────
+   Chat page — grid layout + in-app conversation overlay
+   Namespace: .ch-*
+   Accent: var(--accent-blue, #60a5fa)
+   ───────────────────────────────────────────────────────────── */
+
+/* NOTE: .chat-page-root is paired onto every selector below that also
+   needs to beat ChordCharts.css — that page independently reuses the
+   exact same .ch-* namespace (.ch-root, .ch-main, .ch-btn, .ch-chip,
+   .ch-search all collide by name, coincidence of "Ch..." page names).
+   Same-specificity rules resolve by load order, which is fragile, so
+   .ch-root and .ch-main are pinned to a Chat-only compound/descendant
+   selector to always win regardless of import order. */
+.ch-root.chat-page-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  /* Column, not row: .app-bg and .nav-rail are position:fixed (out of
+     flow either way), but .app-topbar + .ch-main are real flex
+     children now — column stacks the shared topbar above the page
+     content instead of squeezing it into a narrow strip beside it. */
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-deep, #0f0e0c);
+}
+.chat-page-root > .app-topbar {
+  flex-shrink: 0;
+}
+
+.chat-page-root .ch-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  --ch-accent:    #60a5fa;
+  --ch-accent-bg: rgba(96, 165, 250, 0.14);
+  --ch-accent-br: rgba(96, 165, 250, 0.40);
+  --ch-priv:      #a78bfa;
+  --ch-priv-bg:   rgba(167, 139, 250, 0.14);
+  --ch-priv-br:   rgba(167, 139, 250, 0.40);
+}
+
+/* Identifying-key chip */
+.ch-keychip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--ch-accent-br);
+  border-radius: 10px;
+  color: var(--text-primary, #f5f5f4);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ch-keychip:hover {
+  background: var(--ch-accent-bg);
+}
+.ch-keychip-loading {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border, rgba(255, 255, 255, 0.10));
+  color: var(--text-muted);
+  cursor: default;
+}
+.ch-keychip-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.ch-keychip-value {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ch-accent);
+}
+.ch-keychip-action {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.ch-keychip-copied {
+  border-color: rgba(110, 231, 183, 0.55);
+}
+.ch-keychip-copied .ch-keychip-action {
+  color: #6ee7b7;
+}
+
+/* ── Filter bar (search + type chips + New) ──────────────── */
+.ch-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 28px 16px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+/* .ch-search (compound with .chat-page-root, not bare) — ChordCharts.css
+   independently defines a DIFFERENT, higher-specificity-losing `.ch-search`
+   on its own search <input> (this page's `.ch-search` is the wrapper <div>
+   around `.ch-search-input`). Since the production build concatenates every
+   page's CSS into one file, a bare `.ch-search` here would have equal
+   specificity to ChordCharts' rule and could lose the cascade depending on
+   import order — which broke this page's search bar (ChordCharts' input
+   padding/border/box-sizing landing on this wrapper div instead). See the
+   same fix already applied to .ch-root above. */
+.chat-page-root .ch-search {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+.ch-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.ch-search-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 42px 0 42px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  color: var(--text-primary, #f5f5f4);
+  font-family: inherit;
+  font-size: 19px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.ch-search-input:focus {
+  border-color: var(--ch-accent-br);
+  background: rgba(255, 255, 255, 0.06);
+}
+.ch-search-input::placeholder { color: var(--text-muted); }
+.ch-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.12s ease;
+}
+.ch-search-clear:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.ch-type-chips {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+}
+/* .ch-chip — same cross-page collision as .ch-search above (ChordCharts.css
+   has its own, differently-styled `.ch-chip`); scoped for the same reason. */
+.chat-page-root .ch-chip {
+  height: 38px;
+  padding: 0 16px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.ch-chip:hover {
+  color: var(--text-primary);
+}
+.ch-chip.on {
+  background: var(--ch-accent-bg);
+  color: var(--ch-accent);
+  box-shadow: inset 0 0 0 0.5px var(--ch-accent-br);
+}
+
+/* Count badge on the Requests chip */
+.ch-chip-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
+  background: var(--ch-priv);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+/* ── Requests tab view ──────────────────────────────────── */
+.ch-requests {
+  padding: 0 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ch-req-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ch-req-section-head {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ch-req-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--ch-priv);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.ch-req-empty {
+  padding: 16px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px dashed var(--border);
+  border-radius: 10px;
+}
+
+/* Status note inside sent-invite card ("awaiting response") */
+.ch-invite-status {
+  color: var(--ch-priv);
+  font-weight: 600;
+}
+
+/* ── (Legacy strip kept for now, but the page no longer uses it
+       directly — leaving the styles so we don't regress if
+       anything else references .ch-invites) ─────────────────── */
+.ch-invites {
+  margin: 0 28px 16px;
+  padding: 14px 16px;
+  background: rgba(167, 139, 250, 0.06);
+  border: 0.5px solid var(--ch-priv-br);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.ch-invites-head {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ch-priv);
+  margin-bottom: 10px;
+}
+.ch-invites-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.ch-invite-card {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ch-invite-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.ch-invite-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ch-priv-bg);
+  border-radius: 8px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.ch-invite-text {
+  flex: 1;
+  min-width: 0;
+}
+.ch-invite-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-invite-from {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.ch-invite-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.72));
+  padding-left: 38px;
+  /* clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ch-invite-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+/* ── Grid of channel cards ──────────────────────────────── */
+.ch-grid-wrap {
+  flex: 1;
+  padding: 0 28px 28px;
+  min-height: 0;
+}
+.ch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.ch-empty {
+  padding: 60px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.ch-empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.ch-empty-sub {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.ch-card {
+  position: relative; /* anchor for .ch-card-unread */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 140px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 0.5px solid var(--border, rgba(255, 255, 255, 0.10));
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Unread-message badge on a channel card. Big enough to read at a
+   glance, anchored to the top-right of the card. Clears when the
+   user opens the channel (parent updates lastReads). */
+.ch-card-unread {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: #fff;
+  border: 1.5px solid #161413;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.55),
+              0 0 0 1px rgba(96, 165, 250, 0.25);
+  z-index: 2;
+  animation: ch-pulse 1.8s ease-in-out infinite;
+}
+@keyframes ch-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+.ch-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+.ch-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ch-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.ch-card-icon-public {
+  background: var(--ch-accent-bg);
+  color: var(--ch-accent);
+  font-weight: 800;
+}
+.ch-card-icon-private {
+  background: var(--ch-priv-bg);
+  color: var(--ch-priv);
+}
+.ch-card-name {
+  font-size: 20px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-card-desc {
+  font-size: 17.5px;
+  line-height: 1.45;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+  flex: 1;
+  /* Clamp to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ch-card-desc-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: -6px;
+}
+.ch-card-desc-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ch-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+.ch-card-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.ch-card-tag.pub {
+  background: var(--ch-accent-bg);
+  color: var(--ch-accent);
+}
+.ch-card-tag.priv {
+  background: var(--ch-priv-bg);
+  color: var(--ch-priv);
+}
+.ch-card-members {
+  color: var(--text-muted);
+  flex: 1;
+}
+
+/* ─── Founder-request rooms ───────────────────────────────
+   A founderRequests thread shown as a card, once it has a message —
+   visually distinct (amber) from public/private channel cards. */
+.ch-founder-rooms {
+  margin-bottom: 22px;
+}
+.ch-founder-rooms-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.ch-card-founder {
+  border-color: rgba(251, 191, 36, 0.25);
+}
+.ch-card-founder:hover {
+  border-color: rgba(251, 191, 36, 0.45);
+}
+.ch-card-icon-founder {
+  background: rgba(251, 191, 36, 0.16);
+  color: #fbbf24;
+}
+.ch-card-tag-founder {
+  background: rgba(251, 191, 36, 0.16);
+  color: #fbbf24;
+}
+
+/* "Discover" tile — public channel the user hasn't joined yet. Not a
+   button; only the Join button inside is interactive. Slightly faded so
+   it visually reads as "browse" rather than "your stuff". */
+.ch-card-discover {
+  cursor: default;
+  background: rgba(255, 255, 255, 0.02);
+  border-style: dashed;
+}
+.ch-card-discover:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Join button — small accent action inside the discover card */
+.ch-card-join {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  background: var(--ch-accent-bg);
+  border: 0.5px solid var(--ch-accent-br);
+  border-radius: 999px;
+  color: var(--ch-accent);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.ch-card-join:hover {
+  background: rgba(96, 165, 250, 0.26);
+  border-color: rgba(96, 165, 250, 0.65);
+}
+.ch-card-join:active {
+  transform: scale(0.96);
+}
+
+/* ── Inline conversation (full-area, replaces the list) ─────
+   No modal/backdrop — the conversation IS the page. Inline style
+   pushes a theme `background` here (set in JS via themeStyle()),
+   which fully replaces the orb background within this region and
+   gives each chat a distinct atmosphere. */
+.ch-conv {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 28px 0;
+  animation: ch-fade 0.18s ease-out;
+  /* Make sure children stack above the themed background layer */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden; /* so the decorations don't bleed outside the chat area */
+}
+
+/* Decorative SVG overlay rendered behind the chat content. The
+   `aria-hidden` SVG itself is invisible to screen readers; we just
+   pin it to the corners of the conversation area and push it under
+   everything via z-index: 0. */
+.ch-theme-deco {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Lift every direct child of .ch-conv above the decoration layer so
+   click targets, scrolling, etc. all work normally. */
+.ch-conv > *:not(.ch-theme-deco) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header strip: Back · channel info · actions */
+.ch-conv-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 0 16px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.ch-conv-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+  font-family: inherit;
+  font-size: 17.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.ch-conv-back:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+.ch-conv-back-arrow {
+  font-size: 15px;
+  line-height: 1;
+}
+.ch-conv-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ch-conv-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ch-conv-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.ch-conv-name {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+/* (Legacy) Inline meta line no longer used — replaced by the
+   collapsible info panel below. Styles kept in case anything else
+   ever references these classes. */
+.ch-conv-meta {
+  font-size: 16.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-conv-desc {
+  color: var(--text-secondary, rgba(255, 255, 255, 0.72));
+}
+
+/* Toggle button that lives inline with the channel name. Caret +
+   "Info" label so it reads clearly as a disclosure. */
+.ch-conv-info-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 10px;
+  margin-left: 4px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ch-conv-info-toggle:hover {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--ch-accent);
+}
+.ch-conv-info-toggle.open {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--ch-accent);
+}
+.ch-conv-info-toggle-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+.ch-conv-info-toggle-label {
+  letter-spacing: 0.02em;
+}
+
+/* Slide-down info panel. max-height transition keeps the animation
+   silky; large enough cap so long descriptions still expand fully. */
+.ch-conv-info-panel {
+  flex-shrink: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.28s ease, opacity 0.2s ease, margin 0.2s ease;
+  opacity: 0;
+  margin-top: 0;
+}
+.ch-conv-info-panel.open {
+  max-height: 420px;
+  opacity: 1;
+  margin-top: 12px;
+}
+.ch-conv-info-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+}
+.ch-conv-info-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.ch-conv-info-label {
+  flex-shrink: 0;
+  width: 120px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.ch-conv-info-value {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+  word-wrap: break-word;
+}
+.ch-conv-info-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ch-conv-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Messages list (used both in old .ch-messages and new .ch-conv-messages) */
+.ch-conv-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+/* Compose area — outer wraps pending preview + the input row */
+.ch-conv-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0 18px;
+  border-top: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+/* Inner row: attach button, text input, send button */
+.ch-compose-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ch-compose-attach {
+  width: 38px;
+  padding: 0;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Two-way request form — shown in FounderRequestConversationView in
+   place of the normal compose box until the founder accepts. */
+.ch-freq-twoway-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0 18px;
+  border-top: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.ch-freq-twoway-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* Sender-only "Confirm Received" row — acknowledges a one-way message
+   and clears the whole thread from both sides. */
+.ch-freq-confirm-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Emoji picker popover ────────────────────────────────
+   Anchored to the 😀 button in the compose row. Floats above
+   everything else so it doesn't push the compose layout around. */
+.ch-emoji-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.ch-emoji-panel {
+  position: absolute;
+  bottom: calc(100% + 8px);  /* float above the button */
+  left: 0;
+  z-index: 1100;
+  width: 320px;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  background: #161413;
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  animation: ch-pop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* Category tabs across the top */
+.ch-emoji-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 0.5px solid var(--border);
+  background: rgba(0, 0, 0, 0.20);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.ch-emoji-tab {
+  flex-shrink: 0;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.ch-emoji-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.ch-emoji-tab.on {
+  background: var(--ch-accent-bg);
+  box-shadow: inset 0 0 0 0.5px var(--ch-accent-br);
+}
+/* The actual emoji grid */
+.ch-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 8px;
+  overflow-y: auto;
+}
+.ch-emoji {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.10s ease, transform 0.10s ease;
+}
+.ch-emoji:hover {
+  background: rgba(255, 255, 255, 0.10);
+  transform: scale(1.10);
+}
+.ch-emoji:active {
+  transform: scale(0.94);
+}
+
+/* Pending-attachment preview shown above the compose row */
+.ch-pending-attachment {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+}
+.ch-pending-thumb {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.06);
+}
+.ch-pending-thumb-file {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.ch-pending-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ch-pending-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-pending-size {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.ch-pending-progress {
+  position: relative;
+  margin-top: 6px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ch-pending-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  transition: width 0.2s ease;
+}
+.ch-pending-progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Message attachments ────────────────────────────────── */
+.ch-msg-att-image-link {
+  display: inline-block;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ch-msg-att-image {
+  display: block;
+  max-width: 320px;
+  max-height: 280px;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  cursor: zoom-in;
+  transition: transform 0.15s ease;
+}
+.ch-msg-att-image:hover { transform: scale(1.01); }
+
+.ch-msg-att-video {
+  display: block;
+  max-width: 360px;
+  max-height: 320px;
+  border-radius: 12px;
+  background: #000;
+  margin-bottom: 4px;
+}
+.ch-msg-att-audio {
+  display: block;
+  max-width: 320px;
+  margin-bottom: 4px;
+}
+
+/* Generic file card — clickable to open/download */
+.ch-msg-att-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 320px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+  margin-bottom: 4px;
+  transition: all 0.15s ease;
+}
+.ch-msg.mine .ch-msg-att-file {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+}
+.ch-msg-att-file:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.ch-msg-att-file-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.ch-msg-att-file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ch-msg-att-file-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-msg-att-file-size {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.ch-msg-att-file-arrow {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.ch-msg-att-file-arrow:hover {
+  background: var(--ch-accent-bg);
+  color: var(--ch-accent);
+}
+
+/* Studio-share card embedded in a chat message. Three variants:
+   .ch-studio-share-message → just a label (audio plays via the
+                              normal attachment below).
+   .ch-studio-share-copy    → recipient double-clicks to import.
+   .ch-studio-share-live    → either user double-clicks to open
+                              the live shared project.
+   Clickable variants have a hover cursor + subtle lift on hover. */
+.ch-studio-share {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  min-width: 260px;
+  max-width: 360px;
+  user-select: none;
+  margin-bottom: 4px;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.10s ease;
+}
+.ch-studio-share.clickable {
+  cursor: zoom-in;
+}
+.ch-studio-share.clickable:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.20);
+  transform: translateY(-1px);
+}
+.ch-msg.mine .ch-studio-share {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+}
+/* Variant accents — slight tint so the kind reads at a glance. */
+.ch-studio-share-live {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.10) 0%, rgba(167, 139, 250, 0.08) 100%);
+  border-color: rgba(96, 165, 250, 0.45);
+}
+.ch-studio-share-copy {
+  background: linear-gradient(135deg, rgba(110, 231, 183, 0.10) 0%, rgba(96, 165, 250, 0.06) 100%);
+  border-color: rgba(110, 231, 183, 0.45);
+}
+
+.ch-studio-share-icon {
+  flex-shrink: 0;
+  font-size: 28px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+.ch-studio-share-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ch-studio-share-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.ch-studio-share-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-studio-share-meta {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.ch-studio-share-hint {
+  color: var(--ch-accent);
+  font-style: italic;
+}
+
+/* Inline URL link inside a text bubble */
+.ch-msg-link {
+  color: var(--ch-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.ch-msg.mine .ch-msg-link {
+  color: #cfe6ff;
+}
+
+/* Shared wrapper for any attachment — gives a subtle hover cue so
+   users know they can double-click. user-select: none keeps double-
+   clicking from accidentally selecting captions/text. */
+.ch-msg-att-wrap {
+  position: relative;
+  display: block;
+  cursor: zoom-in;
+  user-select: none;
+}
+.ch-msg-att-wrap:hover {
+  filter: brightness(1.05);
+}
+/* Video / audio controls should keep normal cursor inside the player */
+.ch-msg-att-video,
+.ch-msg-att-audio {
+  cursor: default;
+}
+
+/* ── Full-screen attachment preview (double-click) ───────── */
+.ch-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  animation: ch-fade 0.18s ease-out;
+}
+.ch-preview-window {
+  position: relative;
+  max-width: 96vw;
+  max-height: 96vh;
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  background: #161413;
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  animation: ch-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ch-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.ch-preview-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-preview-size {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.ch-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+/* Style the download <a> as if it were a button for consistency */
+.ch-preview-actions a.ch-btn {
+  text-decoration: none;
+}
+.ch-preview-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  overflow: auto;
+  background: #0f0e0c;
+}
+
+/* Each content variant */
+.ch-preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.ch-preview-video {
+  max-width: 100%;
+  max-height: 100%;
+  background: #000;
+  border-radius: 6px;
+}
+.ch-preview-audio-card,
+.ch-preview-file-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 48px;
+  min-width: 320px;
+  text-align: center;
+}
+.ch-preview-audio-icon,
+.ch-preview-file-icon {
+  font-size: 56px;
+  line-height: 1;
+}
+.ch-preview-audio-name,
+.ch-preview-file-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+.ch-preview-audio-size,
+.ch-preview-file-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.ch-preview-audio-card audio {
+  width: 320px;
+  max-width: 100%;
+  margin-top: 4px;
+}
+.ch-preview-open {
+  margin-top: 8px;
+  text-decoration: none;
+}
+.ch-preview-iframe {
+  width: min(86vw, 1100px);
+  height: min(82vh, 900px);
+  border: none;
+  background: #fff;
+  border-radius: 6px;
+}
+
+/* Inline text / code preview — fixed-width font, scrolls, wraps long
+   lines so wide source files don't bleed off-screen. */
+.ch-preview-text-wrap {
+  width: min(86vw, 1000px);
+  height: min(82vh, 900px);
+  background: #0f0e0c;
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+}
+.ch-preview-text {
+  margin: 0;
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Legacy class kept in case anything else still references it */
+.ch-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ch-messages-empty {
+  margin: auto;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Message bubble */
+.ch-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 82%;
+  margin-bottom: 4px;
+}
+/* Wrap that holds the bubble + attachment + delete button so the
+   delete can be positioned beside them and only appear on hover. */
+.ch-msg-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.ch-msg.mine .ch-msg-body {
+  align-items: flex-end;
+}
+/* Delete button — invisible until you hover the message row, then
+   fades in to the side. Stays clickable while shown. */
+.ch-msg-delete {
+  position: absolute;
+  top: 0;
+  /* For other people's messages, put it to the right of the bubble.
+     For your own messages, put it to the left so it doesn't overlap
+     the timestamp/edge. */
+  right: -34px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+.ch-msg.mine .ch-msg-delete {
+  right: auto;
+  left: -34px;
+}
+.ch-msg-body:hover .ch-msg-delete,
+.ch-msg-delete:focus-visible {
+  opacity: 1;
+}
+.ch-msg-delete:hover {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+}
+.ch-msg.mine {
+  align-items: flex-end;
+  align-self: flex-end;
+}
+.ch-msg-author {
+  font-size: 17px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 5px;
+  padding: 0 4px;
+}
+.ch-msg-time {
+  font-weight: 500;
+  margin-left: 4px;
+}
+.ch-msg-bubble {
+  padding: 14px 20px;
+  /* Use the active theme's surface tint when set (cascaded via
+     CSS var on .ch-conv), otherwise the default frosted white. */
+  background: var(--ch-surface, rgba(255, 255, 255, 0.06));
+  border: 0.5px solid var(--border);
+  border-radius: 18px 18px 18px 6px;
+  font-size: 21px;
+  line-height: 1.45;
+  color: var(--text-primary);
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.ch-msg.mine .ch-msg-bubble {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--text-primary);
+  border-radius: 18px 18px 6px 18px;
+}
+
+/* Emoji-only messages render bubble-less + huge for impact.
+   Inline style controls the actual size (varies by emoji count). */
+.ch-msg-emojis {
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  padding: 4px 2px;
+  /* No background / border — let the emoji be the message. */
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  user-select: text;
+  /* Gentle pop animation when first rendered, so a single 🎉 lands
+     with a tiny bit of fanfare. */
+  animation: ch-emoji-pop 0.32s cubic-bezier(0.34, 1.6, 0.5, 1);
+}
+@keyframes ch-emoji-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Compose */
+.ch-compose {
+  display: flex;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 0.5px solid var(--border);
+  background: rgba(0, 0, 0, 0.20);
+  flex-shrink: 0;
+}
+.ch-compose-input {
+  flex: 1;
+  height: 46px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 19px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.ch-compose-input:focus {
+  border-color: var(--ch-accent-br);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Buttons (shared) ───────────────────────────────────── */
+/* .ch-btn / .ch-btn-ghost — same cross-page collision as .ch-search above
+   (ChordCharts.css independently defines its own `.ch-btn` / `.ch-btn-ghost`);
+   scoped for the same reason. */
+.chat-page-root .ch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: 0.5px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ch-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+.ch-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ch-btn-sm { height: 34px; padding: 0 12px; font-size: 16px; }
+.ch-btn-accent {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--ch-accent);
+}
+.ch-btn-accent:hover:not(:disabled) {
+  background: rgba(96, 165, 250, 0.22);
+}
+.chat-page-root .ch-btn-ghost {
+  background: transparent;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+}
+.ch-btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+.ch-btn-danger-ghost {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.32);
+  color: rgba(239, 68, 68, 0.78);
+}
+.ch-btn-danger-ghost:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.10);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.55);
+}
+/* Solid-red danger button — used for the destructive action in the
+   channel settings dialog. More visually weighted than -ghost. */
+.ch-btn-danger {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+.ch-btn-danger:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45);
+}
+.ch-btn-danger:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+}
+
+/* ── Channel settings modal ─────────────────────────────── */
+.ch-settings-modal {
+  max-width: 480px;
+}
+
+/* Theme picker — owner-only dropdown with a small swatch on the
+   left showing the current theme's brand colors. */
+.ch-theme-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ch-theme-select-swatch {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.ch-theme-select {
+  flex: 1;
+  min-width: 0;
+}
+
+/* (Legacy) Theme picker — mini preview cards. No longer rendered
+   (replaced by the dropdown above) but kept in case anything else
+   references the .ch-theme-chips class later. */
+.ch-theme-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+}
+.ch-theme-chip {
+  position: relative;
+  height: 56px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  /* Theme bg comes from inline style on each chip */
+  background-size: cover, cover;
+  background-repeat: no-repeat;
+}
+.ch-theme-chip:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+.ch-theme-chip.on {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22),
+              0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.ch-theme-chip:disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+.ch-theme-chip-label {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+}
+.ch-theme-chip-check {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.ch-members-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.ch-member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  transition: background 0.12s ease;
+}
+.ch-member-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.ch-member-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ch-member-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+/* Member-name rendered as a button so it can open the profile dialog.
+   Strip the default button chrome and add a subtle hover hint. */
+.ch-member-name-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 4px;
+  transition: color 0.12s ease;
+}
+.ch-member-name-btn:hover {
+  color: var(--ch-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Author-name button inside message rows */
+.ch-msg-author-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.12s ease;
+}
+.ch-msg-author-btn:hover {
+  color: var(--ch-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Top-right initials avatar (replaces the old keychip) ──
+   Circular button showing the current user's initials. Click
+   opens MyProfileDialog. The gradient matches the unread badge
+   so the page has a single visual accent. */
+.ch-avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.35);
+}
+.ch-avatar-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(96, 165, 250, 0.5);
+}
+.ch-avatar-btn:active {
+  transform: translateY(0);
+}
+.ch-avatar-loading {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  cursor: default;
+  box-shadow: none;
+}
+.ch-avatar-loading:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Profile dialog content ─────────────────────────────── */
+.ch-profile-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+.ch-profile-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* Larger avatar shown inside both profile dialogs */
+.ch-profile-avatar {
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.35);
+}
+.ch-profile-avatar.has-img { background: none; overflow: hidden; box-shadow: none; }
+.ch-profile-avatar.has-img .cav { border-radius: 50%; }
+.ch-profile-meta-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.ch-profile-meta-text .ch-keychip {
+  align-self: flex-start;
+}
+.ch-profile-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Inline checkbox toggle inside the profile-meta block.
+   Used right now for "Show my email to other members" — kept generic
+   so we can add more privacy toggles next to it if needed. */
+.ch-profile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+  user-select: none;
+  transition: background 0.12s ease;
+}
+.ch-profile-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+.ch-profile-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--ch-accent);
+  cursor: pointer;
+}
+.ch-profile-toggle-text {
+  line-height: 1.3;
+}
+.ch-profile-role {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--ch-accent-bg);
+  border: 0.5px solid var(--ch-accent-br);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ch-accent);
+}
+.ch-profile-ministry {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+/* Style native <select> to match the rest of .ch-input controls */
+select.ch-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 30px;
+}
+select.ch-input option {
+  background: #161413;
+  color: var(--text-primary);
+}
+
+/* Inline label hint — e.g. "Type of ministry — pick any that apply" */
+.ch-field-hint-inline {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+/* ── Ministry logo uploader (Your Profile dialog) ────────── */
+.ch-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ch-logo-preview {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.ch-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.ch-logo-placeholder { font-size: 24px; opacity: 0.7; }
+.ch-logo-actions { display: flex; align-items: center; gap: 10px; }
+.ch-logo-btn { cursor: pointer; }
+.ch-logo-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(248, 113, 113, 0.9);
+}
+.ch-logo-remove:hover { color: #f87171; text-decoration: underline; }
+
+/* ── Ministry-type chip multi-select ────────────────────── */
+.ch-ministry-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+}
+.ch-ministry-chip {
+  height: 28px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.ch-ministry-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+}
+.ch-ministry-chip.on {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--ch-accent);
+}
+.ch-ministry-chip.on:hover {
+  background: rgba(96, 165, 250, 0.22);
+}
+
+/* ── Read-only profile: multiple type pills + bio ───────── */
+.ch-profile-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ch-profile-bio {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+}
+
+/* Display name header inside the meta block (top of profile) */
+.ch-profile-headname {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Per-field info section in the read-only profile.
+   Each section has a small uppercase title and a value below. */
+.ch-profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ch-profile-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.ch-profile-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Row layout used to put a CopyButton next to a value (e.g. the
+   Email and Identifying Key sections of MemberProfileDialog). */
+.ch-profile-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ch-profile-value-row .ch-profile-value {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+}
+.ch-profile-mono {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  letter-spacing: 0.04em;
+  font-size: 12.5px;
+}
+
+/* Small icon-only copy button — used inline next to copyable values
+   (email address, identifying key). Shows ⧉ by default, ✓ after a
+   successful copy for 1.5s. */
+.ch-copy-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.ch-copy-btn:hover {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--ch-accent);
+}
+.ch-copy-btn:active {
+  transform: scale(0.96);
+}
+.ch-copy-btn.copied {
+  background: rgba(110, 231, 183, 0.14);
+  border-color: rgba(110, 231, 183, 0.55);
+  color: #6ee7b7;
+}
+
+/* ── Person search box (invite pickers) ──────────────────
+   Text input + dropdown of matching people, used by NewChannelDialog
+   and AddMemberDialog to search contacts / past invitees / all
+   members by name, email, or identifying key. */
+.ch-person-search {
+  position: relative;
+}
+.ch-person-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #161413;
+  border: 0.5px solid var(--border-hi, var(--border));
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  padding: 4px;
+}
+.ch-person-result {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.ch-person-result:hover {
+  background: rgba(129, 140, 248, 0.12);
+}
+.ch-person-result-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+}
+.ch-person-result-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ch-person-result-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-person-result-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.ch-person-result-empty {
+  padding: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.ch-person-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.ch-person-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 10px;
+  background: rgba(129, 140, 248, 0.12);
+  border: 0.5px solid rgba(129, 140, 248, 0.4);
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.ch-person-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+}
+.ch-person-chip-remove:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.16); }
+
+/* ── Paste button + input-with-paste wrapper ─────────────
+   Wraps a form control next to a Paste button. Side-by-side for
+   single-line inputs, block layout (button on its own row beneath)
+   for multi-line textareas. */
+.ch-input-with-paste {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ch-input-with-paste .ch-input {
+  flex: 1;
+  min-width: 0;
+}
+.ch-input-with-paste-block {
+  flex-direction: column;
+  align-items: stretch;
+}
+.ch-input-with-paste-block .ch-paste-btn {
+  align-self: flex-end;
+  margin-top: 4px;
+}
+
+.ch-paste-btn {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+.ch-paste-btn:hover {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+  color: var(--ch-accent);
+}
+.ch-paste-btn:active { transform: scale(0.97); }
+.ch-paste-btn.ok {
+  background: rgba(110, 231, 183, 0.14);
+  border-color: rgba(110, 231, 183, 0.55);
+  color: #6ee7b7;
+}
+.ch-paste-btn.err {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+}
+.ch-member-you {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+.ch-member-role {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  background: var(--ch-priv-bg);
+  color: var(--ch-priv);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ch-member-key {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* Destructive action footer — a single big red button, full width */
+.ch-settings-destructive {
+  justify-content: center;
+}
+.ch-settings-destructive .ch-btn-danger {
+  width: 100%;
+  height: 42px;
+  font-size: 14px;
+}
+
+/* ── Files & Photos list inside Channel Settings ────────── */
+.ch-files-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.ch-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  transition: background 0.12s ease;
+}
+.ch-file-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+/* The whole left side of the row (thumb + meta) is one big button
+   that opens the preview. */
+.ch-file-preview-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.ch-file-thumb {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.ch-file-thumb-video { background: rgba(96, 165, 250, 0.12); }
+.ch-file-thumb-audio { background: rgba(167, 139, 250, 0.12); }
+.ch-file-thumb-file  { background: rgba(255, 255, 255, 0.06); }
+.ch-file-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ch-file-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-file-submeta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Tweak the gear button so its glyph sits centered without padding bias */
+.ch-conv-settings-btn {
+  padding: 0 10px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ── Modals (new channel, add member) ───────────────────── */
+.ch-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: ch-fade 0.15s ease-out;
+}
+.ch-modal {
+  width: 100%;
+  max-width: 440px;
+  background: #161413;
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: ch-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ch-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 0.5px solid var(--border);
+}
+.ch-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+.ch-modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ch-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 6px -16px -16px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.20);
+  border-top: 0.5px solid var(--border);
+}
+
+/* Form fields */
+.ch-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ch-field-lbl {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.ch-input {
+  height: 44px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 18px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.ch-input:focus {
+  border-color: var(--ch-accent-br);
+  background: rgba(255, 255, 255, 0.06);
+}
+.ch-textarea-plain {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.ch-textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: ui-monospace, 'SF Mono', monospace;
+  letter-spacing: 0.04em;
+}
+.ch-hint {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.ch-error {
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.10);
+  border: 0.5px solid rgba(239, 68, 68, 0.40);
+  border-radius: 8px;
+  font-size: 17px;
+  color: #fca5a5;
+}
+
+/* Radio group for channel type */
+.ch-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ch-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.ch-radio:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.ch-radio.on {
+  background: var(--ch-accent-bg);
+  border-color: var(--ch-accent-br);
+}
+.ch-radio input { accent-color: var(--ch-accent); margin-top: 2px; }
+
+/* Toast */
+.ch-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 18px;
+  background: #161413;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 1001;
+  max-width: 540px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Chat Page Settings — sub-tab pill bar (shared .pm-ps-* classes
+   from ProfileModal.css) + the "How to Use" guide body.
+   ───────────────────────────────────────────────────────────── */
+.ch-ps-root { /* hook for future overrides */ }
+
+.ch-ps-howto-intro {
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.6); line-height: 1.6;
+  background: rgba(140, 100, 255, 0.06);
+  border: .5px solid rgba(140, 100, 255, 0.16);
+  border-radius: 8px; padding: 10px 12px;
+}
+.ch-ps-howto-feedback {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.72); line-height: 1.6;
+  background: rgba(245, 158, 11, 0.08);
+  border: .5px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px; padding: 10px 12px;
+}
+.ch-ps-howto-feedback b { color: #fbbf24; }
+.ch-ps-howto-feedback-ic { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+.ch-ps-howto-block { display: flex; flex-direction: column; gap: 5px; }
+.ch-ps-howto-block + .ch-ps-howto-block { margin-top: 12px; }
+.ch-ps-howto-h {
+  font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, 0.9);
+  display: flex; align-items: center; gap: 6px;
+}
+.ch-ps-howto-p {
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.6;
+}
+.ch-ps-howto-p b, .ch-ps-howto-list b { color: rgba(255, 255, 255, 0.88); }
+.ch-ps-howto-list {
+  margin: 0; padding-left: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 11.5px; color: rgba(255, 255, 255, 0.62); line-height: 1.55;
+}
+.ch-ps-howto-list li::marker { color: #a78bfa; }
+.ch-ps-howto-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 4px;
+}
+.ch-ps-howto-download {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px; font-weight: 700; color: #1a1206;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  transition: opacity .15s;
+}
+.ch-ps-howto-download:hover { opacity: .85; }
+
+@keyframes ch-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes ch-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ch-conv { padding: 16px 16px 0; }
+  .ch-conv-head { flex-wrap: wrap; gap: 10px; }
+  .ch-grid { grid-template-columns: 1fr; }
+  .ch-filterbar { flex-direction: column; align-items: stretch; }
+  .chat-page-root .ch-search { width: 100%; }
+  .ch-ps-howto-header { flex-direction: column; }
+  .ch-ps-howto-download { align-self: flex-start; }
+}

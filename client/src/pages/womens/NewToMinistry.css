@@ -1,0 +1,523 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → New to Ministry
+   Naming: .wn-*
+
+   Rose-gold pass: ports Retreats' raised, embossed rose-gold
+   treatment (gradient fill + inset highlight/shadow + drop
+   shadow) onto this page, reusing the --wms-* tokens defined by
+   the WomensShell this page always mounts inside of. Cursive
+   ('Dancing Script') is reserved for headings only (h1-h4);
+   running text stays bold sans, same carve-out Retreats makes.
+
+   The kanban board (grid columns, drag-drop, modal) is untouched
+   — only the surface/color/type treatment is reskinned to match.
+   ───────────────────────────────────────────────────────────── */
+
+.wn-root {
+  --wn-accent: var(--wms-rose-deep, #c2426a);
+  --wn-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --wn-3d-card: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  --wn-3d-chip: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  --wn-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --wn-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --wn-cursive: 'Dancing Script', 'Caveat', cursive;
+  --wn-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wn-sans);
+}
+.wn-root, .wn-root button { font-family: var(--wn-sans); }
+.wn-root h1, .wn-root h2, .wn-root h3, .wn-root h4 {
+  font-family: var(--wn-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.wn-root p, .wn-root span, .wn-root label, .wn-root li,
+.wn-root button, .wn-root a {
+  font-family: var(--wn-sans);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+.wn-root input, .wn-root textarea, .wn-root select, .wn-root option {
+  font-family: var(--wn-sans);
+  font-weight: 500;
+  background-image: none;
+  -webkit-text-fill-color: initial;
+  color: var(--wms-ink, #3d1728);
+  animation: none;
+}
+.wn-main { flex: 1; min-width: 0; overflow-y: auto; }
+.wn-shell {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px 28px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header (legacy markup — the page header now lives in WomensShell;
+   kept in the theme in case it's ever reused) */
+.wn-header { display: flex; flex-direction: column; gap: 8px; }
+.wn-crumbs { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wn-crumb-link { cursor: pointer; border-radius: 6px; padding: 2px 6px; margin: -2px -6px; transition: background 100ms ease, color 100ms ease; }
+.wn-crumb-link:hover { background: rgba(196,19,60,0.06); color: var(--wn-accent); }
+.wn-crumb-sep { opacity: 0.4; }
+.wn-title-row { display: flex; align-items: center; gap: 14px; }
+.wn-title-icon { font-size: 30px; line-height: 1; }
+.wn-title { margin: 0; font-size: 26px; letter-spacing: -0.01em; flex: 1; }
+.wn-description { margin: 0; font-size: 13px; font-style: italic; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wn-add-btn {
+  appearance: none; padding: 9px 16px; border-radius: 10px; font-size: 14px;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border: none;
+  box-shadow: var(--wn-3d-shadow-sm);
+  color: #fff; cursor: pointer;
+}
+.wn-add-btn:hover { filter: brightness(1.05); }
+
+/* Kanban board */
+.wn-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.wn-loading {
+  grid-column: 1 / -1;
+  padding: 40px; text-align: center;
+  font-size: 14px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); font-style: italic;
+}
+.wn-col {
+  background: var(--wn-3d-bg);
+  border: none;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 280px;
+  box-shadow: var(--wn-3d-shadow);
+}
+.wn-col-head {
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.wn-col-icon { font-size: 18px; line-height: 1; }
+.wn-col-name { font-size: 14px; flex: 1; color: var(--wms-ink, #3d1728); }
+.wn-col-count {
+  min-width: 24px; text-align: center;
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--wn-3d-chip);
+  box-shadow: var(--wn-3d-shadow-sm);
+  color: var(--wn-accent);
+  font-size: 11px;
+}
+.wn-col-hint { margin: 0; font-size: 11px; font-style: italic; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wn-col-body { display: flex; flex-direction: column; gap: 8px; min-height: 40px; border-radius: 8px; transition: background 100ms ease; }
+.wn-col-empty {
+  text-align: center; font-size: 12px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); font-style: italic;
+  padding: 18px 8px;
+}
+.wn-col.drag-over .wn-col-body {
+  background: rgba(255,255,255,.45);
+  outline: 1px dashed var(--wn-accent);
+}
+
+/* Woman card */
+.wn-card {
+  position: relative;
+  background: var(--wn-3d-card);
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: grab;
+  box-shadow: var(--wn-3d-shadow-sm);
+  transition: box-shadow .15s;
+}
+.wn-card:active { cursor: grabbing; }
+.wn-card.is-stale { box-shadow: var(--wn-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35); }
+.wn-card-stale {
+  position: absolute; top: 8px; right: 8px; z-index: 1;
+  font-size: 9px;
+  padding: 3px 8px; border-radius: 999px;
+  background: rgba(196,19,60,0.18); color: #7a1030;
+  letter-spacing: -0.01em;
+}
+.wn-card-main {
+  appearance: none;
+  display: block; width: 100%; text-align: left;
+  background: transparent; border: none; color: inherit;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-family: var(--wn-sans);
+}
+.wn-card-main:hover { filter: brightness(1.03); }
+.wn-card-name { font-size: 14px; color: var(--wms-ink, #3d1728); }
+.wn-card-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.wn-card-chip {
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  background: var(--wn-3d-chip); color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.wn-card-chip.is-done {
+  background: rgba(74,222,128,.28); color: #14532d;
+}
+.wn-card-notes {
+  margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  line-height: 1.4; max-height: 48px; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.wn-card-actions {
+  display: flex;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.wn-act {
+  appearance: none;
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  padding: 7px 6px;
+  font-size: 11px;
+  font-family: var(--wn-sans);
+  cursor: pointer;
+  transition: background 80ms ease, color 80ms ease;
+}
+.wn-act:not(:disabled):hover {
+  background: rgba(196,19,60,0.10);
+  color: var(--wn-accent);
+}
+.wn-act:disabled { opacity: 0.35; cursor: not-allowed; }
+.wn-act-rm:not(:disabled):hover {
+  background: rgba(196,19,60,0.16);
+  color: #7a1030;
+}
+
+/* Empty-board onboarding */
+.wn-onboard {
+  background: var(--wn-3d-card);
+  border: none;
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  margin-top: 8px;
+  box-shadow: var(--wn-3d-shadow-sm);
+}
+.wn-onboard-title { margin: 0 0 6px; font-size: 16px; }
+.wn-onboard-copy  { margin: 0; font-size: 13px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); max-width: 540px; margin-inline: auto; line-height: 1.55; }
+
+/* Modal */
+.wn-modal-backdrop {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(61,23,40,0.55);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.wn-modal {
+  width: 100%; max-width: 560px;
+  background: var(--wn-3d-card);
+  border: none;
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  box-shadow: var(--wn-3d-shadow);
+}
+.wn-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.wn-modal-title { margin: 0; font-size: 18px; }
+.wn-modal-x {
+  appearance: none;
+  background: transparent; border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 18px;
+  cursor: pointer; padding: 4px 8px;
+}
+.wn-modal-x:hover { color: var(--wn-accent); }
+.wn-modal-body {
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  overflow-y: auto;
+}
+.wn-modal-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+/* View-mode footer has just the Edit button (plus Graduate when it
+   appears) — right-align it instead of letting space-between
+   collapse it to the left. */
+.wn-modal-foot-view { justify-content: flex-end; gap: 10px; }
+
+/* Graduate button — shown in view mode once the current stage's
+   checklist is fully checked off. Reads as a celebratory action,
+   distinct from the neutral Edit button next to it. */
+.wn-graduate-btn {
+  appearance: none; padding: 8px 16px; border-radius: 8px;
+  background: rgba(74,222,128,.28);
+  border: none;
+  box-shadow: var(--wn-3d-shadow-sm);
+  color: #14532d; font-size: 13px; cursor: pointer;
+}
+.wn-graduate-btn:hover { filter: brightness(1.05); }
+
+/* Read-only quick-view (double-click a card) */
+.wn-view-body { gap: 12px; }
+.wn-view-row { display: flex; flex-direction: column; gap: 3px; }
+.wn-view-lbl { font-size: 11px; font-style: italic; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wn-view-val { font-size: 14px; color: var(--wms-ink, #3d1728); }
+.wn-view-notes {
+  margin: 0; font-size: 13px; font-weight: 500; line-height: 1.5;
+  color: var(--wms-ink, #3d1728);
+  background: rgba(255,255,255,.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px; padding: 8px 10px;
+  white-space: pre-wrap;
+}
+/* Fields */
+.wn-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wn-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.wn-field-lbl { font-size: 11px; font-style: italic; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.wn-inp {
+  appearance: none;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wn-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+  padding: 8px 10px; border-radius: 8px; font-size: 14px;
+  font-family: inherit; width: 100%;
+}
+.wn-inp:focus { outline: none; border-color: var(--wms-gold, #e8b3ae); }
+.wn-textarea { resize: vertical; font-family: inherit; line-height: 1.5; }
+
+/* Birthday → Calendar sync checkbox, next to the Birthday field. */
+.wn-cal-sync {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.45);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px; font-size: 13px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer;
+  height: 37px; box-sizing: border-box;
+}
+.wn-cal-sync input { accent-color: var(--wn-accent); }
+.wn-cal-sync input:disabled { cursor: not-allowed; }
+.wn-cal-sync:has(input:disabled) { opacity: 0.55; cursor: not-allowed; }
+.wn-cal-sync:has(input:checked) { color: var(--wn-accent); border-color: rgba(196,19,60,0.35); }
+
+/* Per-stage onboarding checklist — read/check only here. The item
+   list itself (add/delete) lives in ⚙️ Page settings; this is just
+   a checkbox per item, identical in both view and edit mode. */
+.wn-checklist { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.wn-checklist-item {
+  display: flex; align-items: center; gap: 6px;
+}
+.wn-checklist-item label {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: 8px;
+  background: rgba(255,255,255,.45);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  font-size: 13px; color: var(--wms-ink, #3d1728);
+  cursor: pointer;
+}
+.wn-checklist-item input { accent-color: var(--wn-accent); flex-shrink: 0; }
+.wn-checklist-item span.is-done { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); text-decoration: line-through; }
+/* Shared "add an item" row — used by Page settings' SettingsList
+   (stages, next steps, checklist items) so every editable list
+   reads the same way. */
+.wn-add-row {
+  display: flex; gap: 6px; margin-top: 2px;
+}
+.wn-add-row .wn-inp { flex: 1; }
+.wn-add-row-btn {
+  appearance: none; flex-shrink: 0;
+  width: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border: none;
+  box-shadow: var(--wn-3d-shadow-sm);
+  color: #fff; font-size: 15px; cursor: pointer;
+}
+.wn-add-row-btn:hover { filter: brightness(1.05); }
+
+/* Stage picker — pill buttons, same visual language as the
+   checklist rows above. Each pill is two buttons fused together:
+   the main label (selects that stage) and a small ✕ (deletes that
+   stage from the shared list / kanban board). */
+.wn-stage-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.wn-stage-pill {
+  display: inline-flex; align-items: stretch;
+  border-radius: 999px;
+  background: var(--wn-3d-chip);
+  border: none;
+  overflow: hidden;
+  box-shadow: var(--wn-3d-shadow-sm);
+  transition: box-shadow 80ms ease;
+}
+.wn-stage-pill.is-active {
+  box-shadow: var(--wn-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+}
+.wn-stage-pill-main {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 10px 7px 12px; border: none; background: transparent;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 12.5px;
+  transition: color 80ms ease;
+}
+.wn-stage-pill-main:hover { color: var(--wms-ink, #3d1728); }
+.wn-stage-pill.is-active .wn-stage-pill-main { color: var(--wn-accent); }
+.wn-stage-pill-rm {
+  appearance: none; cursor: pointer; flex-shrink: 0;
+  border: none; border-left: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  background: transparent;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-size: 10px; padding: 0 9px;
+  transition: background 80ms ease, color 80ms ease;
+}
+.wn-stage-pill-rm:not(:disabled):hover {
+  background: rgba(196,19,60,0.16);
+  color: #7a1030;
+}
+.wn-stage-pill-rm:disabled { opacity: 0.25; cursor: not-allowed; }
+/* Non-interactive label half of a settings pill (Page settings'
+   SettingsList reuses the pill shell, minus the "pick" button). */
+.wn-stage-pill-static {
+  display: inline-flex; align-items: center;
+  padding: 7px 10px 7px 12px;
+  color: var(--wms-ink, #3d1728);
+  font-size: 12.5px;
+}
+.wn-settings-empty {
+  font-size: 12px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); font-style: italic;
+  padding: 6px 2px;
+}
+
+/* Draggable stage pills (⚙️ Page settings → Pipeline stages) —
+   same fused-pill shell as .wn-stage-pill, plus a drag handle and
+   drag-state affordances so reordering reads clearly. */
+.wn-stage-pill-drag { cursor: grab; }
+.wn-stage-pill-drag.is-dragging { opacity: 0.4; }
+.wn-stage-pill-drag.is-drag-over {
+  box-shadow: var(--wn-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.4);
+}
+.wn-stage-pill-handle {
+  display: inline-flex; align-items: center;
+  padding: 7px 2px 7px 10px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-size: 12px;
+}
+
+/* Icon picker shown on the "add a stage" row — pick one before
+   typing a label; the chosen icon is used for the new stage. */
+.wn-icon-picker {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  margin-top: 8px;
+}
+.wn-icon-choice {
+  appearance: none; cursor: pointer;
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--wn-3d-chip);
+  border: none;
+  box-shadow: var(--wn-3d-shadow-sm);
+  font-size: 15px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow 80ms ease;
+}
+.wn-icon-choice:hover { filter: brightness(1.05); }
+.wn-icon-choice.selected {
+  box-shadow: var(--wn-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.4);
+}
+
+/* Page settings body — rendered inside the shared ProfileModal's
+   "📋 Page Settings" tab (no modal chrome of its own here). */
+.wn-settings-body { display: flex; flex-direction: column; gap: 18px; }
+.wn-settings-divider { border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14)); margin: 4px 0; }
+.wn-settings-hint {
+  margin: 0; font-size: 11px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); font-style: italic;
+}
+.wn-settings-stages { display: flex; flex-direction: column; gap: 12px; margin-top: 2px; }
+.wn-settings-substage {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,255,255,.4);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+}
+.wn-settings-substage-lbl { font-size: 12.5px; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+
+/* Name field — typeahead against My Contacts, then All Women */
+.wn-name-wrap { position: relative; display: flex; flex-direction: column; }
+.wn-name-suggest {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  z-index: 20;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 10px;
+  box-shadow: var(--wn-3d-shadow);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: 4px;
+}
+.wn-name-suggest-hd {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  padding: 6px 8px 4px;
+}
+.wn-name-suggest-item {
+  background: none; border: none; text-align: left;
+  color: var(--wms-ink, #3d1728);
+  font-size: 13px; padding: 8px; border-radius: 7px;
+  cursor: pointer; font-family: inherit;
+}
+.wn-name-suggest-item:hover { background: rgba(196,19,60,0.08); }
+.wn-name-suggest-status {
+  font-size: 11px; color: var(--wms-ink-faint, rgba(61,23,40,0.52)); margin-top: 4px; font-style: italic;
+}
+
+.wn-del-btn {
+  appearance: none; padding: 8px 14px; border-radius: 8px;
+  background: rgba(196,19,60,0.10); border: 1px solid rgba(196,19,60,0.35);
+  color: #7a1030; font-size: 13px; cursor: pointer;
+}
+.wn-del-btn:hover { background: rgba(196,19,60,0.18); }
+.wn-del-btn.armed { background: rgba(196,19,60,0.85); color: #fff; border-color: rgba(196,19,60,0.85); }
+.wn-done-btn {
+  appearance: none; padding: 8px 18px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  border: none;
+  box-shadow: var(--wn-3d-shadow-sm);
+  color: #fff; font-size: 13px; cursor: pointer;
+}
+.wn-done-btn:hover { filter: brightness(1.05); }
+
+@media (max-width: 860px) {
+  .wn-board { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .wn-board { grid-template-columns: 1fr; }
+}

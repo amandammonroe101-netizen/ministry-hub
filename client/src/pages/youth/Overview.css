@@ -1,0 +1,174 @@
+/* Youth → Overview — .yov-* */
+
+.yov-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Top row */
+.yov-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 800px) { .yov-top { grid-template-columns: 1.2fr 1fr; } }
+
+.yov-next {
+  background:
+    radial-gradient(140% 100% at 0% 0%, color-mix(in srgb, var(--yov-accent) 22%, transparent), transparent 60%),
+    var(--bg-glass);
+  border: 0.5px solid color-mix(in srgb, var(--yov-accent) 30%, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.yov-next-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--yov-accent);
+  font-weight: 600;
+}
+.yov-next-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yov-next-meta {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.yov-next-date {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.yov-next-btn { align-self: flex-start; margin-top: 6px; }
+
+.yov-attention {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.yov-section-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.yov-attention-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.yov-attention-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 16px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: rgba(43,32,19,0.035);
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  transition: background var(--transition);
+}
+.yov-attention-row:hover { background: var(--bg-glass-md); }
+.yov-attention-arrow { color: var(--text-muted); }
+.yov-empty-text { color: var(--text-muted); font-size: var(--fs-sm); }
+
+/* Stats grid */
+.yov-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 720px) { .yov-stats { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1100px){ .yov-stats { grid-template-columns: repeat(8, 1fr); } }
+
+.yov-stat {
+  appearance: none;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.yov-stat:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--yov-accent) 30%, var(--border));
+}
+.yov-stat-emoji { font-size: 18px; }
+.yov-stat-n {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--yov-accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.yov-stat-l {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Groups */
+.yov-groups { display: flex; flex-direction: column; gap: 12px; }
+.yov-group {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.yov-group-hd {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.yov-group-items {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+@media (min-width: 720px) { .yov-group-items { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1080px){ .yov-group-items { grid-template-columns: 1fr 1fr 1fr; } }
+
+.yov-group-item {
+  appearance: none;
+  background: rgba(43,32,19,0.035);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 24px 1fr 16px;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all var(--transition);
+}
+.yov-group-item:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--yov-accent) 30%, var(--border));
+}
+.yov-group-icon { font-size: 16px; }
+.yov-group-label { font-size: var(--fs-md); }
+.yov-group-arrow { color: var(--text-muted); }

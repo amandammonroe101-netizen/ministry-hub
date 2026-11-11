@@ -1,0 +1,1017 @@
+/* ─────────────────────────────────────────────────────────────
+   Tech Stack — church website tech-stack documentation
+   Naming: .ts-*
+   Accent: var(--wbs-accent-3, #2f8f7a) — Website Ministry "Blue Glass Over Water" theme
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout ───────────────────────────────────────────────── */
+.ts-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ── Left sidebar ──────────────────────────────────────────────── */
+.ts-sidebar {
+  position: relative;
+  z-index: 1;
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 0.5px solid var(--wbs-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  background: var(--wbs-panel);
+}
+
+.ts-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 12px;
+  flex-shrink: 0;
+}
+
+.ts-sidebar-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--wbs-ink);
+  letter-spacing: -0.01em;
+}
+
+/* ── "+ New Entry" button ───────────────────────────────────────── */
+.ts-new-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: rgba(47, 143, 122, 0.15);
+  border: 0.5px solid rgba(47, 143, 122, 0.40);
+  border-radius: 6px;
+  color: var(--wbs-accent-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.ts-new-btn:hover {
+  background: rgba(47, 143, 122, 0.25);
+  border-color: rgba(47, 143, 122, 0.65);
+}
+
+/* ── Inline new-entry form ─────────────────────────────────────── */
+.ts-new-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  margin: 0 10px 10px;
+  background: rgba(47, 143, 122, 0.06);
+  border: 0.5px solid rgba(47, 143, 122, 0.28);
+  border-radius: 10px;
+}
+
+.ts-new-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* ── Sidebar controls ──────────────────────────────────────────── */
+.ts-sidebar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 14px 12px;
+  border-bottom: 0.5px solid var(--wbs-border);
+  flex-shrink: 0;
+}
+
+.ts-pills {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ts-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--wbs-panel);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 999px;
+  color: var(--wbs-ink-faint);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  font-family: inherit;
+}
+.ts-pill:hover {
+  background: rgba(13, 52, 70, 0.07);
+  color: var(--wbs-ink);
+}
+.ts-pill.on {
+  background: rgba(47, 143, 122, 0.18);
+  border-color: rgba(47, 143, 122, 0.45);
+  color: var(--wbs-accent-3);
+}
+
+.ts-pill-label { line-height: 1; }
+
+.ts-pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  padding: 0 4px;
+  height: 14px;
+  background: rgba(13, 52, 70, 0.08);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--wbs-ink-soft);
+}
+.ts-pill.on .ts-pill-count {
+  background: rgba(47, 143, 122, 0.25);
+  color: var(--wbs-accent-3);
+}
+
+/* ── Shared input ───────────────────────────────────────────────── */
+.ts-inp {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  background: rgba(13, 52, 70, 0.05);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 7px;
+  color: var(--wbs-ink);
+  font-size: var(--fs-sm);
+  outline: none;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.ts-inp:focus {
+  border-color: rgba(47, 143, 122, 0.50);
+}
+.ts-inp option {
+  background: #ffffff;
+  color: var(--wbs-ink);
+}
+
+.ts-textarea {
+  height: auto;
+  padding: 10px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* ── Shared buttons ─────────────────────────────────────────────── */
+.ts-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 0.5px solid transparent;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.ts-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ts-btn-accent {
+  background: rgba(47, 143, 122, 0.16);
+  border-color: rgba(47, 143, 122, 0.45);
+  color: var(--wbs-accent-3);
+}
+.ts-btn-accent:hover:not(:disabled) {
+  background: rgba(47, 143, 122, 0.28);
+  border-color: rgba(47, 143, 122, 0.70);
+}
+
+.ts-btn-ghost {
+  background: var(--wbs-panel);
+  border-color: var(--wbs-border);
+  color: var(--wbs-ink-soft);
+}
+.ts-btn-ghost:hover {
+  background: rgba(13, 52, 70, 0.08);
+  color: var(--wbs-ink);
+}
+
+.ts-btn-danger {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.30);
+  color: rgba(239, 68, 68, 0.75);
+}
+.ts-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #b91c1c;
+}
+
+.ts-btn-danger-armed {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #b91c1c;
+  animation: ts-arm-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes ts-arm-pulse {
+  from { background: rgba(239, 68, 68, 0.20); }
+  to   { background: rgba(239, 68, 68, 0.34); }
+}
+
+/* ── Entry list ─────────────────────────────────────────────────── */
+.ts-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ts-list::-webkit-scrollbar { width: 4px; }
+.ts-list::-webkit-scrollbar-track { background: transparent; }
+.ts-list::-webkit-scrollbar-thumb {
+  background: rgba(13, 52, 70, 0.18);
+  border-radius: 2px;
+}
+
+.ts-list-empty {
+  padding: 14px 6px;
+  font-style: italic;
+}
+
+/* ── Category group ─────────────────────────────────────────────── */
+.ts-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.ts-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 6px 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wbs-ink-faint);
+}
+
+.ts-group-icon { font-size: 12px; line-height: 1; }
+.ts-group-title { flex: 1; }
+.ts-group-count {
+  font-size: 10px;
+  color: var(--wbs-ink-faint);
+  letter-spacing: 0;
+}
+
+/* ── Entry card ─────────────────────────────────────────────────── */
+.ts-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.ts-card:hover {
+  background: rgba(13, 52, 70, 0.04);
+  border-color: var(--wbs-border);
+}
+.ts-card.on {
+  background: var(--wbs-panel);
+  border-color: rgba(47, 143, 122, 0.35);
+  box-shadow: inset 2px 0 0 var(--wbs-accent-3);
+}
+
+.ts-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.ts-card-icon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.ts-card-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wbs-ink);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ts-card.on .ts-card-name {
+  color: var(--wbs-accent-3);
+}
+
+.ts-card-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--wbs-ink-faint);
+  margin-left: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.ts-card-version {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  background: rgba(13, 52, 70, 0.06);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--wbs-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Renewal bell ───────────────────────────────────────────────── */
+.ts-bell {
+  font-size: 11px;
+  line-height: 1;
+  color: #b45309;
+  flex-shrink: 0;
+}
+.ts-bell.urgent {
+  color: #b91c1c;
+  animation: ts-bell-shake 1.6s ease-in-out infinite;
+}
+@keyframes ts-bell-shake {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-10deg); }
+  75%      { transform: rotate(10deg); }
+}
+
+/* ── Status dot ─────────────────────────────────────────────────── */
+.ts-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  background: rgba(13, 52, 70, 0.22);
+}
+.ts-status-dot.s-active {
+  background: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.18);
+}
+.ts-status-dot.s-deprecated {
+  background: #fbbf24;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.20);
+}
+.ts-status-dot.s-planned {
+  background: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.20);
+}
+.ts-status-dot.s-retired {
+  background: rgba(13, 52, 70, 0.32);
+}
+
+/* ── Importance dot ─────────────────────────────────────────────── */
+.ts-imp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  background: rgba(13, 52, 70, 0.22);
+}
+.ts-imp-dot.i-critical {
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.22);
+}
+.ts-imp-dot.i-important {
+  background: #fbbf24;
+}
+.ts-imp-dot.i-nice-to-have {
+  background: rgba(13, 52, 70, 0.4);
+}
+
+/* ── Main area ─────────────────────────────────────────────────── */
+.ts-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ── Stats row ─────────────────────────────────────────────────── */
+.ts-stats {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px 28px 0;
+}
+
+.ts-stat {
+  padding: 12px 14px;
+  background: var(--wbs-panel);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ts-stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--wbs-ink);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ts-stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wbs-ink-faint);
+  line-height: 1.4;
+}
+
+.ts-stat-critical {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.12);
+}
+.ts-stat-critical .ts-stat-num { color: #b91c1c; }
+
+.ts-stat-warn {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.12);
+}
+.ts-stat-warn .ts-stat-num { color: #b91c1c; }
+
+/* ── Empty state ───────────────────────────────────────────────── */
+.ts-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.ts-empty-icon {
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 16px;
+  user-select: none;
+  opacity: 0.85;
+}
+
+.ts-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--wbs-ink-soft);
+  margin-bottom: 6px;
+}
+
+.ts-empty-sub {
+  font-size: var(--fs-sm);
+  color: var(--wbs-ink-faint);
+  max-width: 460px;
+  line-height: 1.6;
+}
+
+.ts-empty-cta {
+  margin-top: 18px;
+}
+
+/* ── Detail container ───────────────────────────────────────────── */
+/* flex-shrink: 0 prevents the flex algorithm from squeezing the detail
+   below its content; content drives height so .ts-main scrolls naturally. */
+.ts-detail {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* ── Detail header ──────────────────────────────────────────────── */
+.ts-detail-head {
+  flex-shrink: 0;
+  padding: 18px 28px 16px;
+  border-bottom: 0.5px solid var(--wbs-border);
+  background:
+    radial-gradient(560px 180px at 40% -20%, rgba(47, 143, 122, 0.10), transparent 60%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ts-detail-head-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ts-name-inp {
+  width: 100%;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--wbs-ink);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  outline: none;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.ts-name-inp:hover {
+  background: rgba(13, 52, 70, 0.04);
+  border-color: var(--wbs-border);
+}
+.ts-name-inp:focus {
+  background: rgba(13, 52, 70, 0.05);
+  border-color: rgba(47, 143, 122, 0.45);
+}
+.ts-name-inp::placeholder {
+  color: var(--wbs-ink-faint);
+  font-weight: 600;
+}
+
+.ts-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ts-detail-head-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ts-field-inline {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+.ts-field-version {
+  flex: 0 1 140px;
+  min-width: 110px;
+}
+
+.ts-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* ── Category chip ──────────────────────────────────────────────── */
+.ts-cat-chip-wrap {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.ts-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(47, 143, 122, 0.10);
+  border: 0.5px solid rgba(47, 143, 122, 0.28);
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--wbs-accent-3);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.ts-cat-chip-caret { font-size: 9px; opacity: 0.7; }
+
+.ts-cat-chip-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Quick-status badge ─────────────────────────────────────────── */
+.ts-status-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ts-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1;
+  border: 0.5px solid transparent;
+  cursor: pointer;
+  background: rgba(13, 52, 70, 0.05);
+  color: var(--wbs-ink);
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.ts-status-badge:hover { background: rgba(13, 52, 70, 0.08); }
+.ts-status-badge.s-active {
+  background: rgba(52, 211, 153, 0.18);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #0f7a4f;
+}
+.ts-status-badge.s-deprecated {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #92400e;
+}
+.ts-status-badge.s-planned {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: rgba(96, 165, 250, 0.35);
+  color: #1d4ed8;
+}
+.ts-status-badge.s-retired {
+  background: rgba(13, 52, 70, 0.05);
+  border-color: var(--wbs-border);
+  color: var(--wbs-ink-faint);
+}
+
+.ts-status-caret { font-size: 9px; opacity: 0.7; }
+
+.ts-status-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 180px;
+  padding: 6px;
+  background: var(--wbs-panel-strong);
+  backdrop-filter: blur(20px);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ts-status-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--wbs-ink-soft);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.ts-status-menu-item:hover {
+  background: rgba(13, 52, 70, 0.07);
+  color: var(--wbs-ink);
+}
+.ts-status-menu-item.on {
+  background: rgba(47, 143, 122, 0.12);
+  color: var(--wbs-accent-3);
+}
+
+/* ── Importance chip ────────────────────────────────────────────── */
+.ts-imp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1;
+  border: 0.5px solid transparent;
+  cursor: pointer;
+  background: rgba(13, 52, 70, 0.05);
+  color: var(--wbs-ink-soft);
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.ts-imp-chip:hover { background: rgba(13, 52, 70, 0.08); }
+.ts-imp-chip.i-critical {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.40);
+  color: #b91c1c;
+}
+.ts-imp-chip.i-important {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #92400e;
+}
+.ts-imp-chip.i-nice-to-have {
+  background: rgba(13, 52, 70, 0.05);
+  border-color: var(--wbs-border);
+  color: var(--wbs-ink-faint);
+}
+
+/* ── Form body ──────────────────────────────────────────────────── */
+/* No min-height: 0 — sections must grow to their content height. */
+.ts-form {
+  padding: 18px 28px 40px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 14px;
+}
+
+/* ── Collapsible section ────────────────────────────────────────── */
+.ts-section {
+  background: rgba(13, 52, 70, 0.03);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ts-section-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background var(--transition);
+}
+.ts-section-summary::-webkit-details-marker { display: none; }
+.ts-section-summary:hover {
+  background: rgba(13, 52, 70, 0.04);
+}
+
+.ts-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wbs-ink-soft);
+}
+
+.ts-section-caret {
+  font-size: 10px;
+  color: var(--wbs-ink-faint);
+  transition: transform var(--transition);
+}
+.ts-section[open] .ts-section-caret {
+  transform: rotate(180deg);
+}
+
+.ts-section-body {
+  padding: 4px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ts-row {
+  display: flex;
+  gap: 14px;
+}
+.ts-row-2 > *,
+.ts-row-3 > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ts-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wbs-ink-faint);
+}
+
+.ts-hint {
+  font-size: 11px;
+  color: var(--wbs-ink-faint);
+  line-height: 1.5;
+}
+
+/* ── Links ──────────────────────────────────────────────────────── */
+.ts-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ts-link {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--wbs-accent-3);
+  text-decoration: none;
+  padding: 3px 0;
+  transition: color var(--transition);
+}
+.ts-link:hover {
+  color: #1f6e5c;
+  text-decoration: underline;
+}
+
+/* ── Currency input ─────────────────────────────────────────────── */
+.ts-currency {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.ts-currency-sym {
+  position: absolute;
+  left: 10px;
+  color: var(--wbs-ink-faint);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  pointer-events: none;
+}
+.ts-currency-inp {
+  padding-left: 22px;
+}
+
+/* ── Renewal pill ───────────────────────────────────────────────── */
+.ts-renewal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(13, 52, 70, 0.05);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--wbs-ink-soft);
+  width: fit-content;
+}
+.ts-renewal-pill.soon {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.40);
+  color: #92400e;
+}
+.ts-renewal-pill.urgent {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #b91c1c;
+}
+.ts-renewal-pill.overdue {
+  background: rgba(239, 68, 68, 0.26);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #b91c1c;
+  animation: ts-arm-pulse 1.2s ease-in-out infinite alternate;
+}
+
+/* ── Chip input (tags) ──────────────────────────────────────────── */
+.ts-chip-input {
+  background: rgba(13, 52, 70, 0.04);
+  border: 0.5px solid var(--wbs-border);
+  border-radius: var(--radius-md, 8px);
+  padding: 6px 8px;
+  transition: border-color var(--transition);
+}
+.ts-chip-input:focus-within {
+  border-color: rgba(47, 143, 122, 0.45);
+}
+
+.ts-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.ts-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 10px;
+  background: rgba(47, 143, 122, 0.12);
+  border: 0.5px solid rgba(47, 143, 122, 0.30);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wbs-accent-3);
+  line-height: 1;
+}
+
+.ts-tag-chip-x {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: rgba(47, 143, 122, 0.7);
+  font-size: 9px;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+}
+.ts-tag-chip-x:hover {
+  background: rgba(239, 68, 68, 0.20);
+  color: #b91c1c;
+}
+
+.ts-chip-inp {
+  flex: 1;
+  min-width: 120px;
+  height: 24px;
+  padding: 0 6px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--wbs-ink);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+}
+.ts-chip-inp::placeholder { color: var(--wbs-ink-faint); }
+
+/* ── Utility ───────────────────────────────────────────────────── */
+.ts-muted {
+  color: var(--wbs-ink-faint);
+  font-size: var(--fs-sm);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .ts-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .ts-row-3 {
+    flex-direction: column;
+  }
+  .ts-row-2 {
+    flex-direction: column;
+  }
+}

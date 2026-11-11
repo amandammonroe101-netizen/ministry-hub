@@ -1,0 +1,326 @@
+/* ─────────────────────────────────────────────────────────────
+   Missions Ministry — shared "flagship page" design system.
+   Reused by SentOnes / UpcomingTrips / PrayerRequests / FieldUpdates
+   so the four real Missions pages read as one coherent product
+   instead of four one-off layouts. Dark-glass cards on the ocean
+   gradient MissionsShell already paints behind `.mss-content`,
+   accented per-item via `--msf-card-accent` (passed inline, same
+   pattern as ComingSoon's `.mis-map-card`). Form fields reuse the
+   `.ys-*` primitives from youth/AllStudents.css; empty states reuse
+   the shared `.app-empty*` classes — only the sidebar/list/stat
+   layout here is purpose-built, prefixed `.msf-*`.
+   ───────────────────────────────────────────────────────────── */
+
+.msf-root {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* ── Category sidebar ────────────────────────────────────────── */
+.msf-sidebar {
+  flex-shrink: 0;
+  width: 220px;
+  padding: 14px 12px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  top: 8px;
+}
+.msf-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.msf-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.78);
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  font: inherit;
+}
+.msf-node:hover { background: rgba(255, 255, 255, 0.06); }
+.msf-node.on {
+  background: color-mix(in srgb, var(--msf-node-accent, #e0723f) 16%, rgba(255, 255, 255, 0.05));
+  border-color: color-mix(in srgb, var(--msf-node-accent, #e0723f) 45%, transparent);
+  color: #fff;
+}
+.msf-node-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+.msf-node-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left; }
+.msf-node-count {
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Detail pane ─────────────────────────────────────────────── */
+.msf-detail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.msf-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.msf-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.msf-panel-hd { display: flex; align-items: center; gap: 12px; }
+.msf-panel-icon { font-size: 26px; line-height: 1; }
+.msf-panel-title { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; color: var(--text, #e5e7eb); }
+.msf-panel-subtitle { margin: 0; font-size: 16px; font-weight: 700; color: var(--text, #e5e7eb); }
+
+/* ── Stat dashboard ──────────────────────────────────────────── */
+.msf-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.msf-stat {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid var(--msf-stat-accent, #e0723f);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.msf-stat.is-warn { border-top-color: #d4a017; }
+.msf-stat.is-warn .msf-stat-n { color: #d4a017; }
+.msf-stat-n { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--text, #e5e7eb); line-height: 1.2; }
+.msf-stat-lbl { font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.55); }
+
+/* ── Controls (search + toggle) ──────────────────────────────── */
+.msf-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.msf-search-wrap {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.msf-search-wrap span { font-size: 14px; flex-shrink: 0; opacity: 0.7; }
+.msf-search-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text, #e5e7eb);
+  outline: none;
+}
+.msf-search-clear {
+  appearance: none;
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  cursor: pointer;
+}
+.msf-search-clear:hover { background: rgba(255, 255, 255, 0.14); }
+.msf-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── List — collapsed row + inline expanding editor ───────────── */
+.msf-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.msf-row {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition: border-color 120ms ease;
+}
+.msf-row.expanded {
+  border-color: color-mix(in srgb, var(--msf-card-accent, #e0723f) 45%, transparent);
+}
+
+.msf-row-summary {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  transition: background 120ms ease;
+}
+.msf-row-summary:hover { background: rgba(255, 255, 255, 0.03); }
+.msf-row-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.msf-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.msf-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.msf-row-title { font-size: 15px; font-weight: 700; color: var(--text, #e5e7eb); letter-spacing: -0.01em; }
+.msf-row-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.msf-row-meta {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.msf-row-chevron { font-size: 11px; flex-shrink: 0; opacity: 0.55; }
+
+.msf-badge {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--msf-badge-accent, #e0723f) 18%, transparent);
+  color: color-mix(in srgb, var(--msf-badge-accent, #e0723f) 70%, white 30%);
+  border: 1px solid color-mix(in srgb, var(--msf-badge-accent, #e0723f) 40%, transparent);
+}
+.msf-badge.is-muted {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Inline editor — nested inside the expanded row, no overlay. */
+.msf-editor {
+  padding: 4px 15px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.msf-title-inp {
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text, #e5e7eb);
+  padding: 4px 0;
+}
+.msf-title-inp:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+}
+.msf-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Small chip-list used for team rosters / tags — add + remove pills. */
+.msf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.msf-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+  color: var(--text, #e5e7eb);
+}
+.msf-chip-remove {
+  appearance: none;
+  width: 18px; height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.msf-chip-remove:hover { background: rgba(239, 68, 68, 0.35); }
+.msf-chip-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.msf-chip-add input {
+  min-width: 140px;
+}
+
+.msf-empty-note {
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 0;
+}
+
+@media (max-width: 860px) {
+  .msf-root { flex-direction: column; }
+  .msf-sidebar { position: static; width: 100%; }
+  .msf-sidebar, .msf-sidebar-list { flex-direction: row; flex-wrap: wrap; }
+  .msf-node { width: auto; flex: 1 1 auto; }
+  .msf-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .msf-row-sub { white-space: normal; }
+}

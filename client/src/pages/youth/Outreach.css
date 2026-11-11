@@ -1,0 +1,719 @@
+/* Youth → Outreach — .yo-* */
+
+.yo-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.yo-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 760px)  { .yo-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .yo-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.yo-card {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: background var(--transition), border-color var(--transition);
+}
+.yo-card:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--yps-accent) 35%, var(--border));
+}
+.yo-card-hd {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.yo-card-date { font-size: var(--fs-sm); color: var(--text-muted); }
+.yo-card-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yo-card-loc { font-size: var(--fs-sm); color: var(--text-secondary); }
+
+.yo-card-slots { display: flex; flex-direction: column; gap: 4px; }
+.yo-card-slots-track {
+  height: 6px;
+  background: rgba(43,32,19,0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.yo-card-slots-fill {
+  height: 100%;
+  background: var(--yps-accent);
+  transition: width 0.3s ease;
+}
+.yo-card-slots-n { font-size: var(--fs-xs); color: var(--text-muted); }
+
+/* Modal */
+.yo-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(43,32,19,0.35);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.yo-modal {
+  width: 100%; max-width: 780px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(253,246,230,0.97);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+}
+.yo-modal-hd {
+  position: sticky; top: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.yo-modal-hd h2 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+
+.yo-grid { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.yo-field { display: flex; flex-direction: column; gap: 4px; }
+.yo-field.full { grid-column: 1 / -1; }
+.yo-field-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.yo-section {
+  margin: 0 20px 12px;
+  padding: 14px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.yo-section-title {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+}
+.yo-signup-add-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.yo-signup-source {
+  display: flex;
+  gap: 6px;
+}
+.yo-signup-add { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+.yo-signup-empty { font-size: var(--fs-sm); padding: 8px 0; }
+.yo-signup-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.yo-signup-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(43,32,19,0.04);
+  border-radius: var(--radius-sm);
+}
+.yo-signup-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.yo-signup-name { flex: 1; font-weight: 600; }
+.yo-signup-parent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  padding-left: 4px;
+  border-left: 2px solid color-mix(in srgb, var(--yps-accent) 35%, transparent);
+  margin-left: 2px;
+  padding-left: 10px;
+}
+.yo-signup-parent b { color: var(--text-primary); font-weight: 600; }
+
+/* Contact picker block (select on top, name + phone below) */
+.yo-contact-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yo-contact-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+@media (max-width: 640px) {
+  .yo-contact-fields { grid-template-columns: 1fr; }
+}
+
+/* View-mode signup row (parent info on a second line) */
+.yo-view-signup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+  border-bottom: 0.5px dashed rgba(43,32,19,0.06);
+  font-size: var(--fs-md);
+}
+.yo-view-signup:last-child { border-bottom: 0; }
+.yo-view-signup-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.yo-view-parent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  background: rgba(43,32,19,0.03);
+  border-left: 2px solid color-mix(in srgb, var(--yps-accent) 35%, transparent);
+  border-radius: var(--radius-sm);
+  margin-left: 4px;
+}
+.yo-view-parent b { color: var(--text-primary); font-weight: 600; }
+
+.yo-modal-ft {
+  position: sticky; bottom: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex; justify-content: space-between;
+}
+
+/* Modal header — crumb above the title */
+.yo-modal-hd-main { flex: 1; min-width: 0; }
+.yo-modal-hd-crumb {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.yo-modal-hd-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.yo-modal-ft-right { display: flex; gap: 8px; }
+
+/* Per-card sync checkbox + delete button */
+.yo-card { user-select: none; }
+.yo-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 0.5px solid var(--border);
+}
+.yo-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(43,32,19,0.04);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition);
+}
+.yo-sync:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.yo-sync input { accent-color: var(--yps-accent); cursor: pointer; }
+.yo-sync:has(input:checked) {
+  background: color-mix(in srgb, var(--yps-accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--yps-accent) 40%, transparent);
+  color: var(--yps-accent);
+}
+.yo-sync-modal { font-size: var(--fs-sm); }
+
+.yo-delete-btn {
+  appearance: none;
+  background: transparent;
+  border: 0.5px solid transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  width: 32px; height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.yo-delete-btn:hover {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.35);
+  color: #b91c1c;
+}
+
+/* ── View mode ──────────────────────────────────────────────── */
+.yo-view {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.yo-view-hero {
+  background:
+    radial-gradient(140% 100% at 0% 0%, color-mix(in srgb, var(--yps-accent) 16%, transparent), transparent 60%),
+    rgba(43,32,19,0.03);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 25%, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yo-view-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.yo-view-date {
+  font-size: var(--fs-sm);
+  color: var(--yps-accent);
+  font-weight: 600;
+}
+.yo-view-loc, .yo-view-contact {
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+}
+.yo-view-desc {
+  margin: 4px 0 0;
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  line-height: 1.6;
+}
+
+.yo-view-section {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.yo-view-section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.yo-view-section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.yo-view-block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.yo-view-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yo-view-sub-title {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.yo-view-text {
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.yo-view-list {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.yo-view-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 0.5px dashed rgba(43,32,19,0.06);
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  flex-wrap: wrap;
+}
+.yo-view-list-row:last-child { border-bottom: 0; }
+.yo-view-name { font-weight: 600; }
+
+.yo-view-pack-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+.yo-view-pack-row.yo-done {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+.yo-view-check {
+  width: 16px;
+  display: inline-flex;
+  justify-content: center;
+  color: var(--yps-accent);
+}
+
+/* Schedule rows in view mode (mirrors WeeklyNights run sheet) */
+.yo-view-run {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.yo-view-run-row {
+  display: grid;
+  grid-template-columns: 90px 56px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 0.5px dashed rgba(43,32,19,0.06);
+  font-size: var(--fs-md);
+}
+.yo-view-run-row:last-child { border-bottom: 0; }
+.yo-view-run-time {
+  font-weight: 600;
+  color: var(--yps-accent);
+  font-variant-numeric: tabular-nums;
+}
+.yo-view-run-dur {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.yo-view-run-item { color: var(--text-primary); }
+.yo-view-run-owner {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.yo-view-empty {
+  padding: 22px 18px;
+  text-align: center;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px dashed var(--border-hi);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--fs-md);
+}
+
+/* Tab strip just under the header */
+.yo-tabstrip {
+  display: flex;
+  gap: 6px;
+  padding: 12px 20px 0;
+  flex-wrap: wrap;
+}
+
+/* ── Organize tab ───────────────────────────────────────────── */
+.yo-organize {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.yo-organize-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background:
+    radial-gradient(140% 100% at 0% 0%, color-mix(in srgb, var(--yps-accent) 14%, transparent), transparent 60%),
+    rgba(43,32,19,0.03);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 25%, var(--border));
+  border-radius: var(--radius-md);
+}
+.yo-organize-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-top: 2px;
+  max-width: 520px;
+}
+
+/* Section variant used inside .yo-organize — no extra side margin
+   (the outer container already has its own padding). */
+.yo-section-flat {
+  margin: 0;
+  padding: 14px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.yo-block-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+.yo-block-empty {
+  font-size: var(--fs-sm);
+  padding: 6px 0;
+}
+.yo-block-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.yo-block-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.yo-block-row > input { flex: 1; min-width: 0; }
+.yo-block-row > .yo-w-xs { flex: 0 0 70px;  }
+.yo-block-row > .yo-w-sm { flex: 0 0 110px; }
+.yo-block-row > .yo-w-md { flex: 0 0 140px; }
+
+/* Headings row */
+.yo-block-row-head {
+  display: flex;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 4px 4px 6px;
+  border-bottom: 0.5px dashed rgba(43,32,19,0.08);
+}
+.yo-block-row-head > span { padding: 0 4px; }
+
+/* Width helpers used by edit inputs and head spans */
+.yo-w-xs { max-width: 70px;  }
+.yo-w-sm { max-width: 110px; }
+.yo-w-md { max-width: 140px; }
+
+/* Three-select time picker (Hours / Minutes / AM-PM) */
+.yo-tp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.yo-tp .yps-select {
+  padding: 8px 6px;
+  background: var(--bg-input);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.yo-tp-hh, .yo-tp-mm { width: 56px; }
+.yo-tp-ap            { width: 64px; }
+.yo-tp-sep {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.yo-tp-compact .yps-select { padding: 5px 4px; font-size: var(--fs-sm); }
+.yo-tp-compact .yo-tp-hh,
+.yo-tp-compact .yo-tp-mm { width: 50px; }
+.yo-tp-compact .yo-tp-ap { width: 56px; }
+
+/* Schedule row — give the time column enough room for the picker */
+.yo-block-time {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+/* Sign-up contact-info block — 3 fields side-by-side under the
+   picker. Uses the same neutral surface + solid border as the
+   outer .yo-section blocks so it reads as part of the form rather
+   than a highlighted callout. */
+.yo-signup-student-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
+@media (max-width: 640px) {
+  .yo-signup-student-fields { grid-template-columns: 1fr; }
+}
+
+.yo-signup-finalize {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Attachments section — header + uploader + file list */
+.yo-section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.yo-section-hd .yo-section-title { margin: 0; }
+
+.yo-doc-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--yps-accent) 18%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 40%, transparent);
+  color: var(--yps-accent);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--transition);
+}
+.yo-doc-upload:hover { filter: brightness(1.08); }
+.yo-doc-upload input[type="file"] { display: none; }
+
+.yo-doc-empty {
+  font-size: var(--fs-sm);
+  padding: 6px 0;
+}
+
+.yo-doc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.yo-doc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(43,32,19,0.03);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition), border-color var(--transition);
+}
+.yo-doc-row:hover {
+  background: var(--bg-glass-md);
+  border-color: var(--border-hi);
+}
+.yo-doc-link {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  overflow: hidden;
+}
+.yo-doc-link:hover { color: var(--yps-accent); }
+.yo-doc-icon { font-size: 18px; flex-shrink: 0; }
+.yo-doc-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.yo-doc-size {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.yo-doc-x {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all var(--transition);
+}
+.yo-doc-x:hover {
+  background: rgba(239,68,68,0.12);
+  color: #b91c1c;
+}
+
+/* View-mode variant — same look, no remove button */
+.yo-doc-row-view { background: rgba(43,32,19,0.03); }
+
+/* Prep list — numbered, no checkbox */
+.yo-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--yps-accent);
+  background: color-mix(in srgb, var(--yps-accent) 14%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 32%, transparent);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Numbered list in view mode */
+.yo-view-numlist {
+  margin: 0;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.yo-view-numlist li {
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  padding: 2px 0;
+}
+.yo-view-numlist li::marker {
+  color: var(--yps-accent);
+  font-weight: 700;
+}

@@ -1,0 +1,1490 @@
+/* ─────────────────────────────────────────────────────────────
+   Setlist — worship setlist manager
+   Naming: .sl-*
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout ───────────────────────────────────────────────── */
+.sl-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  background: var(--bg-deep);
+}
+
+/* ── Left sidebar ──────────────────────────────────────────────── */
+.sl-sidebar {
+  position: relative;
+  z-index: 1;
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.sl-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 12px;
+  flex-shrink: 0;
+}
+
+.sl-sidebar-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ── "+ New" button ─────────────────────────────────────────────── */
+.sl-new-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: rgba(20, 184, 166, 0.15);
+  border: 0.5px solid rgba(20, 184, 166, 0.40);
+  border-radius: 6px;
+  color: #14b8a6;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sl-new-btn:hover {
+  background: rgba(20, 184, 166, 0.25);
+  border-color: rgba(20, 184, 166, 0.65);
+}
+
+/* ── New setlist form ───────────────────────────────────────────── */
+.sl-new-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 14px 14px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sl-new-form-btns {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* ── Shared input style ─────────────────────────────────────────── */
+.sl-inp {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  outline: none;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+}
+.sl-inp:focus {
+  border-color: rgba(20, 184, 166, 0.50);
+}
+.sl-inp option {
+  background: #111118;
+  color: var(--text-primary);
+}
+
+/* ── Shared buttons ─────────────────────────────────────────────── */
+.sl-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 0.5px solid transparent;
+  white-space: nowrap;
+}
+
+.sl-btn-accent {
+  background: rgba(20, 184, 166, 0.16);
+  border-color: rgba(20, 184, 166, 0.45);
+  color: #14b8a6;
+}
+.sl-btn-accent:hover {
+  background: rgba(20, 184, 166, 0.28);
+  border-color: rgba(20, 184, 166, 0.70);
+}
+.sl-btn-accent:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sl-btn-ghost {
+  background: var(--bg-glass);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+.sl-btn-ghost:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-primary);
+}
+
+.sl-btn-danger {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.30);
+  color: rgba(239, 68, 68, 0.75);
+}
+.sl-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+}
+
+.sl-btn-danger-armed {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #fca5a5;
+  animation: sl-arm-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes sl-arm-pulse {
+  from { background: rgba(239, 68, 68, 0.14); }
+  to   { background: rgba(239, 68, 68, 0.26); }
+}
+
+.sl-btn-sm {
+  height: 24px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+
+/* ── Setlist card list ─────────────────────────────────────────── */
+.sl-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sl-list::-webkit-scrollbar {
+  width: 4px;
+}
+.sl-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sl-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+/* ── Setlist card ──────────────────────────────────────────────── */
+.sl-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+}
+.sl-card:hover {
+  background: var(--bg-glass);
+  border-color: var(--border);
+}
+.sl-card.on {
+  background: var(--bg-glass-md);
+  border-color: rgba(20, 184, 166, 0.35);
+  box-shadow: inset 2px 0 0 #14b8a6;
+}
+
+.sl-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.sl-card.on .sl-card-name {
+  color: #14b8a6;
+}
+
+.sl-card-date {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.sl-card-occ {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.sl-card-count {
+  margin-top: 4px;
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(20, 184, 166, 0.10);
+  border: 0.5px solid rgba(20, 184, 166, 0.25);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #14b8a6;
+}
+
+/* ── Main area ─────────────────────────────────────────────────── */
+.sl-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Empty state ───────────────────────────────────────────────── */
+.sl-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.sl-empty-icon {
+  font-size: 52px;
+  color: rgba(255, 255, 255, 0.08);
+  line-height: 1;
+  margin-bottom: 16px;
+  user-select: none;
+}
+
+.sl-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.sl-empty-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+/* ── Detail header ─────────────────────────────────────────────── */
+.sl-detail-head {
+  flex-shrink: 0;
+  padding: 22px 28px 16px;
+  border-bottom: 0.5px solid var(--border);
+  background:
+    radial-gradient(560px 180px at 40% -20%, rgba(20, 184, 166, 0.10), transparent 60%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sl-detail-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.sl-detail-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sl-detail-desc {
+  margin-top: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 480px;
+}
+
+.sl-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* ── Chips / badges ─────────────────────────────────────────────── */
+.sl-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.sl-chip-date {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.sl-chip-occ {
+  background: rgba(167, 139, 250, 0.10);
+  border: 0.5px solid rgba(167, 139, 250, 0.28);
+  color: #a78bfa;
+}
+
+.sl-chip-count {
+  background: rgba(20, 184, 166, 0.10);
+  border: 0.5px solid rgba(20, 184, 166, 0.28);
+  color: #14b8a6;
+  font-weight: 700;
+}
+
+.sl-chip-duration {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: default;
+}
+
+.sl-chip-played {
+  background: rgba(52, 211, 153, 0.12);
+  border: 0.5px solid rgba(52, 211, 153, 0.35);
+  color: #34d399;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* ── Leader assignment row ────────────────────────────────────── */
+.sl-leader-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sl-leader-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Linked Service row (Service Builder plan) ───────────────────── */
+.sl-linked-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sl-linked-select {
+  width: auto;
+  max-width: 280px;
+  height: 26px;
+  font-size: 12px;
+}
+
+/* ── Person picker (leader / team assignment) ───────────────────── */
+.sl-person-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: rgba(20, 184, 166, 0.10);
+  border: 0.5px solid rgba(20, 184, 166, 0.30);
+  border-radius: 999px;
+  color: #14b8a6;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.sl-person-btn:hover {
+  background: rgba(20, 184, 166, 0.20);
+  border-color: rgba(20, 184, 166, 0.55);
+}
+.sl-person-btn.empty {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.sl-person-btn.empty:hover {
+  border-color: rgba(20, 184, 166, 0.40);
+  color: #14b8a6;
+}
+
+.sl-person-edit {
+  position: relative;
+  display: inline-block;
+}
+
+.sl-person-inp {
+  width: 220px;
+  height: 26px;
+}
+
+.sl-person-dropdown {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 240px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: #111118;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  padding: 4px;
+}
+
+.sl-person-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.sl-person-option:hover {
+  background: rgba(20, 184, 166, 0.14);
+}
+.sl-person-option-role {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.sl-person-clear {
+  color: rgba(239, 68, 68, 0.80);
+  border-bottom: 0.5px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  margin-bottom: 2px;
+}
+.sl-person-clear:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+.sl-person-empty {
+  padding: 10px 9px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Song list container ────────────────────────────────────────── */
+.sl-songs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px 32px;
+  display: flex;
+  flex-direction: column;
+}
+.sl-songs::-webkit-scrollbar {
+  width: 5px;
+}
+.sl-songs::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sl-songs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+}
+
+/* ── Songs empty state ──────────────────────────────────────────── */
+.sl-songs-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.sl-songs-empty-icon {
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.07);
+  margin-bottom: 12px;
+  user-select: none;
+}
+
+.sl-songs-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.sl-songs-empty-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+/* CTA button under empty-state message */
+.sl-songs-empty-cta {
+  margin-top: 16px;
+}
+
+/* ── Song row ───────────────────────────────────────────────────── */
+.sl-song {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 0.5px solid var(--border);
+  transition: background var(--transition);
+  border-radius: 6px;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+}
+.sl-song:last-child {
+  border-bottom: none;
+}
+.sl-song:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+.sl-song:hover .sl-song-remove {
+  opacity: 1;
+}
+.sl-song:active {
+  cursor: grabbing;
+}
+.sl-song.drag-over {
+  background: rgba(20, 184, 166, 0.08);
+  border-bottom-color: #14b8a6;
+  outline: 1px solid rgba(20, 184, 166, 0.35);
+  outline-offset: -1px;
+}
+
+.sl-song-handle {
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: grab;
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0.5;
+}
+.sl-song:hover .sl-song-handle {
+  opacity: 1;
+}
+
+.sl-song-num {
+  width: 22px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sl-song-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sl-song-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sl-song-artist {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sl-song-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Song key badge — teal pill, clickable to override the key for this
+   setlist only (does not touch the song's library key). */
+.sl-song-key {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: rgba(20, 184, 166, 0.14);
+  border: 0.5px solid rgba(20, 184, 166, 0.35);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  line-height: 1.4;
+  color: #14b8a6;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sl-song-key:hover {
+  background: rgba(20, 184, 166, 0.24);
+  border-color: rgba(20, 184, 166, 0.55);
+}
+.sl-song-key.empty {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+  font-weight: 500;
+  opacity: 0;
+}
+.sl-song:hover .sl-song-key.empty {
+  opacity: 1;
+}
+.sl-song-key.overridden {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #f59e0b;
+}
+.sl-song-key.overridden:hover {
+  background: rgba(245, 158, 11, 0.24);
+  border-color: rgba(245, 158, 11, 0.65);
+}
+
+.sl-song-key-select {
+  height: 22px;
+  padding: 0 4px;
+  background: #111118;
+  border: 0.5px solid rgba(20, 184, 166, 0.45);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  outline: none;
+}
+.sl-song-key-select option {
+  background: #111118;
+  color: var(--text-primary);
+}
+
+/* Song leader picker — who leads this song, constrained to the linked
+   service's Worship Leader/Vocal crew (only rendered when a service is
+   linked and has at least one of those roles filled). */
+.sl-song-leader-select {
+  height: 22px;
+  max-width: 150px;
+  padding: 0 6px;
+  background: rgba(20, 184, 166, 0.10);
+  border: 0.5px solid rgba(20, 184, 166, 0.30);
+  border-radius: 999px;
+  color: #14b8a6;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sl-song-leader-select:hover {
+  background: rgba(20, 184, 166, 0.20);
+  border-color: rgba(20, 184, 166, 0.55);
+}
+.sl-song-leader-select.empty {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.sl-song-leader-select option {
+  background: #111118;
+  color: var(--text-primary);
+}
+
+/* Tempo badge — grey pill */
+.sl-song-tempo {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Time signature badge — grey pill */
+.sl-song-sig {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Per-song note (edit trigger + input) */
+.sl-song-notes-btn {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  cursor: text;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+}
+.sl-song:hover .sl-song-notes-btn {
+  opacity: 1;
+}
+.sl-song-notes-btn.has-note {
+  opacity: 0.85;
+  font-style: normal;
+  color: var(--text-secondary);
+}
+.sl-song-notes-btn:hover {
+  color: #14b8a6;
+  text-decoration: underline;
+}
+
+.sl-song-notes-inp {
+  width: 100%;
+  max-width: 320px;
+  height: 22px;
+  padding: 0 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(20, 184, 166, 0.40);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: 11px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* ── Key / tempo transition badge (between song rows) ─────────────── */
+.sl-transition {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  user-select: none;
+}
+.sl-transition-line {
+  flex: 1;
+  height: 0.5px;
+  background: rgba(245, 158, 11, 0.25);
+}
+.sl-transition-label {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: #f59e0b;
+  white-space: nowrap;
+}
+
+/* Remove button — only shown on row hover */
+.sl-song-remove {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sl-song-remove:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.40);
+  color: #fca5a5;
+  opacity: 1;
+}
+
+/* ── Song picker overlay ────────────────────────────────────────── */
+.sl-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: sl-fade-in 0.15s ease both;
+}
+
+@keyframes sl-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Song picker modal ──────────────────────────────────────────── */
+.sl-picker {
+  width: 100%;
+  max-width: 480px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: #111118;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  animation: sl-slide-up 0.18s ease both;
+}
+
+@keyframes sl-slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.sl-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sl-picker-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sl-picker-close:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-primary);
+}
+
+.sl-picker-search-wrap {
+  padding: 12px 14px 8px;
+  flex-shrink: 0;
+}
+
+.sl-picker-search {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--transition);
+}
+.sl-picker-search:focus {
+  border-color: rgba(20, 184, 166, 0.50);
+}
+.sl-picker-search::placeholder {
+  color: var(--text-muted);
+}
+
+.sl-picker-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 8px 12px;
+}
+.sl-picker-list::-webkit-scrollbar {
+  width: 4px;
+}
+.sl-picker-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+.sl-picker-empty {
+  padding: 24px;
+  text-align: center;
+}
+
+/* ── Song picker row ────────────────────────────────────────────── */
+.sl-picker-song {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+  color: var(--text-primary);
+}
+.sl-picker-song:hover {
+  background: rgba(20, 184, 166, 0.08);
+  border-color: rgba(20, 184, 166, 0.25);
+}
+
+.sl-picker-song-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sl-picker-song-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sl-picker-song-artist {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sl-picker-song-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Print / Export overlay ─────────────────────────────────────── */
+.sl-print-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: sl-fade-in 0.15s ease both;
+}
+
+.sl-print-modal {
+  width: 100%;
+  max-width: 640px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: #111118;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  animation: sl-slide-up 0.18s ease both;
+}
+
+.sl-print-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sl-print-toolbar-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.sl-print-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 32px;
+  background: #ffffff;
+  color: #14181f;
+}
+
+.sl-print-head {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d8dbe0;
+}
+
+.sl-print-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #14181f;
+}
+
+.sl-print-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.sl-print-leader {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #14181f;
+}
+
+.sl-print-section-label {
+  margin: 16px 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.sl-print-queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sl-print-queue-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #eceef1;
+  font-size: 13px;
+}
+
+.sl-print-queue-num {
+  width: 20px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.sl-print-queue-title {
+  flex: 1;
+  font-weight: 600;
+  color: #14181f;
+}
+
+.sl-print-queue-key {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #0d9488;
+}
+
+.sl-print-queue-leader {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.sl-print-queue-notes {
+  flex-basis: 100%;
+  padding-left: 30px;
+  font-size: 11px;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.sl-print-queue-empty {
+  padding: 12px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: #6b7280;
+}
+
+/* Printing — hide everything except the print sheet itself */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .sl-print-area, .sl-print-area * {
+    visibility: visible;
+  }
+  .sl-print-area {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
+}
+
+/* ── Crew Modal — fancy popup for the linked Schedule item's roster ── */
+.sl-crew-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: sl-fade-in 0.15s ease both;
+}
+
+.sl-crew-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  background: #111118;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  animation: sl-slide-up 0.18s ease both;
+}
+
+.sl-crew-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px 12px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sl-crew-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sl-crew-sub {
+  margin-top: 3px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.sl-crew-close {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sl-crew-close:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-primary);
+}
+
+/* ── Progress bar (replaces the old static "X/N filled" pill) ────── */
+.sl-crew-progress-wrap {
+  margin: 14px 18px 14px;
+}
+
+.sl-crew-progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #14b8a6;
+}
+
+.sl-crew-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.sl-crew-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #14b8a6, #34d399);
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.55);
+  transition: width 0.3s ease;
+}
+
+.sl-crew-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 18px 18px;
+}
+.sl-crew-list::-webkit-scrollbar {
+  width: 4px;
+}
+.sl-crew-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 3px;
+}
+
+/* ── Sections (outline groups: Vocals / Instruments / Tech) ──────── */
+.sl-crew-section-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sl-crew-section-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 6px;
+}
+
+.sl-crew-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 0.5px solid transparent;
+  border-left: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: all var(--transition);
+  box-sizing: border-box;
+}
+.sl-crew-row:hover {
+  background: rgba(20, 184, 166, 0.08);
+  border-color: rgba(20, 184, 166, 0.25);
+}
+.sl-crew-row:hover .sl-crew-row-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sl-crew-row.is-unassigned {
+  border-left-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.05);
+}
+.sl-crew-row.is-unassigned:hover {
+  background: rgba(251, 191, 36, 0.10);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.sl-crew-row-num {
+  flex-shrink: 0;
+  width: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.sl-crew-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.sl-crew-avatar.empty {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fbbf24;
+  font-size: 14px;
+}
+
+.sl-crew-role {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sl-crew-member {
+  flex-shrink: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  font-weight: 700;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sl-crew-member.empty {
+  color: #fbbf24;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.sl-crew-row-arrow {
+  flex-shrink: 0;
+  color: #14b8a6;
+  font-size: 12px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all var(--transition);
+}
+
+.sl-crew-footer {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border-top: 0.5px solid var(--border);
+}
+
+.sl-crew-footer-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Utility ────────────────────────────────────────────────────── */
+.sl-muted {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.sl-error {
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.10);
+  border: 0.5px solid rgba(239, 68, 68, 0.35);
+  border-radius: 7px;
+  font-size: var(--fs-sm);
+  color: #fca5a5;
+  line-height: 1.4;
+}
+
+/* ── Worship Ministry — Live group light theme ─────────────────
+   Most of this page's chrome already re-tints via the shared bg/text/
+   border tokens WorshipShell.css re-feeds under
+   .ws-group-live. These are the handful of values hardcoded as
+   literal translucent-white fills (assuming a dark canvas) that
+   those tokens don't reach — flipped to translucent-black so the
+   sidebar/inputs/hovers still read correctly against the bright
+   Live background. */
+.ws-page.ws-group-live .sl-sidebar { background: rgba(15,23,42,0.025); }
+.ws-page.ws-group-live .sl-inp { background: rgba(15,23,42,0.04); }
+.ws-page.ws-group-live .sl-inp option { background: #f2f4f6; color: #181c22; }
+.ws-page.ws-group-live .sl-empty-icon,
+.ws-page.ws-group-live .sl-songs-empty-icon { color: rgba(15,23,42,0.12); }
+.ws-page.ws-group-live .sl-chip-date { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sl-song:hover { background: rgba(15,23,42,0.035); }
+.ws-page.ws-group-live .sl-song-tempo,
+.ws-page.ws-group-live .sl-song-sig { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sl-chip-duration { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sl-song-notes-inp { background: rgba(15,23,42,0.05); }
+.ws-page.ws-group-live .sl-song-key-select {
+  background: #ffffff;
+  color: #181c22;
+  border-color: rgba(20, 184, 166, 0.45);
+}
+.ws-page.ws-group-live .sl-song-key-select option { background: #ffffff; color: #181c22; }
+.ws-page.ws-group-live .sl-song-leader-select option { background: #ffffff; color: #181c22; }
+.ws-page.ws-group-live .sl-picker {
+  background: #ffffff;
+  border-color: rgba(15,23,42,0.12);
+  box-shadow: 0 24px 64px rgba(15,23,42,0.25);
+}
+.ws-page.ws-group-live .sl-picker-search { background: rgba(15,23,42,0.04); }
+.ws-page.ws-group-live .sl-crew-modal {
+  background: #ffffff;
+  border-color: rgba(15,23,42,0.12);
+  box-shadow: 0 24px 64px rgba(15,23,42,0.25);
+}
+.ws-page.ws-group-live .sl-crew-progress-track,
+.ws-page.ws-group-live .sl-crew-row { background: rgba(15,23,42,0.035); }
+.ws-page.ws-group-live .sl-crew-row.is-unassigned { background: rgba(251,191,36,0.08); }

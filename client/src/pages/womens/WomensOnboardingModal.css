@@ -1,0 +1,162 @@
+/* Women's Ministry — one-time "pick your pages" modal. Naming: .wob-*
+   Light rose theme to match WomensShell.css — this renders inside
+   .wms-page, so it inherits the --wms-* custom properties defined
+   there; the fallbacks below only matter if that ever changes. */
+
+.wob-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(61, 23, 40, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: wobOverlayIn 240ms ease both;
+}
+
+.wob-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(88vh, 720px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  background: linear-gradient(180deg, #ffffff 0%, #fff5f8 100%);
+  box-shadow: 0 30px 80px rgba(196, 19, 60, 0.22);
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  animation: wobModalIn 300ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.wob-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--wms-rosegold, linear-gradient(100deg, #a8646f, #c98a7a, #e8b4a0, #fbe8cd, #e8b4a0, #c98a7a, #a8646f));
+}
+
+.wob-head {
+  padding: 28px 32px 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.wob-emoji { font-size: 36px; line-height: 1; margin-bottom: 8px; }
+.wob-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wob-title {
+  margin: 8px 0 10px;
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(24px, 3.2vw, 30px);
+  font-weight: 500;
+  color: var(--wms-rose-deep, #c2426a);
+}
+.wob-lead {
+  margin: 0 auto;
+  max-width: 420px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.wob-body {
+  padding: 14px 28px 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wob-group { display: flex; flex-direction: column; gap: 8px; }
+.wob-group-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wms-rose-deep, #c2426a);
+  opacity: 0.8;
+}
+
+.wob-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 520px) {
+  .wob-grid { grid-template-columns: 1fr; }
+}
+
+.wob-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  background: #fff;
+  cursor: pointer;
+  transition: all .15s;
+}
+.wob-row:hover { border-color: var(--wms-border-hi, rgba(196,19,60,0.30)); }
+.wob-row.on { background: rgba(196,19,60,0.05); border-color: var(--wms-border-hi, rgba(196,19,60,0.30)); }
+.wob-checkbox { accent-color: var(--wms-red, #c4133c); cursor: pointer; margin-top: 2px; flex-shrink: 0; }
+.wob-row-icon { font-size: 15px; flex-shrink: 0; }
+.wob-row-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wob-row-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+}
+.wob-row-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+
+.wob-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px 26px;
+  flex-shrink: 0;
+}
+.wob-btn {
+  padding: 11px 40px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  box-shadow: 0 6px 16px rgba(196,19,60,0.3);
+  transition: filter 140ms ease, transform 140ms ease;
+}
+.wob-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.wob-foot-note {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  text-align: center;
+}
+
+@keyframes wobOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wobModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wob-overlay, .wob-modal { animation: none; }
+  .wob-btn:hover { transform: none; }
+}

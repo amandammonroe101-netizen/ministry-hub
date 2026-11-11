@@ -1,0 +1,345 @@
+/* ProfileModal — shared Profile / Page Settings / Settings modal.
+   Class prefix `pm-` keeps it isolated from page-specific styles.
+
+   Themeable: every accent color below is derived from --yps-accent,
+   the sitewide "current page's ministry-category accent" custom
+   property (see e.g. HospitalityShell.css, WomensShell.css …). Since
+   ProfileModal is always rendered as a JSX descendant of a page's
+   themed wrapper, --yps-accent inherits straight through — no props
+   needed. Pages that don't set --yps-accent (yet) fall back to the
+   original purple default below. */
+
+.pm-overlay {
+  position:fixed; inset:0;
+  background:rgba(8,6,18,.55);
+  backdrop-filter:blur(2px);
+  z-index:999;
+  animation:pmOverlayIn .18s ease-out;
+}
+@keyframes pmOverlayIn { from { opacity:0; } to { opacity:1; } }
+
+.pm-modal {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:min(620px, 94vw);
+  max-height:88vh;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  background:rgba(14,10,30,.97);
+  backdrop-filter:blur(20px);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  z-index:1000;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.55),
+    0 0 0 1px color-mix(in srgb, var(--yps-accent, #8c64ff) 8%, transparent) inset;
+  animation:pmModalIn .2s ease-out;
+}
+@keyframes pmModalIn {
+  from { opacity:0; transform:translate(-50%,-48%) scale(.96); }
+  to   { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+
+.pm-modal-hd {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 0;
+  border-bottom:.5px solid rgba(255,255,255,.08);
+}
+.pm-tabs { display:flex; gap:4px; }
+.pm-tab {
+  position:relative;
+  padding:9px 14px;
+  background:transparent; border:none;
+  font-size:13px; font-weight:600;
+  color:rgba(255,255,255,.5);
+  cursor:pointer; font-family:inherit;
+  transition:color .15s;
+  border-bottom:2px solid transparent;
+}
+.pm-tab:hover { color:rgba(255,255,255,.78); }
+.pm-tab.active {
+  color:color-mix(in srgb, var(--yps-accent, #8c64ff) 60%, white);
+  border-bottom-color:var(--yps-accent, #a78bfa);
+}
+
+.pm-close {
+  background:transparent; border:none;
+  color:rgba(255,255,255,.4);
+  font-size:18px; line-height:1;
+  width:28px; height:28px; border-radius:6px;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pm-close:hover { background:rgba(239,68,68,.15); color:#fca5a5; }
+
+.pm-body {
+  flex:1;
+  min-height:0;
+  padding:14px 18px 18px;
+  overflow-y:auto;
+  display:flex; flex-direction:column; gap:11px;
+}
+.pm-loading {
+  text-align:center; padding:32px 0;
+  font-size:12px; color:rgba(255,255,255,.4); font-style:italic;
+}
+.pm-err {
+  font-size:11px; color:#fca5a5;
+  background:rgba(239,68,68,.1);
+  border:.5px solid rgba(239,68,68,.25);
+  border-radius:6px; padding:6px 9px;
+}
+.pm-toast {
+  font-size:11px; color:#86efac;
+  background:rgba(34,197,94,.1);
+  border:.5px solid rgba(34,197,94,.25);
+  border-radius:6px; padding:6px 9px;
+}
+
+.pm-meta {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px;
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 7%, transparent);
+  border:.5px solid color-mix(in srgb, var(--yps-accent, #8c64ff) 18%, transparent);
+  border-radius:10px;
+}
+.pm-avatar-lg {
+  width:48px; height:48px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, var(--yps-accent, #a78bfa), color-mix(in srgb, var(--yps-accent, #8c64ff) 70%, white));
+  color:white; font-weight:700; font-size:16px;
+  flex-shrink:0;
+  box-shadow:0 2px 10px color-mix(in srgb, var(--yps-accent, #8c64ff) 40%, transparent);
+}
+.pm-avatar-lg.has-img {
+  background:none; box-shadow:none;
+  overflow:hidden; padding:0;
+}
+.pm-avatar-lg.has-img .cav { border-radius:50%; }
+
+/* Clickable avatar that opens the builder — same pattern as
+   Friends' .f-av-edit-btn / .f-av-edit-badge. */
+.pm-avatar-edit-btn {
+  position:relative;
+  background:none; border:none; padding:0;
+  cursor:pointer; flex-shrink:0; line-height:0;
+  border-radius:50%;
+}
+.pm-avatar-edit-btn:hover { filter:brightness(1.06); }
+.pm-avatar-edit-btn:hover .pm-avatar-edit-badge { transform:scale(1.1); }
+.pm-avatar-edit-badge {
+  position:absolute; right:-2px; bottom:-2px;
+  width:20px; height:20px; border-radius:50%;
+  background:#14101f;
+  border:1px solid rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px;
+  transition:transform .12s ease;
+}
+.pm-avatar-remove {
+  align-self:flex-start;
+  background:none; border:none; padding:0;
+  cursor:pointer; font-family:inherit;
+  font-size:11px; font-weight:600; color:rgba(248,113,113,.9);
+}
+.pm-avatar-remove:hover { color:#f87171; text-decoration:underline; }
+
+.pm-meta-text {
+  display:flex; flex-direction:column; gap:5px;
+  min-width:0; flex:1;
+}
+.pm-email {
+  font-size:12px; color:rgba(255,255,255,.7);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.pm-keychip {
+  display:inline-flex; align-items:center; gap:6px;
+  align-self:flex-start;
+  padding:4px 9px;
+  background:rgba(255,255,255,.05);
+  border:.5px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  font-size:11px; color:rgba(255,255,255,.6);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pm-keychip:hover {
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 14%, transparent);
+  border-color:color-mix(in srgb, var(--yps-accent, #8c64ff) 32%, transparent);
+  color:color-mix(in srgb, var(--yps-accent, #8c64ff) 60%, white);
+}
+.pm-keychip.copied {
+  background:rgba(34,197,94,.14);
+  border-color:rgba(34,197,94,.36);
+  color:#86efac;
+}
+.pm-keychip-lbl { opacity:.6; font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
+.pm-keychip-val { font-weight:600; letter-spacing:.04em; }
+.pm-keychip-act { font-size:13px; }
+
+.pm-toggle {
+  display:flex; align-items:center; gap:8px;
+  font-size:12px; color:rgba(255,255,255,.7);
+  cursor:pointer; user-select:none;
+}
+.pm-toggle input[type="checkbox"] {
+  accent-color:var(--yps-accent, #a78bfa); width:14px; height:14px; cursor:pointer; margin:0;
+}
+
+.pm-field { display:flex; flex-direction:column; gap:5px; }
+.pm-lbl {
+  font-size:11px; font-weight:700; color:rgba(255,255,255,.5);
+  letter-spacing:.06em; text-transform:uppercase;
+}
+.pm-lbl-hint {
+  font-size:10px; font-weight:500; color:rgba(255,255,255,.32);
+  text-transform:none; letter-spacing:0;
+}
+.pm-input {
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.14);
+  border-radius:7px;
+  padding:8px 11px;
+  font-size:13px; color:#fff; font-family:inherit;
+  width:100%; box-sizing:border-box;
+}
+.pm-input:focus {
+  outline:none;
+  border-color:color-mix(in srgb, var(--yps-accent, #8c64ff) 50%, transparent);
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 6%, transparent);
+}
+.pm-textarea { resize:vertical; min-height:64px; line-height:1.55; }
+
+/* Ministry logo uploader */
+.pm-logo-row { display:flex; align-items:center; gap:12px; }
+.pm-logo-preview {
+  width:54px; height:54px; flex-shrink:0;
+  border-radius:12px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.14);
+}
+.pm-logo-preview img { width:100%; height:100%; object-fit:cover; }
+.pm-logo-placeholder { font-size:24px; opacity:.7; }
+.pm-logo-actions { display:flex; align-items:center; gap:10px; }
+.pm-logo-btn {
+  padding:7px 13px; border-radius:7px; cursor:pointer;
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 16%, transparent);
+  border:.5px solid color-mix(in srgb, var(--yps-accent, #8c64ff) 40%, transparent);
+  font-size:12px; font-weight:600; color:color-mix(in srgb, var(--yps-accent, #8c64ff) 60%, white); font-family:inherit;
+}
+.pm-logo-btn:hover { background:color-mix(in srgb, var(--yps-accent, #8c64ff) 24%, transparent); }
+.pm-logo-remove {
+  background:none; border:none; cursor:pointer; padding:0;
+  font-size:12px; font-weight:600; color:rgba(248,113,113,.9);
+}
+.pm-logo-remove:hover { color:#f87171; text-decoration:underline; }
+
+.pm-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.pm-chip {
+  padding:5px 10px; border-radius:20px;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.12);
+  font-size:11px; color:rgba(255,255,255,.65);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pm-chip:hover {
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 14%, transparent);
+  border-color:color-mix(in srgb, var(--yps-accent, #8c64ff) 30%, transparent);
+}
+.pm-chip.on {
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 22%, transparent);
+  border-color:color-mix(in srgb, var(--yps-accent, #8c64ff) 50%, transparent);
+  color:color-mix(in srgb, var(--yps-accent, #8c64ff) 60%, white);
+}
+
+.pm-actions {
+  display:flex; justify-content:flex-end; gap:8px;
+  margin-top:6px; padding-top:12px;
+  border-top:.5px solid rgba(255,255,255,.06);
+}
+.pm-cancel {
+  padding:7px 14px;
+  background:rgba(255,255,255,.06);
+  border:.5px solid rgba(255,255,255,.11);
+  border-radius:8px;
+  font-size:12px; color:rgba(255,255,255,.45);
+  cursor:pointer; font-family:inherit;
+}
+.pm-save {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 18px;
+  background:linear-gradient(135deg, color-mix(in srgb, var(--yps-accent, #8c64ff) 85%, transparent), rgba(180,60,130,.75));
+  border:.5px solid rgba(255,255,255,.2);
+  border-radius:8px;
+  font-size:12px; font-weight:600; color:white;
+  cursor:pointer; font-family:inherit;
+  box-shadow:0 2px 10px color-mix(in srgb, var(--yps-accent, #8c64ff) 20%, transparent), inset 0 1px 0 rgba(255,255,255,.15);
+  transition:opacity .15s;
+}
+.pm-save:hover:not(:disabled) { opacity:.84; }
+.pm-save:disabled { opacity:.32; cursor:not-allowed; }
+
+/* Topbar avatar button — sized to match the existing Journal one. */
+.pm-tb-avatar {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg, var(--yps-accent, #a78bfa), color-mix(in srgb, var(--yps-accent, #8c64ff) 70%, white));
+  border:.5px solid rgba(255,255,255,.18);
+  color:white;
+  font-size:12px; font-weight:700; letter-spacing:.04em;
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+  box-shadow:0 2px 8px color-mix(in srgb, var(--yps-accent, #8c64ff) 32%, transparent);
+}
+.pm-tb-avatar:hover {
+  transform:scale(1.06);
+  box-shadow:0 4px 14px color-mix(in srgb, var(--yps-accent, #8c64ff) 50%, transparent);
+}
+
+/* ── Page Settings sub-tab pill bar (shared across pages) ──
+   Same UX as the Journal version (j-ps-subtabs) but standalone
+   so pages don't need to import Journal.css just for these. */
+.pm-ps-subtabs {
+  display:flex; flex-wrap:wrap; gap:6px;
+  margin-bottom:14px; padding-bottom:12px;
+  border-bottom:.5px solid rgba(255,255,255,.07);
+}
+.pm-ps-subtab {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 11px; border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:.5px solid rgba(255,255,255,.1);
+  font-size:11px; font-weight:600;
+  color:rgba(255,255,255,.55);
+  cursor:pointer; font-family:inherit;
+  transition:all .15s;
+}
+.pm-ps-subtab:hover {
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 12%, transparent);
+  border-color:color-mix(in srgb, var(--yps-accent, #8c64ff) 28%, transparent);
+  color:rgba(255,255,255,.85);
+}
+.pm-ps-subtab.on {
+  background:color-mix(in srgb, var(--yps-accent, #8c64ff) 20%, transparent);
+  border-color:color-mix(in srgb, var(--yps-accent, #8c64ff) 45%, transparent);
+  color:color-mix(in srgb, var(--yps-accent, #8c64ff) 60%, white);
+}
+.pm-ps-subtab-icon { font-size:13px; }
+
+.pm-ps-section {
+  display:flex; flex-direction:column; gap:9px;
+}
+.pm-ps-section-title {
+  font-size:14px; font-weight:700; color:#fff;
+}
+.pm-ps-section-sub {
+  font-size:11px; color:rgba(255,255,255,.5); line-height:1.5;
+  margin-bottom:4px;
+}
+.pm-ps-empty {
+  font-size:11px; color:rgba(255,255,255,.4);
+  font-style:italic;
+  text-align:center; padding:16px 0;
+}

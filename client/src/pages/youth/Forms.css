@@ -1,0 +1,130 @@
+/* Youth → Forms & Permissions — .yf-* */
+
+.yf-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 760px)  { .yf-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .yf-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.yf-card {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: background var(--transition), border-color var(--transition);
+}
+.yf-card:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--yps-accent) 30%, var(--border));
+}
+.yf-card-hd {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+}
+.yf-card-hd h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yf-event, .yf-due {
+  font-size: var(--fs-sm); color: var(--text-secondary);
+}
+.yf-counts {
+  display: flex; gap: 12px;
+  font-size: var(--fs-sm);
+  border-top: 0.5px solid var(--border);
+  padding-top: 8px;
+}
+.yf-c-signed  { color: #15803d; }
+.yf-c-pending { color: #a16207; }
+.yf-c-missing { color: #b91c1c; }
+
+/* Modal */
+.yf-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(43,32,19,0.35);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.yf-modal {
+  width: 100%; max-width: 880px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(253,246,230,0.97);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+}
+.yf-modal-hd {
+  position: sticky; top: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.yf-modal-hd h2 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+
+.yf-tabs-row { display: flex; gap: 6px; padding: 12px 20px 0; }
+
+.yf-grid-form { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.yf-field { display: flex; flex-direction: column; gap: 4px; }
+.yf-field.full { grid-column: 1 / -1; }
+.yf-field-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.yf-tracker { padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+.yf-search { max-width: 100%; }
+.yf-tracker-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.yf-tracker-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(43,32,19,0.03);
+  border-radius: var(--radius-sm);
+}
+.yf-tracker-name { font-weight: 600; }
+.yf-tracker-actions { display: flex; gap: 4px; }
+
+.yf-status-signed.on  { background: rgba(110,231,183,0.22); color: #15803d; }
+.yf-status-pending.on { background: rgba(252,211,77,0.22);  color: #a16207; }
+.yf-status-missing.on { background: rgba(252,165,165,0.22); color: #b91c1c; }
+
+.yf-modal-ft {
+  position: sticky; bottom: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex; justify-content: space-between;
+}
+
+/* ── Event picker (For event dropdown) ──────────────────────── */
+.yf-event-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yf-event-select {
+  width: 100%;
+}
+.yf-event-custom {
+  width: 100%;
+}
+.yf-event-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 2px 0;
+}

@@ -1,0 +1,78 @@
+/* ─────────────────────────────────────────────────────────────
+   Discipleship Ministry — "Page Settings" content. Rendered inside
+   ProfileModal's dark .pm-body — follows the same rgba(255,255,255,x)
+   convention as ProfileModal.css, just with the ministry's warm
+   gold "Trailhead" accent. Mirrors WomensMenuSettings.css /
+   MensMenuSettings.css.
+   ───────────────────────────────────────────────────────────── */
+
+.dps-set-body { display: flex; flex-direction: column; gap: 14px; }
+
+.dps-set-hint {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+
+.dps-set-bulk-row { display: flex; gap: 8px; }
+
+.dps-set-mini-btn {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04);
+  color: #e8c483;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.dps-set-mini-btn:hover { background: rgba(217,164,65,0.18); border-color: rgba(217,164,65,0.4); }
+
+.dps-set-group { display: flex; flex-direction: column; gap: 6px; }
+.dps-set-group-head { display: flex; align-items: center; gap: 10px; }
+.dps-set-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.55);
+}
+.dps-set-group-bulk { margin-left: auto; display: flex; gap: 6px; }
+
+.dps-set-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+@media (max-width: 480px) {
+  .dps-set-grid { grid-template-columns: 1fr; }
+}
+
+.dps-set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  transition: all .15s;
+}
+.dps-set-row:hover { border-color: rgba(255,255,255,0.18); }
+.dps-set-row.on { background: rgba(217,164,65,0.14); border-color: rgba(217,164,65,0.35); }
+.dps-set-checkbox { accent-color: #d9a441; cursor: pointer; }
+.dps-set-row-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+.dps-set-row-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dps-set-row.on .dps-set-row-label { color: #e5e7eb; }

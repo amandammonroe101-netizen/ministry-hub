@@ -1,0 +1,51 @@
+/* ─────────────────────────────────────────────────────────────
+   Firebase STORAGE security rules for Ministry Hub.
+
+   Paste this into Firebase Console:
+     Storage  →  Rules  →  Publish
+
+   These rules are SEPARATE from Firestore rules. Firestore rules
+   live at docs/firestore.rules and don't apply to Storage.
+
+   Policy mirrors Firestore:
+   - Any signed-in user can read/write ONLY their own /users/{uid}/...
+     subtree. This is what userStorage.js writes to.
+   - Hard cap of 50 MiB per file to prevent runaway uploads.
+   - All other paths denied by default.
+   ───────────────────────────────────────────────────────────── */
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Per-user blobs: only the owner can read or write.
+    // Write rule additionally enforces a max file size of 50 MiB —
+    // bump this if you need to store longer video / podcast episodes
+    // (and consider chunked uploads at that point).
+    match /users/{uid}/{allPaths=**} {
+      allow read:  if request.auth != null
+                   && request.auth.uid == uid;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 50 * 1024 * 1024;
+    }
+
+    // Chat file attachments (images, video, audio, documents, etc.).
+    // Path:  chat-files/{channelId}/{timestamp}_{random}_{fileName}
+    //
+    // Any signed-in user can read and write. We trust the membership
+    // check at the message-doc layer — Firestore rules on
+    // /channels/{channelId}/messages already gate who can post a
+    // message that references the file. The 50 MiB cap keeps a single
+    // user from accidentally uploading a huge file.
+    match /chat-files/{channelId}/{allPaths=**} {
+      allow read:  if request.auth != null;
+      allow write: if request.auth != null
+                   && request.resource.size < 50 * 1024 * 1024;
+    }
+
+    // Deny everything else by default. Add explicit rules above
+    // this line for any shared/public buckets.
+  }
+}

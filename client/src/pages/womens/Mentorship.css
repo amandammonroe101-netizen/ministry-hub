@@ -1,0 +1,663 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Mentorship Pairs
+   Reuses the shared page shell from AllWomen.css (.wa-root/.wa-body/
+   .wa-center/.wa-card-grid/.wa-stats-bar…) and the .ys-* form
+   primitives from youth/AllStudents.css. Only the pair card +
+   waiting-list + drill-in bits below are scoped to this page,
+   prefix .mp-*.
+
+   Rose-gold pass: mirrors Retreats.css .wr-root exactly — every
+   card/panel is a raised, embossed rose-gold surface (gradient fill
+   + inset highlight/shadow + drop shadow), reusing the --wms-*
+   tokens defined by the WomensShell this page always mounts inside
+   of. Cursive ('Dancing Script') is reserved for headings only
+   (h1-h4); running text stays bold sans for readability — same
+   carve-out Retreats/Life Stages make.
+   ───────────────────────────────────────────────────────────── */
+
+.mp-root {
+  --mp-accent: var(--wms-rose-deep, #c2426a);
+  --mp-3d-bg: var(--wms-rosegold, linear-gradient(100deg, #a8646f 0%, #c98a7a 16%, #e8b4a0 32%, #fbe8cd 46%, #e8b4a0 60%, #c98a7a 76%, #a8646f 100%));
+  --mp-3d-card: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  --mp-3d-chip: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  --mp-3d-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(107,36,49,0.35),
+    inset 0 0 0 1px rgba(196,19,60,0.16),
+    0 10px 22px rgba(107,36,49,0.28),
+    0 2px 6px rgba(107,36,49,0.18);
+  --mp-3d-shadow-sm:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 4px rgba(107,36,49,0.32),
+    inset 0 0 0 1px rgba(196,19,60,0.14),
+    0 6px 14px rgba(107,36,49,0.24);
+  --mp-cursive: 'Dancing Script', 'Caveat', cursive;
+  --mp-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--mp-sans);
+}
+.mp-root, .mp-root button { font-family: var(--mp-sans); }
+.mp-root h1, .mp-root h2, .mp-root h3, .mp-root h4 {
+  font-family: var(--mp-cursive);
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.mp-root p, .mp-root span, .mp-root label, .mp-root li,
+.mp-root button, .mp-root a {
+  font-family: var(--mp-sans);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wms-ink, #3d1728);
+}
+.mp-root input, .mp-root textarea, .mp-root select, .mp-root option {
+  font-family: var(--mp-sans);
+  font-weight: 500;
+  background-image: none;
+  -webkit-text-fill-color: initial;
+  color: var(--wms-ink, #3d1728);
+  animation: none;
+}
+
+/* ── Directory panels — every top-level section (stats, waiting
+   list, catalog) sits on a raised .mp-panel card on the bold
+   rosegold gradient, same as Retreats' .wr-panel. ────────────── */
+.mp-panel {
+  background: var(--mp-3d-bg);
+  border: none;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--mp-3d-shadow);
+}
+.mp-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mp-root .mp-panel-subtitle {
+  margin: 0;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  -webkit-text-fill-color: var(--wms-ink, #3d1728);
+  background: none;
+  text-shadow: none;
+  animation: none;
+}
+
+/* ── Directory chrome (stats bar / search / filters / grid) ───── */
+.mp-root .wa-stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mp-root .wa-stat {
+  background: var(--mp-3d-card);
+  border: none;
+  border-top: 3px solid var(--mp-accent);
+  border-radius: 12px;
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-root .wa-stat.is-warn { border-top-color: #d4a017; }
+.mp-root .wa-stat-n {
+  font-family: var(--mp-sans);
+  font-weight: 800;
+  color: var(--wms-ink, #3d1728);
+}
+.mp-root .wa-stat.is-warn .wa-stat-n { color: #b8860b; }
+.mp-root .wa-stat-lbl {
+  font-family: var(--mp-sans);
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.mp-root .wa-search-wrap {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-root .wa-search-wrap input { color: var(--wms-ink, #3d1728); }
+.mp-root .wa-search-wrap input::placeholder { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.mp-root .wa-search-clear { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.mp-root .wa-search-clear:hover { color: var(--wms-ink, #3d1728); }
+.mp-root .wa-filter-chip {
+  background: var(--mp-3d-chip);
+  border: none;
+  box-shadow: var(--mp-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+  transition: all .15s;
+}
+.mp-root .wa-filter-chip:hover { transform: translateY(-1px); filter: brightness(1.05); color: var(--wms-ink, #3d1728); }
+.mp-root .wa-filter-chip.on {
+  background: var(--mp-3d-bg);
+  box-shadow: var(--mp-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.35);
+  color: var(--wms-ink, #3d1728);
+}
+.mp-root .wa-directory-empty { color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.mp-root .wa-empty.app-empty .app-empty-title,
+.mp-root .wa-empty.app-empty .app-empty-sub { color: var(--wms-ink, #3d1728); }
+
+.mp-root .wa-card-grid.mp-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+}
+
+/* ── Form primitives (Section/Field, reused from Youth roster) —
+   raised embossed cards + cream inputs, matching Retreats. ──── */
+.mp-root .ys-section {
+  background: var(--mp-3d-card);
+  border: none;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-root .ys-section-title {
+  font-family: var(--mp-cursive);
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.mp-root .ys-field-lbl {
+  font-family: var(--mp-sans);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.mp-root .ys-inp {
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--mp-3d-shadow-sm);
+  color: var(--wms-ink, #3d1728);
+}
+.mp-root .ys-inp:focus { border-color: var(--wms-gold, #e8b3ae); }
+.mp-root .app-btn {
+  font-family: var(--mp-sans);
+  background: var(--mp-3d-chip);
+  border: none;
+  box-shadow: var(--mp-3d-shadow-sm);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.mp-root .app-btn:hover { filter: brightness(1.05); }
+.mp-root .app-btn.primary {
+  background: linear-gradient(135deg, var(--wms-red, #c4133c), #e8749a);
+  color: #fff;
+}
+.mp-root .app-btn.ghost { background: transparent; box-shadow: none; color: var(--wms-ink-soft, rgba(61,23,40,0.74)); }
+.mp-root .app-btn.ghost:hover { background: rgba(196,19,60,0.06); color: var(--wms-ink, #3d1728); }
+.mp-root .ys-del-btn { font-family: var(--mp-sans); }
+.mp-add-btn { align-self: flex-start; padding: 7px 12px; font-size: 13px; width: fit-content; }
+
+/* ── Scheduled communications list (check-in log reuses AllWomen's
+   .wa-comm-* markup) — re-themed for the rosegold surface. ────── */
+.mp-root .wa-comm-row {
+  background: var(--mp-3d-card);
+  border: none;
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-root .wa-comm-note { color: var(--wms-ink, #3d1728); }
+.mp-root .wa-comm-date { color: var(--mp-accent); font-family: var(--mp-sans); }
+.mp-root .wa-comm-del {
+  background: var(--mp-3d-chip);
+  border: none;
+  box-shadow: var(--mp-3d-shadow-sm);
+  color: var(--mp-accent);
+}
+.mp-root .wa-comm-del:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); color: #7a1030; }
+.mp-empty-hint {
+  font-size: 13px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ── "Needs a match" waiting list ───────────────────────────── */
+.mp-waiting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mp-waiting-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.mp-waiting-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mp-waiting-chip {
+  appearance: none;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--mp-3d-chip);
+  border: none;
+  box-shadow: var(--mp-3d-shadow-sm);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.mp-waiting-chip:hover { transform: translateY(-1px); filter: brightness(1.05); color: var(--wms-ink, #3d1728); }
+.mp-waiting-chip.mentor { border: 1px dashed var(--mp-accent); }
+
+/* ── Directory card ──────────────────────────────────────────── */
+.mp-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  padding: 18px 16px 14px;
+  background: var(--mp-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--wms-ink, #3d1728);
+  overflow: hidden;
+  transition: all .18s;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+  box-shadow: var(--mp-3d-shadow-sm), 0 0 0 2px rgba(196,19,60,0.28);
+}
+.mp-card.selected {
+  box-shadow: var(--mp-3d-shadow-sm), 0 0 0 3px var(--mp-accent);
+}
+
+.mp-card-stripe {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(61,23,40,.15);
+}
+.mp-card-stripe.tone-active    { background: linear-gradient(90deg, #2f8f5b, #4ade80); }
+.mp-card-stripe.tone-paused    { background: linear-gradient(90deg, #b8860b, #f2c94c); }
+.mp-card-stripe.tone-completed { background: rgba(61,23,40,.12); }
+.mp-card-stripe.tone-overdue   { background: linear-gradient(90deg, var(--wms-red, #c4133c), #ff7a90); }
+
+.mp-card-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 9px; font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: -.01em;
+  background: rgba(196,19,60,.16);
+  color: #7a1030;
+}
+
+.mp-card-people {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mp-person {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+.mp-person-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.mp-card-link {
+  flex-shrink: 0;
+  font-size: 15px;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+  margin-top: -14px;
+}
+
+.mp-avatar-dot {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.mp-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--mp-accent, #c2426a), #f2c94c);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mp-card-focus {
+  font-size: 12px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-card-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--mp-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.mp-pill.status-active    { background: rgba(74,222,128,.28); color: #14532d; }
+.mp-pill.status-paused    { background: rgba(212,160,23,.28); color: #7a5c0a; }
+.mp-pill.status-completed { background: rgba(61,23,40,.06); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.mp-card-foot {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 10.5px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* ── Detail bits shared by the card + drill-in ──────────────── */
+.mp-open-woman {
+  appearance: none;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--mp-accent);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mp-open-woman:hover { text-decoration: underline; }
+.mp-hint {
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+.mp-sync-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  margin-top: 4px;
+  background: rgba(255,255,255,.5);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  width: fit-content;
+}
+.mp-sync-row.is-disabled { opacity: .55; cursor: not-allowed; }
+
+/* ── Pair quick-view modal (opened via double-click) ─────────── */
+
+.mp-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(61,23,40,.45);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  animation: mpOverlayIn .18s ease-out;
+}
+@keyframes mpOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.mp-modal {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, 94vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  background: var(--mp-3d-bg);
+  border-radius: 18px;
+  box-shadow: var(--mp-3d-shadow);
+  overflow: hidden;
+}
+
+.mp-modal-close {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--mp-3d-chip);
+  border: none;
+  box-shadow: var(--mp-3d-shadow-sm);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.mp-modal-close:hover { color: var(--mp-accent); }
+
+.mp-modal .mp-view {
+  padding: 22px 26px 28px;
+}
+
+.mp-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 28px 40px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* View/Edit toggle for the Overview tab. */
+.mp-mode-row {
+  display: flex;
+  justify-content: flex-end;
+}
+.mp-mode-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,.4);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  border-radius: 8px;
+  padding: 2px;
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-mode-btn {
+  padding: 5px 12px;
+  background: transparent; border: none;
+  font-size: 11.5px; font-weight: 700;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer; font-family: inherit;
+  border-radius: 6px;
+  transition: all .15s;
+}
+.mp-mode-btn:hover { color: var(--wms-ink, #3d1728); }
+.mp-mode-btn.on {
+  background: var(--mp-3d-bg);
+  color: #fff;
+}
+
+/* Read-only summary rows (default "View" mode on Overview). */
+.mp-ro-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mp-ro-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mp-ro-lbl {
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  min-width: 130px;
+}
+.mp-ro-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+}
+
+.mp-view-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mp-view-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.mp-view-title {
+  flex: 1;
+  min-width: 200px;
+  font-family: var(--mp-cursive);
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(100deg, #ff1454 0%, #ff5c9c 26%, #ffd54a 52%, #ff5c9c 78%, #ff1454 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 20, 84, 0.55), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.mp-view-status-sel { max-width: 190px; }
+
+.mp-view-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mp-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--mp-3d-chip, linear-gradient(145deg, #fff6ee, #f2c9b8));
+  border: none;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-chip.is-over { background: rgba(196,19,60,.16); color: #7a1030; }
+
+/* Dashboard stat row — at-a-glance snapshot atop the drill-in, same
+   pattern as Retreats' .wr-dash-row/.wr-dash-stat: embossed tiles,
+   with the "days until check-in" tile color-tiered like a health
+   indicator (green = plenty of runway, amber = coming up soon,
+   red = overdue) instead of a bare neutral number. ──────────────── */
+.mp-dash-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.mp-dash-stat {
+  background: var(--mp-3d-card, linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489));
+  border: none;
+  border-top: 3px solid var(--mp-accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: var(--mp-3d-shadow-sm);
+}
+.mp-dash-stat.is-days.tier-good { border-top-color: #2f8f5b; }
+.mp-dash-stat.is-days.tier-warn { border-top-color: #b8860b; }
+.mp-dash-stat.is-days.tier-bad  { border-top-color: #c4133c; }
+.mp-dash-stat.is-days.tier-none { border-top-color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+.mp-dash-stat.is-days.tier-good .mp-dash-n { color: #2f8f5b; }
+.mp-dash-stat.is-days.tier-warn .mp-dash-n { color: #b8860b; }
+.mp-dash-stat.is-days.tier-bad  .mp-dash-n { color: #c4133c; }
+.mp-dash-n {
+  font-family: var(--mp-sans);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--wms-ink, #3d1728);
+}
+.mp-dash-lbl {
+  font-family: var(--mp-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.mp-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  flex-wrap: wrap;
+}
+.mp-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 14px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.mp-tab:hover { color: var(--wms-ink, #3d1728); }
+.mp-tab.on { color: var(--mp-accent); border-bottom-color: var(--mp-accent); }
+.mp-tab-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(196,19,60,0.12);
+  color: var(--mp-accent);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.mp-view-body { display: flex; flex-direction: column; gap: 16px; }
+
+@media (max-width: 860px) {
+  .mp-dash-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .mp-root .wa-stats-bar { grid-template-columns: repeat(2, 1fr); }
+}

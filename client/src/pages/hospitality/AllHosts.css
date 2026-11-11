@@ -1,0 +1,606 @@
+/* ─────────────────────────────────────────────────────────────
+   Hospitality → shared page shell
+   Naming: .ha-* (page-scoped, reused across every Hospitality
+   page — same role AllWomen.css plays for Women's). Reuses
+   global .app-topbar / .app-btn / .app-empty / .pm-tb-avatar
+   and the .ys-section / .ys-field / .ys-inp form primitives
+   from youth/AllStudents.css.
+   ───────────────────────────────────────────────────────────── */
+
+.ha-root {
+  --ha-accent: var(--hms-terracotta-deep, #a8502e);
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: var(--text, #e5e7eb);
+}
+
+.ha-body {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ha-center {
+  position: relative;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.ha-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+/* ── Directory / page body ──────────────────────────────────── */
+.ha-directory {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 28px 36px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ha-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+}
+.ha-stat {
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  border-radius: 11px;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+  border-top: 3px solid var(--hms-terracotta);
+  box-shadow: 0 2px 10px rgba(168,80,46,.06);
+}
+.ha-stat.is-warn { border-top-color: var(--hms-red); }
+.ha-stat-n {
+  font-size: 26px; font-weight: 800;
+  color: var(--hms-terracotta-deep); line-height: 1;
+  letter-spacing: -.02em;
+  font-family: var(--hms-display);
+}
+.ha-stat.is-warn .ha-stat-n { color: var(--hms-red); }
+.ha-stat-lbl {
+  font-size: 11px; color: var(--hms-ink-faint);
+  font-weight: 500;
+}
+
+.ha-controls {
+  display: flex; gap: 10px; align-items: center;
+}
+.ha-search-wrap {
+  flex: 1;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 11px;
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(168,80,46,.05);
+}
+.ha-search-wrap input {
+  flex: 1;
+  background: transparent; border: none;
+  color: var(--hms-ink); font-size: 12px; font-family: inherit;
+  outline: none;
+}
+.ha-search-wrap input::placeholder { color: var(--hms-ink-faint); }
+.ha-search-clear {
+  appearance: none; background: none; border: none;
+  color: var(--hms-ink-faint); cursor: pointer; font-size: 12px;
+  padding: 2px;
+}
+.ha-search-clear:hover { color: var(--hms-ink); }
+
+.ha-filter-row {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.ha-filter-chip {
+  display: inline-flex; align-items: center;
+  padding: 5px 11px; border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  font-size: 11px; font-weight: 600;
+  color: var(--hms-ink-soft);
+  cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.ha-filter-chip:hover {
+  background: rgba(168,80,46,.06);
+  color: var(--hms-ink);
+}
+.ha-filter-chip.on {
+  background: color-mix(in srgb, var(--ha-accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--ha-accent) 45%, transparent);
+  color: var(--ha-accent);
+}
+
+.ha-directory-empty {
+  padding: 38px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--hms-ink-faint);
+  font-style: italic;
+}
+
+/* ── Card grid (photo-first, matches Friends' FriendCard) ──── */
+.ha-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+.ha-fc {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+  padding: 18px 14px 14px;
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  border-radius: 12px;
+  cursor: pointer; font-family: inherit;
+  color: var(--hms-ink-soft);
+  text-align: center;
+  overflow: hidden;
+  transition: all .18s;
+  box-shadow: 0 2px 10px rgba(168,80,46,.06);
+}
+.ha-fc:hover {
+  background: #fffaf2;
+  border-color: color-mix(in srgb, var(--ha-accent) 40%, var(--hms-border-hi));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(168,80,46,.16);
+}
+.ha-fc-stripe {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--ha-accent) 55%, transparent),
+    color-mix(in srgb, var(--ha-accent) 25%, transparent));
+}
+.ha-fc-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 9px; font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(61,40,23,.72);
+  color: #fff;
+  letter-spacing: -.01em;
+}
+.ha-fc-name {
+  font-size: 14px; font-weight: 700;
+  color: var(--hms-ink);
+  margin-top: 8px;
+  letter-spacing: -.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%;
+}
+.ha-fc-status {
+  font-size: 10px; font-weight: 600;
+  color: var(--hms-terracotta-deep);
+  padding: 2px 9px; border-radius: 999px;
+  background: rgba(168,80,46,.10);
+  border: 1px solid rgba(168,80,46,.25);
+  margin-top: 2px;
+}
+.ha-fc-status.inactive {
+  color: var(--hms-ink-faint);
+  background: rgba(61,40,23,.06);
+  border-color: rgba(61,40,23,.14);
+}
+.ha-fc-pills {
+  display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
+  margin-top: 2px;
+}
+
+/* ── Slide-over detail panel (matches Friends' FriendSlideOver) ─ */
+.ha-slide-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8,6,18,.5);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  animation: haSlideOvIn .18s ease-out;
+}
+@keyframes haSlideOvIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ha-slide {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(440px, 92vw);
+  background: linear-gradient(165deg, #fffdf9 0%, #fbf3e7 55%, #f3e2c8 100%);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid var(--hms-border-hi);
+  box-shadow: -10px 0 40px rgba(61,40,23,.22);
+  z-index: 999;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  color: var(--hms-ink);
+  animation: haSlideIn .22s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes haSlideIn {
+  from { transform: translateX(8%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+.ha-slide-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(168,80,46,.08);
+  border: 1px solid var(--hms-border);
+  color: var(--hms-ink-soft);
+  width: 30px; height: 30px; border-radius: 50%;
+  font-size: 14px; line-height: 1;
+  cursor: pointer; font-family: inherit;
+  z-index: 2;
+  transition: all .15s;
+}
+.ha-slide-close:hover {
+  background: rgba(239,68,68,.12);
+  color: #b91c1c;
+  border-color: rgba(239,68,68,.35);
+}
+.ha-slide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 22px 32px;
+  /* The reused .ys-* form primitives (from youth/AllStudents.css)
+     key off --yps-accent for focus rings + add-buttons — already
+     set to the coffeehouse terracotta on .hms-page, this local
+     override just keeps it pinned to this page's --ha-accent
+     specifically. */
+  --yps-accent: var(--ha-accent);
+}
+
+@media (max-width: 720px) {
+  .ha-slide { width: 100vw; }
+}
+
+/* ── Avatar dot (photo → initials) ──────────────────────────── */
+.ha-avatar-dot {
+  width: 80px; height: 80px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+}
+.ha-avatar-fallback {
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--hms-red), #d98a3c);
+  color: #fff; font-weight: 800; font-size: 30px;
+}
+
+/* Archive — collapsible sections, .ha-archive-* */
+.ha-archive-section {
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  box-shadow: 0 2px 10px rgba(168,80,46,.06);
+}
+.ha-archive-summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  list-style: none;
+}
+.ha-archive-summary::-webkit-details-marker { display: none; }
+.ha-archive-summary-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ha-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 4px;
+  border-top: 1px solid var(--hms-border);
+  cursor: pointer;
+}
+.ha-list-row:first-child { border-top: none; }
+.ha-list-row:hover { background: rgba(168,80,46,0.05); }
+.ha-list-row:disabled { cursor: default; }
+.ha-list-row:disabled:hover { background: none; }
+.ha-list-row-body { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.ha-list-row-title { font-size: 13px; font-weight: 700; color: var(--hms-ink); }
+.ha-list-row-sub { font-size: 11px; color: var(--hms-ink-soft); }
+.ha-list-row-meta { font-size: 11px; color: var(--hms-ink-faint); }
+.ha-list-row-go { color: var(--hms-ink-faint); flex-shrink: 0; }
+
+/* ── Simple pill / tag (role badges, station tags…) ─────────── */
+.ha-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px;
+  background: color-mix(in srgb, var(--pill-c, var(--ha-accent)) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pill-c, var(--ha-accent)) 45%, transparent);
+  color: var(--pill-c, var(--ha-accent));
+}
+
+/* ── "Needs check-in" warn filter chip + card badge ──────────── */
+.ha-filter-chip.warn.on {
+  background: rgba(220,38,38,.14);
+  border-color: rgba(220,38,38,.45);
+  color: #b91c1c;
+}
+.ha-fc-badge-warn {
+  background: rgba(220,38,38,.85);
+}
+
+/* ── Name field with "From your Contacts" typeahead ──────────
+   Mirrors womens/AllWomen.css's .wa-name-suggest-*, retinted to
+   the coffeehouse palette. Picking a match links host.contactUid,
+   which is what reveals the Chat button. */
+.ha-name-suggest-wrap { position: relative; display: flex; flex-direction: column; }
+.ha-name-suggest {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #fffdf9;
+  border: 1px solid var(--hms-border-hi);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(61,40,23,.22);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+}
+.ha-name-suggest-hd {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--hms-ink-faint);
+  padding: 6px 8px 4px;
+}
+.ha-name-suggest-item {
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--hms-ink);
+  font-size: 13px;
+  padding: 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.ha-name-suggest-item:hover { background: rgba(168,80,46,.08); }
+.ha-name-suggest-status {
+  font-size: 11px;
+  color: var(--hms-ink-faint);
+  margin-top: 4px;
+}
+.ha-linked-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700;
+  color: var(--hms-terracotta-deep);
+  margin-top: 4px;
+  width: fit-content;
+}
+
+/* ── Chat button (linked host → open a private, no-invite room) ── */
+.ha-chat-btn {
+  appearance: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  background: color-mix(in srgb, var(--ha-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ha-accent) 45%, transparent);
+  color: var(--ha-accent);
+  cursor: pointer; font-family: inherit;
+  width: fit-content;
+  transition: background .12s ease;
+}
+.ha-chat-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--ha-accent) 28%, transparent); }
+.ha-chat-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Photo upload hint / error (Section "Who") ───────────────── */
+.ha-photo-hint { font-size: 12px; color: var(--hms-ink-soft); }
+.ha-photo-error { font-size: 12px; color: #b91c1c; }
+
+/* ── Tenure / anniversary badge ──────────────────────────────── */
+.ha-tenure-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700;
+  padding: 2px 9px; border-radius: 999px;
+  width: fit-content;
+  background: rgba(168,80,46,.10);
+  border: 1px solid rgba(168,80,46,.25);
+  color: var(--hms-terracotta-deep);
+}
+
+/* ── Household / spouse link note ────────────────────────────── */
+.ha-household-note {
+  font-size: 12px;
+  color: var(--hms-ink-soft);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(192,132,252,.10);
+  border: 1px solid rgba(192,132,252,.28);
+}
+
+/* ── Coverage heat-map summary line ──────────────────────────── */
+.ha-coverage-summary {
+  font-size: 11px;
+  color: var(--hms-ink-faint);
+  margin-top: 4px;
+}
+
+/* ── Quick-contact tel:/mailto: action next to phone/email ──── */
+.ha-contact-row { display: flex; align-items: center; gap: 6px; }
+.ha-contact-row .ys-inp { flex: 1; }
+.ha-quick-contact {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  background: color-mix(in srgb, var(--ha-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ha-accent) 38%, transparent);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background .12s ease;
+}
+.ha-quick-contact:hover { background: color-mix(in srgb, var(--ha-accent) 26%, transparent); }
+
+/* ── Read-only view mode (label/value rows) ──────────────────── */
+.ha-view-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 10px; padding: 4px 0;
+  font-size: 13px;
+}
+.ha-view-lbl { color: var(--hms-ink-faint); flex-shrink: 0; }
+.ha-view-val { color: var(--hms-ink); text-align: right; font-weight: 600; }
+
+/* ── Availability slots (day/time chips) ─────────────────────── */
+.ha-avail-wrap { display: flex; flex-direction: column; gap: 8px; }
+.ha-avail-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ha-avail-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--ha-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ha-accent) 38%, transparent);
+  color: var(--hms-ink);
+  font-size: 12px; font-weight: 600;
+  cursor: default;
+}
+.ha-avail-chip.static { cursor: default; }
+.ha-avail-chip:not(.static):not(.editing) { cursor: pointer; }
+.ha-avail-chip.editing { background: #fff; gap: 4px; padding: 4px 6px; }
+.ha-avail-mini-select {
+  width: auto !important; padding: 3px 6px !important; font-size: 11px !important;
+}
+.ha-avail-chip-btn {
+  appearance: none; background: none; border: none;
+  color: var(--hms-ink-faint); cursor: pointer; font-size: 11px;
+  padding: 0 2px; line-height: 1;
+}
+.ha-avail-chip-btn:hover { color: var(--hms-red); }
+.ha-avail-add-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ha-avail-add-row .ys-inp { flex: 1; min-width: 110px; }
+.ha-avail-add-btn {
+  appearance: none; padding: 7px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 700;
+  background: color-mix(in srgb, var(--ha-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ha-accent) 45%, transparent);
+  color: var(--ha-accent); cursor: pointer; font-family: inherit;
+  white-space: nowrap;
+}
+.ha-avail-add-btn:hover { background: color-mix(in srgb, var(--ha-accent) 28%, transparent); }
+
+/* ── Contact-info request flow ────────────────────────────────── */
+.ha-info-request {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-radius: 9px;
+  background: rgba(220,38,38,.06);
+  border: 1px solid rgba(220,38,38,.22);
+  margin-top: 4px;
+}
+.ha-info-request.pending {
+  background: rgba(168,80,46,.08); border-color: rgba(168,80,46,.28);
+}
+.ha-info-request.declined {
+  background: rgba(61,40,23,.05); border-color: var(--hms-border);
+}
+.ha-info-request-text { font-size: 12px; color: var(--hms-ink-soft); line-height: 1.4; }
+.ha-info-request-msg { font-size: 12px !important; padding: 6px 9px !important; }
+.ha-info-request-btn { align-self: flex-start; padding: 5px 12px !important; font-size: 12px !important; }
+.ha-info-request-error { font-size: 11px; color: var(--hms-red); }
+
+/* ── Birthday → Calendar sync checkbox ───────────────────────── */
+.ha-sync-check {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--hms-ink);
+  cursor: pointer; width: fit-content;
+}
+.ha-sync-check input { accent-color: var(--ha-accent); }
+
+/* ── Care & follow-up log ────────────────────────────────────── */
+.ha-care-list { display: flex; flex-direction: column; gap: 4px; }
+.ha-care-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 4px 0; font-size: 13px;
+}
+.ha-care-icon { flex-shrink: 0; }
+.ha-care-body { display: flex; flex-direction: column; gap: 1px; }
+.ha-care-date { font-size: 11px; color: var(--hms-ink-faint); font-weight: 600; }
+.ha-care-note { color: var(--hms-ink); }
+
+.ha-care-editor { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.ha-care-log-list { display: flex; flex-direction: column; gap: 2px; }
+.ha-care-log-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 4px; border-top: 1px solid var(--hms-border);
+}
+.ha-care-log-row:first-child { border-top: none; }
+.ha-care-log-row.done .ha-care-log-note,
+.ha-care-log-row.done .ha-care-log-date { opacity: .55; text-decoration: line-through; }
+.ha-care-check {
+  appearance: none; background: none; border: none; cursor: pointer;
+  font-size: 14px; padding: 0; flex-shrink: 0;
+}
+.ha-care-log-body { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.ha-care-log-date { font-size: 11px; color: var(--hms-ink-faint); font-weight: 600; }
+.ha-care-log-note { font-size: 13px; color: var(--hms-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ha-care-remove {
+  appearance: none; background: none; border: none;
+  color: var(--hms-ink-faint); cursor: pointer; font-size: 12px; flex-shrink: 0;
+}
+.ha-care-remove:hover { color: var(--hms-red); }
+.ha-care-add { display: flex; flex-direction: column; gap: 8px; }
+.ha-care-add-btn {
+  appearance: none; padding: 7px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 700;
+  background: color-mix(in srgb, var(--ha-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ha-accent) 45%, transparent);
+  color: var(--ha-accent); cursor: pointer; font-family: inherit;
+  align-self: flex-start;
+}
+.ha-care-add-btn:hover { background: color-mix(in srgb, var(--ha-accent) 28%, transparent); }
+
+/* ── Service Options Page Settings panel ─────────────────────── */
+.ha-svcset-body { display: flex; flex-direction: column; gap: 14px; }
+.ha-svcset-hint { font-size: 12px; color: var(--hms-ink-soft, rgba(0,0,0,.6)); margin: 0; line-height: 1.5; }
+.ha-svcset-list { display: flex; flex-direction: column; gap: 6px; }
+.ha-svcset-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 12px; border-radius: 9px;
+  background: rgba(168,80,46,.06);
+  border: 1px solid rgba(168,80,46,.18);
+}
+.ha-svcset-label { font-size: 13px; font-weight: 600; }
+.ha-svcset-actions { display: flex; gap: 4px; }
+.ha-svcset-icon-btn {
+  appearance: none; background: none; border: none;
+  cursor: pointer; font-size: 12px; padding: 3px 6px; border-radius: 5px;
+}
+.ha-svcset-icon-btn:hover { background: rgba(0,0,0,.08); }
+.ha-svcset-icon-btn:disabled { opacity: .35; cursor: not-allowed; }
+.ha-svcset-icon-btn.danger:hover { background: rgba(220,38,38,.15); }
+.ha-svcset-empty { font-size: 12px; color: var(--hms-ink-faint, rgba(0,0,0,.5)); font-style: italic; padding: 6px 2px; }
+.ha-svcset-add-row { display: flex; gap: 8px; }
+.ha-svcset-add-row .ys-inp { flex: 1; }
+.ha-svcset-notice { font-size: 11px; color: var(--hms-ink-soft); margin-top: 2px; }
+.ha-svcset-notice.error { color: var(--hms-red); }
+.ha-svcset-add-btn {
+  appearance: none; padding: 8px 14px; border-radius: 8px;
+  font-size: 12px; font-weight: 700;
+  background: color-mix(in srgb, var(--ha-accent, #a8502e) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ha-accent, #a8502e) 45%, transparent);
+  color: var(--ha-accent, #a8502e); cursor: pointer; font-family: inherit;
+  white-space: nowrap;
+}
+.ha-svcset-add-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--ha-accent, #a8502e) 28%, transparent); }
+.ha-svcset-add-btn:disabled { opacity: .5; cursor: not-allowed; }

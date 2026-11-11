@@ -1,0 +1,537 @@
+/* ─────────────────────────────────────────────────────────────
+   Hospitality Ministry — bespoke shell theme (prototype)
+
+   Forked from WomensShell.css. A warm coffeehouse look — cream/
+   linen surfaces, a terracotta + toasted-gold accent, a heavy
+   drift of falling cinnamon dust instead of falling petals. Scoped
+   entirely under .hms-page
+   so it can't leak onto any other page; pages that reuse dark
+   .yov-* classes get light-theme overrides here too, scoped under
+   .hms-page so their *other* usages elsewhere in the app are
+   untouched.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Toasted-oak picture frame ───────────────────────────────
+   Wraps the whole shell in a warm wood moulding, 0.5in on all
+   sides — same carved-frame construction as the Women's rose-gold
+   frame, re-toned to a coffee-table oak. */
+.hms-picture-frame {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.5in;
+  background:
+    linear-gradient(90deg, #4a3018 0%, #6b4226 10%, #a9744a 18%, #c9955f 24%, #9c703f 32%, #6b4226 42%, #5a3820 55%, #6f4a2a 70%, #4a3018 85%, #5a3820 100%);
+  box-shadow:
+    inset 0 0 2px 2px  #2b1a0c,
+    inset 0 0 3px 4px  #c9955f,
+    inset 0 0 4px 8px  #8a5f3a,
+    inset 0 0 6px 13px #402a15,
+    inset 0 0 6px 18px #5a3820,
+    inset 0 0 8px 24px #331f0e,
+    inset 0 0 4px 29px #a9744a,
+    inset 0 0 3px 32px #5a3820,
+    0 16px 44px rgba(0,0,0,0.5);
+}
+
+.hms-picture-frame .hms-page {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.42),
+    inset 0 0 0 1px rgba(0,0,0,0.25);
+}
+
+.hms-page {
+  --hms-ink:        #3d2817;
+  --hms-ink-soft:   rgba(61,40,23,0.74);
+  --hms-ink-faint:  rgba(61,40,23,0.52);
+  --hms-terracotta: #e0a458;
+  --hms-terracotta-deep: #a8502e;
+  --hms-red:        #c9683f;
+  --hms-red-soft:   rgba(201,104,63,0.12);
+  --hms-gold:       #d4a24c;
+  --hms-border:     rgba(168,80,46,0.14);
+  --hms-border-hi:  rgba(168,80,46,0.30);
+  --hms-serif:      'Cormorant Garamond', Georgia, serif;
+  --hms-display:    'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --hms-rosegold:   linear-gradient(100deg, #8a5030 0%, #a8703f 16%, #cf9a52 32%, #f2d9a0 46%, #cf9a52 60%, #a8703f 76%, #8a5030 100%);
+  --hms-poppygold:  linear-gradient(100deg, #a8502e 0%, #c9683f 28%, #d98a3c 55%, #d4a024 80%, #a8502e 100%);
+  --wa-accent:      #a8502e; /* re-tint reused .wa-* classes, if ever used */
+  --yps-accent:     var(--hms-terracotta-deep); /* re-tint reused .ys- / .yov- form + dashboard primitives (Youth-sourced) to the coffeehouse palette */
+  --ha-accent:      var(--hms-terracotta-deep); /* .ha-* directory/card classes (AllHosts.css, reused by every Hospitality sub-page) key off this — was previously only set on a dead .ha-root selector that's never rendered */
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  background: linear-gradient(165deg, #fffdf9 0%, #fbf3e7 45%, #f3e2c8 100%);
+  color: var(--hms-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Time-of-day background variants — same cream/tan family, just a
+   subtly different warmth. */
+.hms-page.hms-time-morning {
+  background: linear-gradient(165deg, #fffdf9 0%, #fff6e6 42%, #f8e3bd 100%);
+}
+.hms-page.hms-time-afternoon {
+  background: linear-gradient(165deg, #fffdf9 0%, #fbf3e7 45%, #f3e2c8 100%);
+}
+.hms-page.hms-time-evening {
+  background: linear-gradient(165deg, #fefaf3 0%, #f8ead2 40%, #ecd3ab 100%);
+}
+.hms-page.hms-time-night {
+  background: linear-gradient(165deg, #fbf7f0 0%, #f2e4cc 40%, #e3cca3 100%);
+}
+.hms-page.hms-time-morning .hms-bloom.bloom-a { background: #ffe3b0; }
+.hms-page.hms-time-evening .hms-bloom.bloom-b { background: #e8c393; }
+.hms-page.hms-time-night .hms-bloom.bloom-a,
+.hms-page.hms-time-night .hms-bloom.bloom-b { opacity: 0.6; }
+
+.hms-bloom {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  animation: hmsBloomDrift 22s ease-in-out infinite;
+}
+.hms-bloom.bloom-a { width: 440px; height: 440px; top: -140px; left: -100px; background: #f0d3a0; }
+.hms-bloom.bloom-b { width: 400px; height: 400px; bottom: -120px; right: -80px; background: #f5e2c2; animation-delay: -11s; animation-direction: reverse; }
+
+@keyframes hmsBloomDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, 24px) scale(1.08); }
+}
+
+/* ── Latte-art watermark ──────────────────────────────────────
+   A scattered handful of shaded, faintly 3D cups + saucers tucked
+   around the edges, each with its own pour (swan, heart, rosetta,
+   or tulip) — same trick as a coffee-shop wall mural. Pure
+   decoration: behind all content, never intercepts clicks.
+   Position/size/opacity/rotation/pour vary per instance (set via
+   the CUPS config in HospitalityShell.jsx) so they read as
+   scattered and varied, not stamped from one template. */
+.hms-latte {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  filter: drop-shadow(0 14px 22px rgba(61,40,23,0.20));
+}
+
+.hms-latte-spine,
+.hms-latte-feather,
+.hms-swan-neck {
+  fill: none;
+  stroke: #f6ecd8;
+  stroke-linecap: round;
+}
+.hms-latte-spine   { stroke-width: 5; opacity: 0.9; }
+.hms-swan-neck    { stroke-width: 8; opacity: 0.96; }
+.hms-latte-feather { stroke-width: 6; opacity: 0.85; }
+.hms-latte-feather-lg { stroke-width: 7; }
+.hms-latte-feather-sm { stroke-width: 4; opacity: 0.75; }
+.hms-swan-head { fill: #f6ecd8; }
+.hms-swan-beak { fill: #e0a458; }
+.hms-swan-eye  { fill: #3a2212; }
+
+.hms-latte-heart {
+  fill: #f6ecd8;
+  opacity: 0.92;
+}
+.hms-latte-heart-sheen {
+  fill: none;
+  stroke: rgba(255,255,255,0.4);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.hms-latte-lobe { fill: #f6ecd8; }
+.hms-latte-lobe-1 { opacity: 0.95; }
+.hms-latte-lobe-2 { opacity: 0.82; }
+.hms-latte-lobe-3 { opacity: 0.7; }
+
+.hms-page ::-webkit-scrollbar-thumb { background: rgba(168,80,46,0.22); }
+.hms-page ::-webkit-scrollbar-thumb:hover { background: rgba(168,80,46,0.38); }
+
+/* ── Nav (coffee-cup dropdown trigger, left of the title) ────── */
+.hms-nav-wrap {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.hms-nav-trigger {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,0.5);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  font-family: inherit;
+  background: radial-gradient(circle at 32% 28%, #f2cd94, #d98a3c 55%, #a8502e 100%);
+  border-radius: 46% 54% 50% 50% / 50% 50% 50% 50%;
+  box-shadow: 0 6px 18px rgba(168,80,46,0.38), inset 0 1px 0 rgba(255,255,255,0.4);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-radius .25s ease, box-shadow .2s ease;
+}
+.hms-nav-trigger:hover {
+  transform: scale(1.08) rotate(-4deg);
+  border-radius: 50%;
+  box-shadow: 0 8px 22px rgba(168,80,46,0.46), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.hms-nav-trigger.is-open {
+  transform: scale(0.94);
+  border-radius: 50%;
+}
+
+.hms-nav-dropdown {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  z-index: 9997;
+  width: 260px;
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,253,249,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--hms-border);
+  border-radius: 16px;
+  box-shadow: 0 22px 54px rgba(168,80,46,0.24);
+  padding: 14px 12px 16px;
+  animation: hmsDropdownIn .2s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes hmsDropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hms-exit {
+  align-self: flex-start;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--hms-ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 8px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.hms-exit:hover { background: rgba(168,80,46,0.08); color: var(--hms-terracotta-deep); }
+
+.hms-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--hms-border);
+}
+.hms-brand-mark { font-size: 19px; }
+.hms-brand-name {
+  font-family: 'Caveat', 'Dancing Script', cursive;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: var(--hms-rosegold);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: hmsShine 5s linear infinite;
+}
+
+.hms-nav-scroll {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 2px;
+}
+.hms-nav-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 2px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform .32s cubic-bezier(.34,1.56,.64,1), height .32s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+}
+.hms-nav-group { display: flex; flex-direction: column; gap: 2px; }
+.hms-nav-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--hms-terracotta-deep);
+  opacity: 0.78;
+  padding: 6px 8px 4px;
+}
+.hms-nav-link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--hms-ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.hms-nav-link:hover { background: rgba(168,80,46,0.07); color: var(--hms-ink); }
+.hms-nav-link.is-active {
+  color: var(--hms-link-accent, var(--hms-terracotta-deep));
+  font-weight: 700;
+}
+.hms-nav-link-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.hms-nav-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hms-nav-link.draggable { cursor: grab; }
+.hms-nav-link.draggable:active { cursor: grabbing; }
+
+.hms-drag-hint {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(168,80,46,0.95), rgba(233,196,148,0.92));
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px; font-weight: 700; line-height: 1;
+  box-shadow: 0 6px 20px rgba(168,80,46,0.45);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* ── Header + content ───────────────────────────────────────── */
+.hms-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.hms-header {
+  flex-shrink: 0;
+  padding: 14px 32px 12px;
+  border-bottom: 1px solid var(--hms-border);
+  background: rgba(255,253,249,0.5);
+}
+.hms-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.hms-header-text {
+  flex: 1;
+  min-width: 0;
+}
+.hms-crumbs {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--hms-terracotta-deep);
+  opacity: 0.72;
+  margin-bottom: 3px;
+}
+.hms-title-row { display: flex; align-items: center; gap: 10px; }
+.hms-title-icon { font-size: 21px; line-height: 1; }
+.hms-title {
+  font-family: var(--hms-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: var(--hms-rosegold);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: hmsShine 5s linear infinite;
+}
+@keyframes hmsShine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: -220% 50%; }
+}
+.hms-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hms-subtitle {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--hms-ink-soft);
+  max-width: 640px;
+  line-height: 1.45;
+}
+
+.hms-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--hms-border-hi);
+  background: #fff;
+  color: var(--hms-terracotta-deep);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.hms-btn:hover { background: rgba(168,80,46,0.06); }
+.hms-btn.primary {
+  background: linear-gradient(135deg, var(--hms-red), #d98a3c);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(168,80,46,0.3);
+}
+.hms-btn.primary:hover { filter: brightness(1.06); }
+
+.hms-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hms-red), #d98a3c);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+  /* Bleeds slightly above/below the header row (still inside .hms-header's
+     own padding box, so it never hits .hms-page's overflow:hidden) plus a
+     matching-background ring, so it visually "floats" over the header bar
+     instead of sitting flush inside it. */
+  margin: -8px -2px -8px 0;
+  box-shadow: 0 6px 16px rgba(168,80,46,.35), 0 0 0 3px #fffdf9;
+  transition: transform .15s, box-shadow .15s;
+}
+.hms-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(168,80,46,.45), 0 0 0 3px #fffdf9;
+}
+
+.hms-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px 40px;
+  animation: hmsContentIn .32s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes hmsContentIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 860px) {
+  .hms-nav-dropdown { width: 220px; }
+  .hms-header { padding: 18px 20px 14px; }
+  .hms-content { padding: 18px 20px 32px; }
+  .hms-title { font-size: 26px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Light-theme overrides for the reused dark .yov-* classes
+   (Overview.jsx dashboard bits) — scoped to .hms-page only, so
+   the Youth ministry's own dark-theme usage is untouched.
+   ───────────────────────────────────────────────────────────── */
+
+.hms-page .yov-root { width: auto; height: auto; overflow: visible; color: var(--hms-ink); }
+.hms-page .yov-main { overflow: visible; }
+.hms-page .yov-shell { max-width: none; margin: 0; padding: 0; }
+.hms-page .yov-title,
+.hms-page .yov-next-name { color: var(--hms-ink); font-family: var(--hms-display); }
+.hms-page .yov-subtitle,
+.hms-page .yov-empty-text { color: var(--hms-ink-soft); }
+.hms-page .yov-section-label { color: var(--hms-ink-faint); }
+
+.hms-page .yov-next {
+  background: radial-gradient(140% 100% at 0% 0%, rgba(201,104,63,0.10), transparent 60%), #fff;
+  border: 1px solid var(--hms-border);
+  box-shadow: 0 2px 10px rgba(168,80,46,0.06);
+}
+.hms-page .yov-next-label { color: var(--hms-terracotta-deep); }
+.hms-page .yov-next-date { color: var(--hms-ink-soft); }
+
+.hms-page .yov-attention {
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  box-shadow: 0 2px 10px rgba(168,80,46,0.06);
+}
+.hms-page .yov-attention-row { background: rgba(168,80,46,0.04); color: var(--hms-ink); }
+.hms-page .yov-attention-row:hover { background: rgba(168,80,46,0.09); }
+.hms-page .yov-attention-arrow { color: var(--hms-ink-faint); }
+
+.hms-page .yov-stat {
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  border-top: 3px solid var(--hms-terracotta);
+  box-shadow: 0 2px 10px rgba(168,80,46,0.06);
+}
+.hms-page .yov-stat:hover { background: #fffaf2; border-color: var(--hms-border-hi); }
+.hms-page .yov-stat-n { color: var(--hms-terracotta-deep); font-family: var(--hms-display); }
+.hms-page .yov-stat-l { color: var(--hms-ink-faint); }
+
+.hms-page .yov-group {
+  background: #fff;
+  border: 1px solid var(--hms-border);
+  box-shadow: 0 2px 10px rgba(168,80,46,0.06);
+}
+.hms-page .yov-group-hd { color: var(--hms-ink); font-family: var(--hms-display); }
+.hms-page .yov-group-item {
+  background: rgba(168,80,46,0.04);
+  border: 1px solid var(--hms-border);
+  color: var(--hms-ink);
+}
+.hms-page .yov-group-item:hover { background: rgba(168,80,46,0.09); border-color: var(--hms-border-hi); }
+.hms-page .yov-group-arrow { color: var(--hms-ink-faint); }
+
+.hms-page .app-pill.active {
+  background: rgba(168,80,46,0.12);
+  color: var(--hms-terracotta-deep);
+  border: 1px solid var(--hms-border-hi);
+}
+.hms-page .app-btn.primary { background: linear-gradient(135deg, var(--hms-red), #d98a3c); border-color: transparent; color: #fff; }
+.hms-page .app-btn.ghost { background: transparent; border: 1px solid var(--hms-border-hi); color: var(--hms-ink-soft); }
+.hms-page .app-btn.ghost:hover { background: rgba(168,80,46,0.06); color: var(--hms-ink); }

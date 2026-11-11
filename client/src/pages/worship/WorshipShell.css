@@ -1,0 +1,1314 @@
+/* ─────────────────────────────────────────────────────────────
+   Worship Ministry — bespoke shell theme: "Analog Console"
+
+   Forked from HospitalityShell.css. A warm recording-studio look —
+   walnut-wood and graphite surfaces. The Overview/base theme uses
+   brass/amber VU-meter accents with a deep-teal secondary light;
+   each of the 7 sub-groups (Live, Instruments, Production, Songs,
+   Team, Gear, Admin — see ".ws-group-*" below) re-tints that same
+   accent system to its own indicator-light color, like differently
+   lit channel strips on one console, rather than one flat palette
+   for the whole ministry. Soft glow blooms drift behind the
+   content instead of falling petals or latte art. Scoped entirely
+   under .ws-page so it can't leak onto any other page; pages that
+   reuse dark .yov-* classes get overrides here too, scoped under
+   .ws-page so their *other* usages elsewhere in the app are
+   untouched.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Rack-rail picture frame ─────────────────────────────────
+   Wraps the whole shell in a dark walnut-and-brushed-brass
+   moulding, 0.5in on all sides — same carved-frame construction as
+   the other bespoke shells, re-toned to a console-hardware walnut. */
+.ws-picture-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.5in;
+  background:
+    linear-gradient(90deg, #1a1410 0%, #2b2118 10%, #4a3a26 18%, #6b5334 24%, #4a3a26 32%, #2b2118 42%, #1c1610 55%, #2a2016 70%, #1a1410 85%, #1c1610 100%);
+  box-shadow:
+    inset 0 0 2px 2px  #0d0a08,
+    inset 0 0 3px 4px  #6b5334,
+    inset 0 0 4px 8px  #3d2f1f,
+    inset 0 0 6px 13px #221a12,
+    inset 0 0 6px 18px #2a2016,
+    inset 0 0 8px 24px #100c09,
+    inset 0 0 4px 29px #4a3a26,
+    inset 0 0 3px 32px #2a2016,
+    0 16px 44px rgba(0,0,0,0.6);
+}
+
+.ws-picture-frame .ws-page {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.5),
+    inset 0 0 0 1px rgba(0,0,0,0.3);
+}
+
+/* Live Worship/Events swaps the walnut moulding for a brushed-
+   aluminum/chrome frame — a bright, "broadcast rack" finish to match
+   that group's light theme instead of the dark-console wood grain. */
+.ws-picture-frame:has(.ws-group-live) {
+  background:
+    linear-gradient(90deg, #5c6068 0%, #797d86 10%, #8f939c 18%, #a6aab3 24%, #8f939c 32%, #797d86 42%, #686c74 55%, #797d86 70%, #5c6068 85%, #686c74 100%);
+  /* The old outer red glow (`0 0 70px 8px rgba(185,28,28,.32)`, no
+     `inset`) rendered outside the frame's own box — but this element
+     already fills the whole window, so there was no visible space
+     past its edge for that shadow to spill into. It was clipped by
+     the window boundary and never actually showed up. Traded for two
+     `inset` layers instead: a crisp red hairline sitting right on the
+     frame's true outer edge, plus a soft glow bleeding inward from
+     it — both inside the box, so both actually paint on screen. */
+  box-shadow:
+    inset 0 0 2px 2px  #34363b,
+    inset 0 0 3px 4px  #a6aab3,
+    inset 0 0 4px 8px  #5c6068,
+    inset 0 0 6px 13px #90949c,
+    inset 0 0 6px 18px #686c74,
+    inset 0 0 8px 24px #34363b,
+    inset 0 0 4px 29px #a6aab3,
+    inset 0 0 3px 32px #686c74,
+    inset 0 0 0 2px rgba(185,28,28,0.55),
+    inset 0 0 36px 3px rgba(185,28,28,0.3),
+    0 16px 44px rgba(0,0,0,0.45);
+}
+.ws-picture-frame:has(.ws-group-live) .ws-page {
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.12),
+    inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+/* Recording/Production — a sleek chrome-blue frame, cool brushed
+   metal tinted toward the page's teal/cyan palette rather than the
+   neutral silver of Live's broadcast-rack finish, with an electric-
+   cyan accent hairline standing in for a lit meter edge. */
+.ws-picture-frame:has(.ws-group-production) {
+  background:
+    linear-gradient(90deg, #4a6572 0%, #7a97a3 10%, #a8c2cb 18%, #c8e0e6 24%, #a8c2cb 32%, #7a97a3 42%, #5a7681 55%, #7a97a3 70%, #4a6572 85%, #5a7681 100%);
+  box-shadow:
+    inset 0 0 2px 2px  #33444c,
+    inset 0 0 3px 4px  #c8e0e6,
+    inset 0 0 4px 8px  #7a97a3,
+    inset 0 0 6px 13px #a8c2cb,
+    inset 0 0 6px 18px #5a7681,
+    inset 0 0 8px 24px #33444c,
+    inset 0 0 4px 29px #7a97a3,
+    inset 0 0 3px 32px #5a7681,
+    inset 0 0 0 2px rgba(34,211,238,0.55),
+    inset 0 0 36px 3px rgba(34,211,238,0.3),
+    0 16px 44px rgba(0,0,0,0.4);
+}
+.ws-picture-frame:has(.ws-group-production) .ws-page {
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.3),
+    inset 0 0 0 1px rgba(0,0,0,0.15);
+}
+
+/* Song Management — "Hymnal / Songbook". An embossed leather book
+   cover: a warm oxblood/umber leather moulding standing in for the
+   walnut console frame, trimmed with a thin gilt hairline the way a
+   real book cover is tooled in gold along its edge. The page itself
+   picks up a stack of thin gold/umber rings right at its inner
+   border — the gilded page-block edge you see looking at a closed
+   hymnal from the side — rather than a single liner line. */
+.ws-picture-frame:has(.ws-group-songs) {
+  background:
+    linear-gradient(90deg, #3d2a1a 0%, #5c4028 10%, #7a5638 18%, #8f6844 24%, #7a5638 32%, #5c4028 42%, #4a301c 55%, #5c4028 70%, #3d2a1a 85%, #4a301c 100%);
+  box-shadow:
+    inset 0 0 2px 2px  #2a1c10,
+    inset 0 0 3px 4px  #8f6844,
+    inset 0 0 4px 8px  #5c4028,
+    inset 0 0 6px 13px #7a5638,
+    inset 0 0 6px 18px #4a301c,
+    inset 0 0 8px 24px #2a1c10,
+    inset 0 0 4px 29px #5c4028,
+    inset 0 0 3px 32px #4a301c,
+    inset 0 0 0 2px rgba(201,162,39,0.55),
+    inset 0 0 36px 3px rgba(201,162,39,0.22),
+    0 16px 44px rgba(0,0,0,0.5);
+}
+.ws-picture-frame:has(.ws-group-songs) .ws-page {
+  box-shadow:
+    inset 0 5px 16px rgba(46,32,19,0.28),
+    inset 0 0 0 2px #c9a227,
+    inset 0 0 0 3px #8f6844,
+    inset 0 0 0 4px #c9a227,
+    inset 0 0 0 5px #7a5638,
+    inset 0 0 0 6px #c9a227;
+}
+
+/* Instruments — a real *moulded* gilt picture frame, not one flat
+   bevel. A single sloped face reads as a decorative border; an
+   actual carved gallery frame has several stepped facets (an outer
+   bevel, a flat fillet ledge, then a second inner cove) before it
+   reaches the liner. Each facet here is its own box (the frame
+   element itself, plus ::before/::after) sized with its own inset,
+   so each one centers its own conic-gradient sweep on ITSELF —
+   meaning every facet gets its own correctly mitered 45° corner
+   seams, at its own scale, the way real mitred moulding is actually
+   cut and joined. `isolation: isolate` keeps this element's internal
+   z-index stacking (used only to order the facets/page) from ever
+   leaking out and affecting unrelated overlays elsewhere in the app. */
+.ws-picture-frame:has(.ws-group-instruments) {
+  isolation: isolate;
+  /* Facet 1 — outer bevel, the widest and most dramatic slope. Darker
+     antique-bronze palette (was a lighter mid-gold) with a deep umber
+     shadow on the bottom face for real depth. A directional inset
+     highlight/shadow pair rides on top of the conic-gradient tones to
+     fake actual carved relief — light catching the upper-left edge,
+     shadow pooling on the lower-right — instead of relying on flat
+     color alone to read as a picture frame. */
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      #8a6a2e 0deg,    /* top    — dark antique gold, no hotspot */
+      #7a5c26 90deg,   /* right  — deeper bronze */
+      #3d2c12 180deg,  /* bottom — deep umber shadow */
+      #7a5c26 270deg,  /* left   — deeper bronze */
+      #8a6a2e 360deg    /* back to top — seamless wrap */
+    );
+  box-shadow:
+    inset 0 0 0 1px  #241a0a,
+    inset 0 0 0 3px  #6b5220,
+    inset 0 0 0 4px  #241a0a,
+    inset 2px 2px 5px rgba(224,190,116,0.24),
+    inset -3px -3px 7px rgba(0,0,0,0.55),
+    0 16px 44px rgba(0,0,0,0.55);
+}
+/* Facet 2 — a flat, unshaded fillet ledge (no bevel/gradient at all)
+   between the two sloped facets, exactly like the flat step real
+   moulding profiles use to separate one carved curve from the next. */
+.ws-picture-frame:has(.ws-group-instruments)::before {
+  content: '';
+  position: absolute;
+  inset: 26px;
+  background: linear-gradient(160deg, #8a6a2e 0%, #5c4420 100%);
+  box-shadow: inset 0 1px 0 rgba(224,190,116,0.22), inset 0 -1px 0 rgba(0,0,0,0.4);
+  z-index: 0;
+  pointer-events: none;
+}
+/* Facet 3 — a second, smaller inner cove, mitered on its own smaller
+   box just like facet 1, subtler in contrast so it reads as a
+   secondary curve rather than repeating the outer bevel. */
+.ws-picture-frame:has(.ws-group-instruments)::after {
+  content: '';
+  position: absolute;
+  inset: 34px;
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      #6b5220 0deg, #6b5220 90deg, #2e2210 180deg, #6b5220 270deg, #6b5220 360deg);
+  box-shadow: inset 1px 1px 3px rgba(200,170,110,0.2), inset -2px -2px 4px rgba(0,0,0,0.45);
+  z-index: 1;
+  pointer-events: none;
+}
+/* Facet 4 — the gallery liner at the very inner lip: ivory fillet,
+   bronze line, emerald pinstripe against the actual content — the
+   classic finishing trim that steps a wide gilt moulding down to the
+   artwork/mat. Sits on .ws-page itself (a real, separate element),
+   raised above the two pseudo-element facets so the actual app UI
+   always renders on top of all of them. */
+.ws-picture-frame:has(.ws-group-instruments) .ws-page {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    inset 0 5px 16px rgba(90,66,26,0.32),
+    inset 0 0 0 4px #f7ecc9,
+    inset 0 0 0 5px #8a6a2e,
+    inset 0 0 0 6px #1f8a5f;
+}
+
+.ws-page {
+  --ws-ink:          #f3ede0;
+  --ws-ink-soft:     rgba(243,237,224,0.74);
+  --ws-ink-faint:    rgba(243,237,224,0.52);
+  --ws-rose:         #e8b563;
+  --ws-rose-deep:    #a8722a;
+  --ws-rose-deepest: #7a4f1a;
+  --ws-violet:       #2dd4bf;
+  --ws-border:       rgba(217,164,65,0.16);
+  --ws-border-hi:    rgba(217,164,65,0.32);
+  --ws-glow:         rgba(168,114,42,0.4);
+  --ws-glow-hi:      rgba(168,114,42,0.5);
+  --ws-bloom-a:      #a8722a;
+  --ws-bloom-b:      #2dd4bf;
+  --ws-serif:        'Cormorant Garamond', Georgia, serif;
+  --ws-display:      'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --ws-spotlight:    linear-gradient(100deg, var(--ws-rose-deepest) 0%, var(--ws-rose-deep) 24%, var(--ws-rose) 48%, var(--ws-violet) 74%, var(--ws-rose-deep) 100%);
+  --yps-accent:      var(--ws-rose-deep); /* themes the shared Profile Circle modal (ProfileModal.css) to this category */
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  background: linear-gradient(165deg, #221c16 0%, #17130f 45%, #100d0a 100%);
+  color: var(--ws-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Night dimming — regardless of which group's below, the blooms
+   settle down a touch after hours. */
+.ws-page.ws-time-night .ws-bloom.bloom-a,
+.ws-page.ws-time-night .ws-bloom.bloom-b { opacity: 0.35; }
+
+/* ── Per-group sub-themes ─────────────────────────────────────
+   Each of the 7 Worship groups gets its own background wash +
+   accent (rose/violet slots feed the spotlight, nav trigger,
+   buttons, borders, and blooms — everything downstream of those
+   vars re-colors automatically). Overview (no group) keeps the
+   neutral walnut/brass "Analog Console" base above — think of it
+   as the console's front panel, with each rack module below lit by
+   its own indicator color. Placed after the base .ws-page rule so
+   these win the cascade (same specificity, later wins). */
+/* Live Worship/Events — bright "broadcast studio" theme, the one
+   group that flips to a light background instead of the console's
+   walnut/graphite base. Ties the accent to the same broadcast red
+   already used by the On Air badge/tally lamps, with a cool blue
+   secondary standing in for a tally lamp. The 4 pages wrapped in
+   this group (Setlist, Service Builder, Lyrics Display, Countdown)
+   also have their internals recolored to match — see the bg/text/
+   border token overrides below, which feed those pages' own
+   dark-mode tokens, plus the dedicated overrides in each page's own
+   CSS file for the values they hardcode instead of tokenizing. */
+.ws-page.ws-group-live {
+  background: linear-gradient(165deg, #fbfbfc 0%, #f2f4f6 45%, #e8ebee 100%);
+  --ws-ink: #181c22;
+  --ws-ink-soft: rgba(24,28,34,0.72);
+  --ws-ink-faint: rgba(24,28,34,0.5);
+  --ws-rose: #b91c1c; --ws-rose-deep: #991b1b; --ws-rose-deepest: #641818;
+  --ws-violet: #1d4ed8;
+  --ws-border: rgba(15,23,42,0.1); --ws-border-hi: rgba(15,23,42,0.18);
+  --ws-glow: rgba(185,28,28,0.28); --ws-glow-hi: rgba(185,28,28,0.4);
+  --ws-bloom-a: #fca5a5; --ws-bloom-b: #93c5fd;
+
+  /* Re-feed the app's shared dark-mode tokens so the wrapped pages'
+     own token-based styling (most of Setlist/ServiceBuilder's chrome)
+     goes light automatically via cascade, without touching their CSS. */
+  --bg-deep: #f2f4f6;
+  --bg-deeper: #e8ebee;
+  --bg-panel: #ffffff;
+  --bg-glass: rgba(15,23,42,0.03);
+  --bg-glass-md: rgba(15,23,42,0.05);
+  --bg-glass-hi: rgba(15,23,42,0.08);
+  --bg-input: #ffffff;
+  --bg-hover: rgba(15,23,42,0.04);
+  --border: rgba(15,23,42,0.1);
+  --border-hi: rgba(15,23,42,0.18);
+  --border-sel: #b91c1c;
+  --text-primary: #181c22;
+  --text-secondary: rgba(24,28,34,0.72);
+  --text-muted: rgba(24,28,34,0.52);
+  --text-faint: rgba(24,28,34,0.36);
+}
+
+/* Scoped narrower than .ws-page's own amber scrollbar rule below —
+   wins on specificity over the wrapped pages' hardcoded light-on-dark
+   thumb colors too, so every scrollbar in the content area re-tints
+   without editing each page's CSS. */
+.ws-page.ws-group-live .ws-content ::-webkit-scrollbar-thumb,
+.ws-page.ws-group-live .ws-nav-scroll ::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.18); }
+.ws-page.ws-group-live .ws-content ::-webkit-scrollbar-thumb:hover,
+.ws-page.ws-group-live .ws-nav-scroll ::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.3); }
+
+/* The header bar sits directly on the group background; its old
+   dark walnut tint would otherwise show as a muddy dark stripe
+   across the new light page. */
+.ws-page.ws-group-live .ws-header {
+  background: rgba(255,255,255,0.55);
+  /* Traces the header's own bottom divider (the `border-bottom` it
+     already has) in the on-air red instead of the default border
+     tint, plus a soft glow riding just under the line so it reads
+     the same way the sidebar divider and outer frame edge do. */
+  border-bottom-color: rgba(185,28,28,0.45);
+  box-shadow: 0 1px 0 rgba(185,28,28,0.35), 0 10px 22px -10px rgba(185,28,28,0.55);
+}
+
+/* The nav dropdown's own background used to stay the console's dark
+   walnut for every group, on purpose — but Live Worship/Events re-points
+   --ws-ink/--ws-ink-soft to a dark ink meant for a *light* surface (so
+   the rest of this group's chrome reads correctly), and that override
+   cascades into the dropdown too. Left on a dark panel, the nav links
+   became dark text on a near-black background. Flip the panel light —
+   matching the same broadcast-studio treatment already applied to the
+   picture frame and header — so the whole nav bar reads as one piece
+   with the page instead of one dark leftover corner of it. */
+.ws-page.ws-group-live .ws-nav-dropdown {
+  background: rgba(255,255,255,0.97);
+  border-color: var(--ws-border-hi);
+  box-shadow: 0 22px 54px rgba(15,23,42,0.16), 0 0 0 1px rgba(185,28,28,0.14), 0 0 24px 2px rgba(185,28,28,0.14);
+}
+.ws-page.ws-group-live .ws-nav-link:hover { background: rgba(185,28,28,0.08); }
+.ws-page.ws-group-live .ws-exit:hover { background: rgba(185,28,28,0.08); }
+
+/* "Tally light" red glow on every widget in the Live Worship/Events
+   group's own management UI — cards, list items, and every button/
+   input/select/textarea pick up a soft red ring, echoing the on-air
+   red already used for the nav trigger and page accent so the whole
+   group reads as "live" rather than just its header. The :not() guard
+   excludes .cd-live and .ld-stage — those two are the actual stage/
+   projector output (Countdown's live timer, Lyrics Display's screen),
+   which the operator configures to look however they want for their
+   room; a couple of small overlay buttons live in there (fullscreen
+   toggle, prev/next), and app chrome styling has no business bleeding
+   into what gets projected on them. */
+.ws-page.ws-group-live .ws-content :is(button, input, select, textarea):not(.cd-live, .cd-live *, .ld-stage, .ld-stage *),
+.ws-page.ws-group-live .ws-content :is(.sl-card, .sb2-card, .ld-song-item, .ld-setlist-item, .ld-queue-item, .ld-section-item, .cd-setup) {
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.22), 0 0 14px 1px rgba(185,28,28,0.16);
+}
+.ws-page.ws-group-live .ws-content :is(button, input, select, textarea):not(.cd-live, .cd-live *, .ld-stage, .ld-stage *):focus-visible,
+.ws-page.ws-group-live .ws-content :is(button, input, select, textarea):not(.cd-live, .cd-live *, .ld-stage, .ld-stage *):hover {
+  box-shadow: 0 0 0 1px rgba(185,28,28,0.4), 0 0 18px 2px rgba(185,28,28,0.28);
+}
+
+/* The structural divider between a page's list column and its detail
+   panel (Setlist's .sl-sidebar, ServiceBuilder's .sb2-sidebar, Lyrics
+   Display's .ld-panel) — this is the vertical line the frame and
+   header borders above are meant to match, so it gets the same
+   on-air red treatment rather than a boxed-in ring. .ld-panel's
+   border-right is a hardcoded color (not var(--border)-driven like
+   the other two), so it needs its own explicit override here too. */
+.ws-page.ws-group-live .ws-content :is(.sl-sidebar, .sb2-sidebar, .ld-panel) {
+  border-right-color: rgba(185,28,28,0.45);
+  box-shadow: 1px 0 0 rgba(185,28,28,0.35), 14px 0 24px -16px rgba(185,28,28,0.6);
+}
+
+/* Instruments — "Great Gatsby" piano-lacquer theme: glossy black
+   surfaces, champagne-gold trim, and a thin emerald accent for that
+   Art Deco two-tone richness. Darker and more formal than the base
+   console's walnut/brass, like a lacquered grand piano under a
+   single warm spotlight rather than a rack of stage gear. Covers
+   Piano (Studio), Drums, Seaboard, and AKAI MPC. */
+.ws-page.ws-group-instruments {
+  /* Gold-finish sheet-music theme: a warm champagne/gold page (a
+     complete swap from the dark lacquer wash) with a diagonal,
+     tiled staff-lines-and-notes texture (baked into one SVG
+     <pattern>, rotated ~18°, so it reads as scattered sheet music
+     rather than a geometric CSS grid) and a matching gold flourish
+     spray fanning from two opposite corners, echoing engraved
+     gift-program stationery. The gilt picture frame and dark
+     lacquer widgets now read as if holding/sitting on a lighter
+     printed page instead of matching it tone-for-tone. */
+  background:
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNjAiIGhlaWdodD0iMjYwIiB2aWV3Qm94PSIwIDAgMjYwIDI2MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIxIiB5MT0iMCIgeDI9IjAuNyIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjN2E1YzI2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjYjk5NDRmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2U5Y2Y4ZSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgZmlsbD0idXJsKCNnKSIgZmlsbC1vcGFjaXR5PSIwLjg1Ij4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI1MCwxMCkgcm90YXRlKDE2MCkiIGQ9Ik0wLDAgQzI1LC00NSA1NSwtOTUgMjUsLTE1MCBDMTAsLTE3NSAtMjAsLTE2MCAtMTIsLTEyMCBDLTgsLTk1IDUsLTQ1IDAsMCBaIi8+CiAgICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNTAsMTApIHJvdGF0ZSgxODgpIiAgZD0iTTAsMCBDMjgsLTUwIDYwLC0xMDUgMzAsLTE2NSBDMTQsLTE5MiAtMjIsLTE3NiAtMTQsLTEzMyBDLTksLTEwNSA1LC01MCAwLDAgWiIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjUwLDEwKSByb3RhdGUoMjE2KSIgIGQ9Ik0wLDAgQzI0LC00NCA1MiwtOTIgMjQsLTE0NiBDMTAsLTE3MCAtMjAsLTE1NiAtMTIsLTExOCBDLTgsLTkyIDUsLTQ0IDAsMCBaIi8+CiAgICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNTAsMTApIHJvdGF0ZSgyNDQpIiAgZD0iTTAsMCBDMTksLTM0IDQyLC03MiAxOSwtMTE0IEM3LC0xMzQgLTE2LC0xMjMgLTksLTkxIEMtNiwtNzIgMywtMzQgMCwwIFoiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI1MCwxMCkgcm90YXRlKDI3MCkiIGQ9Ik0wLDAgQzE0LC0yNiAzMiwtNTYgMTQsLTg4IEM1LC0xMDMgLTEzLC05NCAtNywtNzAgQy01LC01NiAyLC0yNiAwLDAgWiIvPgogICAgPGNpcmNsZSBjeD0iMjUwIiBjeT0iMTAiIHI9IjYiLz4KICA8L2c+Cjwvc3ZnPgo=") top right / 300px 300px no-repeat,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNjAiIGhlaWdodD0iMjYwIiB2aWV3Qm94PSIwIDAgMjYwIDI2MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMSIgeDI9IjAuMyIgeTI9IjAiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjN2E1YzI2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjYjk5NDRmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2U5Y2Y4ZSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgZmlsbD0idXJsKCNnKSIgZmlsbC1vcGFjaXR5PSIwLjg1Ij4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLDI1MCkgcm90YXRlKC0yMCkiIGQ9Ik0wLDAgQzI1LC00NSA1NSwtOTUgMjUsLTE1MCBDMTAsLTE3NSAtMjAsLTE2MCAtMTIsLTEyMCBDLTgsLTk1IDUsLTQ1IDAsMCBaIi8+CiAgICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMCwyNTApIHJvdGF0ZSg4KSIgIGQ9Ik0wLDAgQzI4LC01MCA2MCwtMTA1IDMwLC0xNjUgQzE0LC0xOTIgLTIyLC0xNzYgLTE0LC0xMzMgQy05LC0xMDUgNSwtNTAgMCwwIFoiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLDI1MCkgcm90YXRlKDM2KSIgIGQ9Ik0wLDAgQzI0LC00NCA1MiwtOTIgMjQsLTE0NiBDMTAsLTE3MCAtMjAsLTE1NiAtMTIsLTExOCBDLTgsLTkyIDUsLTQ0IDAsMCBaIi8+CiAgICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMCwyNTApIHJvdGF0ZSg2NCkiICBkPSJNMCwwIEMxOSwtMzQgNDIsLTcyIDE5LC0xMTQgQzcsLTEzNCAtMTYsLTEyMyAtOSwtOTEgQy02LC03MiAzLC0zNCAwLDAgWiIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTAsMjUwKSByb3RhdGUoOTApIiBkPSJNMCwwIEMxNCwtMjYgMzIsLTU2IDE0LC04OCBDNSwtMTAzIC0xMywtOTQgLTcsLTcwIEMtNSwtNTYgMiwtMjYgMCwwIFoiLz4KICAgIDxjaXJjbGUgY3g9IjEwIiBjeT0iMjUwIiByPSI2Ii8+CiAgPC9nPgo8L3N2Zz4K") bottom left / 300px 300px no-repeat,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjEwMDAiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiPgogIDxkZWZzPgogICAgPHBhdHRlcm4gaWQ9InN0YWZmIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0xOCkiPgogICAgICA8ZyBzdHJva2U9IiM4YTZhMmUiIHN0cm9rZS1vcGFjaXR5PSIwLjMiIHN0cm9rZS13aWR0aD0iMS40Ij4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjQwIiB4Mj0iMjQwIiB5Mj0iNDAiLz4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjQ3IiB4Mj0iMjQwIiB5Mj0iNDciLz4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjU0IiB4Mj0iMjQwIiB5Mj0iNTQiLz4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjYxIiB4Mj0iMjQwIiB5Mj0iNjEiLz4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjY4IiB4Mj0iMjQwIiB5Mj0iNjgiLz4KICAgICAgPC9nPgogICAgICA8ZyBmaWxsPSIjOGE2YTJlIiBmaWxsLW9wYWNpdHk9IjAuMzgiPgogICAgICAgIDxlbGxpcHNlIGN4PSIzMCIgY3k9IjcwIiByeD0iNS41IiByeT0iNCIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwIDMwIDcwKSIvPgogICAgICAgIDxyZWN0IHg9IjM0LjUiIHk9IjMyIiB3aWR0aD0iMS42IiBoZWlnaHQ9IjM4Ii8+CiAgICAgICAgPGVsbGlwc2UgY3g9Ijk1IiBjeT0iNjIiIHJ4PSI1LjUiIHJ5PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSgtMjAgOTUgNjIpIi8+CiAgICAgICAgPHJlY3QgeD0iOTkuNSIgeT0iMjYiIHdpZHRoPSIxLjYiIGhlaWdodD0iMzYiLz4KICAgICAgICA8ZWxsaXBzZSBjeD0iMTYwIiBjeT0iNzIiIHJ4PSI1LjUiIHJ5PSI0IiB0cmFuc2Zvcm09InJvdGF0ZSgtMjAgMTYwIDcyKSIvPgogICAgICAgIDxyZWN0IHg9IjE2NC41IiB5PSIzNiIgd2lkdGg9IjEuNiIgaGVpZ2h0PSIzNiIvPgogICAgICAgIDxlbGxpcHNlIGN4PSIyMDUiIGN5PSI1OCIgcng9IjUuNSIgcnk9IjQiIHRyYW5zZm9ybT0icm90YXRlKC0yMCAyMDUgNTgpIi8+CiAgICAgICAgPHJlY3QgeD0iMjA5LjUiIHk9IjIyIiB3aWR0aD0iMS42IiBoZWlnaHQ9IjM2Ii8+CiAgICAgIDwvZz4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMDAiIGhlaWdodD0iMTAwMCIgZmlsbD0idXJsKCNzdGFmZikiLz4KPC9zdmc+Cg==") center / 100% 100% no-repeat,
+    radial-gradient(1000px 700px at 62% 38%, #f5ecd6 0%, #e3d3a8 42%, #c8ab6e 78%, #b3924f 100%);
+  /* Instruments now sits on a light page — flip the shell's ink to a
+     dark, warm brown/black (same technique the Live group uses for
+     its light theme) so headings/nav text stay legible; the widgets
+     stay solid dark lacquer islands (see --bg-* below, unchanged) so
+     it reads as dark gilt-edged cards laid on cream stationery. */
+  --ws-ink: #2a2013;
+  --ws-ink-soft: rgba(42,32,19,0.76);
+  --ws-ink-faint: rgba(42,32,19,0.55);
+  --ws-rose: #8a6a2e; --ws-rose-deep: #6b5220; --ws-rose-deepest: #4a3616;
+  --ws-violet: #1f8a5f;
+  --ws-border: rgba(138,106,46,0.28); --ws-border-hi: rgba(138,106,46,0.45);
+  --ws-glow: rgba(138,106,46,0.4); --ws-glow-hi: rgba(138,106,46,0.55);
+  --ws-bloom-a: #8a6a2e; --ws-bloom-b: #1f8a5f;
+  /* Solid-ify every widget: the shared app vars below are normally
+     translucent white-alpha (meant to glass over a light/neutral
+     backdrop), which read as "see-through" against a busy page and
+     would otherwise clash with a light backdrop by going murky.
+     Re-feed them as solid opaque bronze-black tones so every button/
+     card/input/toggle/pill built from var(--bg-*) becomes a flat,
+     non-transparent dark island sitting on the cream page. */
+  --bg-panel:    #1b1610;
+  --bg-glass:    #201b15;
+  --bg-glass-md: #27221c;
+  --bg-glass-hi: #312c26;
+  --bg-input:    #201b15;
+  --bg-hover:    #251f1a;
+}
+.ws-page.ws-group-instruments .ws-header {
+  background: #15100a;
+  border-bottom-color: rgba(205,164,77,0.4);
+  box-shadow: 0 1px 0 rgba(205,164,77,0.32), 0 10px 22px -10px rgba(205,164,77,0.3);
+}
+.ws-page.ws-group-instruments .ws-nav-dropdown {
+  background: rgba(8,6,4,0.95);
+  box-shadow: 0 22px 54px rgba(0,0,0,0.55), 0 0 0 1px rgba(205,164,77,0.28), 0 0 20px 1px rgba(31,138,95,0.12);
+}
+
+/* Several wrapped pages (Piano/Drums/Seaboard/AKAI, Studio/Multitrack,
+   Songs) still render their own leftover .app-topbar — the main app's
+   original header (logo, tab tag, notifications), predating these
+   pages adopting WorshipShell's own header. With WorshipShell's 🎶 nav
+   trigger + .ws-header now doing that job, the old topbar is just a
+   second stacked header/nav bar. Hide it shell-wide, for every group,
+   rather than patching each page's own CSS one at a time. */
+.ws-page .app-topbar { display: none; }
+
+/* Gold hairline at rest, an emerald flash on interaction — the same
+   two-tone trim as the frame, now on every card/button/input in this
+   group's own management UI. Playable surfaces (piano keys, drum/
+   Seaboard/AKAI pads) are excluded — they already carry their own
+   rim-glow feedback for actually playing, and app chrome has no
+   business dressing that up or dulling it. */
+.ws-page.ws-group-instruments .ws-content :is(button, input, select, textarea):not(.st-key, .st-key *, .dr-pad, .dr-pad *, .sb-pad, .sb-pad *, .ak-pad, .ak-pad *, .ak-padgrid, .ak-padgrid *),
+.ws-page.ws-group-instruments .ws-content :is(.st-saved-card, .dr-rec-item, .dr-side-section, .sb-rec-item, .sb-side-section, .ak-side-card, .ak-side-rec-item) {
+  box-shadow: 0 0 0 1px rgba(205,164,77,0.25), 0 0 14px 1px rgba(205,164,77,0.12);
+}
+.ws-page.ws-group-instruments .ws-content :is(button, input, select, textarea):not(.st-key, .st-key *, .dr-pad, .dr-pad *, .sb-pad, .sb-pad *, .ak-pad, .ak-pad *, .ak-padgrid, .ak-padgrid *):focus-visible,
+.ws-page.ws-group-instruments .ws-content :is(button, input, select, textarea):not(.st-key, .st-key *, .dr-pad, .dr-pad *, .sb-pad, .sb-pad *, .ak-pad, .ak-pad *, .ak-padgrid, .ak-padgrid *):hover {
+  box-shadow: 0 0 0 1px rgba(31,138,95,0.5), 0 0 18px 2px rgba(31,138,95,0.28);
+}
+
+/* Structural list/detail divider — Drums' .dr-side, Seaboard's
+   .sb-side, and AKAI's .ak-side each hang their border-right off
+   either the app-wide --border token or a hardcoded value, neither
+   of which is this group's own --ws-border, so each needs its own
+   explicit gold override rather than inheriting one automatically. */
+.ws-page.ws-group-instruments .ws-content :is(.dr-side, .sb-side, .ak-side) {
+  border-right-color: rgba(205,164,77,0.45);
+  box-shadow: 1px 0 0 rgba(205,164,77,0.32), 14px 0 24px -16px rgba(205,164,77,0.5);
+}
+/* Recording/Production — "Waveform Studio". Deep navy/teal body with
+   a faint, diagonally-tiled audio-waveform texture (electric cyan
+   bars, like a DAW timeline scrolling behind the UI) instead of any
+   figurative motif — a clean, modern, screen-lit look rather than
+   the ornate gilt of Instruments. Electric cyan is the primary
+   accent; a cool violet rides as the secondary, echoing a DAW's
+   waveform/selection-highlight color pairing. */
+.ws-page.ws-group-production {
+  background: radial-gradient(1400px 1200px at 50% 42%, #1b4a5c 0%, #163c4c 40%, #12303e 75%, #0e2530 100%);
+  --ws-rose: #22d3ee; --ws-rose-deep: #0e93ad; --ws-rose-deepest: #0a5c6e;
+  --ws-violet: #818cf8;
+  --ws-border: rgba(34,211,238,0.18); --ws-border-hi: rgba(34,211,238,0.34);
+  --ws-glow: rgba(14,147,173,0.4); --ws-glow-hi: rgba(14,147,173,0.52);
+  --ws-bloom-a: #0a5c6e; --ws-bloom-b: #818cf8;
+
+  /* Stems Library/Mix Notes/Scheduling Rec. are plain generic pages
+     built from the shared app-wide bg/text/border tokens, tuned for
+     the main app's navy backdrop. Left alone here they fall back to
+     those defaults — translucent white-alpha cards + faint borders —
+     which read as washed-out against this group's own deep teal.
+     Re-feed teal-tinted, higher-contrast versions so every card/
+     input/divider they're built from stands out clearly instead of
+     leaning on a mismatched, low-contrast default. */
+  --bg-deep: #163c4c;
+  --bg-deeper: #0e2530;
+  --bg-panel: #163341;
+  --bg-glass: rgba(165,243,252,0.07);
+  --bg-glass-md: rgba(165,243,252,0.11);
+  --bg-glass-hi: rgba(165,243,252,0.16);
+  --bg-input: #163341;
+  --bg-hover: rgba(165,243,252,0.09);
+  --border: rgba(34,211,238,0.2);
+  --border-hi: rgba(34,211,238,0.36);
+  --border-sel: #22d3ee;
+  --text-primary: #eef8fb;
+  --text-secondary: rgba(238,248,251,0.72);
+  --text-muted: rgba(238,248,251,0.5);
+  --text-faint: rgba(238,248,251,0.32);
+}
+/* Song Management — "Hymnal / Songbook". Flips to a warm cream page
+   (like Live's light flip, but leather/parchment instead of
+   broadcast-white) with a faint woven cross-hatch texture standing
+   in for a book's cloth binding. Oxblood leather-red is the primary
+   accent, gilt gold rides as the secondary — the two-tone palette of
+   a hand-bound hymnal. These 4 pages (Songs, Themes, CCLI Log, Chord
+   Charts) are themselves entirely driven by the shared bg/text/
+   border tokens, so re-feeding them (same technique as Live) is
+   enough to carry the theme into every card/list/input in the
+   group without touching each page's own CSS. */
+.ws-page.ws-group-songs {
+  background:
+    repeating-linear-gradient(45deg, rgba(120,86,42,0.035) 0px, rgba(120,86,42,0.035) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(-45deg, rgba(120,86,42,0.035) 0px, rgba(120,86,42,0.035) 1px, transparent 1px, transparent 5px),
+    linear-gradient(165deg, #f6ecd9 0%, #ecdcbc 45%, #ddc89a 100%);
+  --ws-ink: #2e2013;
+  --ws-ink-soft: rgba(46,32,19,0.76);
+  --ws-ink-faint: rgba(46,32,19,0.54);
+  --ws-rose: #7c2d3a; --ws-rose-deep: #5c1f28; --ws-rose-deepest: #3d141a;
+  --ws-violet: #c9a227;
+  --ws-border: rgba(90,62,32,0.16); --ws-border-hi: rgba(90,62,32,0.28);
+  --ws-glow: rgba(124,45,58,0.38); --ws-glow-hi: rgba(124,45,58,0.5);
+  --ws-bloom-a: #7c2d3a; --ws-bloom-b: #c9a227;
+
+  /* Re-feed the app's shared dark-mode tokens so Songs/Themes/CCLI
+     Log/Chord Charts' own token-based styling goes light + leather-
+     toned automatically via cascade, without touching their CSS. */
+  --bg-deep: #ecdcbc;
+  --bg-deeper: #ddc89a;
+  --bg-panel: #fffdf7;
+  --bg-glass: rgba(90,62,32,0.045);
+  --bg-glass-md: rgba(90,62,32,0.07);
+  --bg-glass-hi: rgba(90,62,32,0.1);
+  --bg-input: #fffdf7;
+  --bg-hover: rgba(90,62,32,0.05);
+  --border: rgba(90,62,32,0.14);
+  --border-hi: rgba(90,62,32,0.24);
+  --border-sel: #7c2d3a;
+  --text-primary: #2e2013;
+  --text-secondary: rgba(46,32,19,0.72);
+  --text-muted: rgba(46,32,19,0.52);
+  --text-faint: rgba(46,32,19,0.36);
+}
+.ws-page.ws-group-songs .ws-content ::-webkit-scrollbar-thumb,
+.ws-page.ws-group-songs .ws-nav-scroll ::-webkit-scrollbar-thumb { background: rgba(90,62,32,0.22); }
+.ws-page.ws-group-songs .ws-content ::-webkit-scrollbar-thumb:hover,
+.ws-page.ws-group-songs .ws-nav-scroll ::-webkit-scrollbar-thumb:hover { background: rgba(90,62,32,0.36); }
+
+/* Header sits directly on the group background — the old dark
+   walnut tint would show as a muddy stripe across the new cream
+   page, same reasoning as Live's header override. */
+.ws-page.ws-group-songs .ws-header {
+  background: rgba(255,253,247,0.55);
+  border-bottom-color: rgba(124,45,58,0.4);
+  box-shadow: 0 1px 0 rgba(124,45,58,0.32), 0 10px 22px -10px rgba(124,45,58,0.5);
+}
+/* Nav dropdown flips light to match — left on the console's dark
+   walnut panel it'd be dark text on a near-black background, since
+   this group re-points --ws-ink to a dark ink meant for a light
+   surface. */
+.ws-page.ws-group-songs .ws-nav-dropdown {
+  background: rgba(255,253,247,0.97);
+  border-color: var(--ws-border-hi);
+  box-shadow: 0 22px 54px rgba(46,32,19,0.16), 0 0 0 1px rgba(124,45,58,0.14), 0 0 24px 2px rgba(201,162,39,0.16);
+}
+.ws-page.ws-group-songs .ws-nav-link:hover { background: rgba(124,45,58,0.08); }
+.ws-page.ws-group-songs .ws-exit:hover { background: rgba(124,45,58,0.08); }
+/* Admin's 4 wrapped pages (Budget, Documents, Meetings, Backup) are
+   plain generic pages built entirely from the shared app-wide bg/
+   text/border tokens, tuned for the main app's navy backdrop — not
+   this near-black slate one. Left un-fed they fall back to those
+   defaults: translucent white-alpha cards and a faint 0.08-alpha
+   border, both of which nearly disappear against a busy dark
+   backdrop. Re-feed slate-tinted, higher-contrast versions (same
+   technique as Live/Songs/Production) so every card/input/divider/
+   label is clearly visible. */
+.ws-page.ws-group-admin {
+  background: linear-gradient(165deg, #16181c 0%, #101214 45%, #0a0b0d 100%);
+  --ws-rose: #cbd5e1; --ws-rose-deep: #94a3b8; --ws-rose-deepest: #475569;
+  --ws-violet: #e2e8f0;
+  --ws-border: rgba(148,163,184,0.16); --ws-border-hi: rgba(148,163,184,0.32);
+  --ws-glow: rgba(100,116,139,0.4); --ws-glow-hi: rgba(100,116,139,0.5);
+  --ws-bloom-a: #475569; --ws-bloom-b: #94a3b8;
+
+  --bg-deep: #101214;
+  --bg-deeper: #0a0b0d;
+  --bg-panel: #1a1c1f;
+  --bg-glass: rgba(203,213,225,0.06);
+  --bg-glass-md: rgba(203,213,225,0.1);
+  --bg-glass-hi: rgba(203,213,225,0.15);
+  --bg-input: #1a1c1f;
+  --bg-hover: rgba(203,213,225,0.08);
+  --border: rgba(148,163,184,0.18);
+  --border-hi: rgba(148,163,184,0.32);
+  --border-sel: #94a3b8;
+  --text-primary: #f1f5f9;
+  --text-secondary: rgba(241,245,249,0.7);
+  --text-muted: rgba(241,245,249,0.48);
+  --text-faint: rgba(241,245,249,0.3);
+}
+
+/* Admin — "Executive Frame". A real *moulded* picture frame, same
+   mitred-facet construction as Instruments' gilt gallery frame
+   (outer bevel → flat fillet → inner cove → liner, each its own
+   box so every facet gets correctly mitred 45° corner seams at its
+   own scale) but re-toned to a cool brushed-pewter/graphite finish
+   with a steel-blue liner instead of Instruments' warm antique gold
+   — an "executive office" frame standing in for this group's own
+   console module, befitting Budget/Documents/Meetings/Backup. */
+.ws-picture-frame:has(.ws-group-admin) {
+  isolation: isolate;
+  /* Facet 1 — outer bevel, cool brushed-pewter with a deep graphite
+     shadow on the bottom face for real carved depth. */
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      #7c8794 0deg,    /* top    — pewter, no hotspot */
+      #6b7280 90deg,   /* right  — deeper steel */
+      #2e333b 180deg,  /* bottom — graphite shadow */
+      #6b7280 270deg,  /* left   — deeper steel */
+      #7c8794 360deg    /* back to top — seamless wrap */
+    );
+  box-shadow:
+    inset 0 0 0 1px  #1c1f24,
+    inset 0 0 0 3px  #545b66,
+    inset 0 0 0 4px  #1c1f24,
+    inset 2px 2px 5px rgba(226,232,240,0.2),
+    inset -3px -3px 7px rgba(0,0,0,0.55),
+    0 16px 44px rgba(0,0,0,0.55);
+}
+/* Facet 2 — flat, unshaded fillet ledge between the two bevels. */
+.ws-picture-frame:has(.ws-group-admin)::before {
+  content: '';
+  position: absolute;
+  inset: 26px;
+  background: linear-gradient(160deg, #7c8794 0%, #4b5563 100%);
+  box-shadow: inset 0 1px 0 rgba(226,232,240,0.2), inset 0 -1px 0 rgba(0,0,0,0.4);
+  z-index: 0;
+  pointer-events: none;
+}
+/* Facet 3 — second, smaller inner cove, subtler contrast. */
+.ws-picture-frame:has(.ws-group-admin)::after {
+  content: '';
+  position: absolute;
+  inset: 34px;
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      #545b66 0deg, #545b66 90deg, #20242a 180deg, #545b66 270deg, #545b66 360deg);
+  box-shadow: inset 1px 1px 3px rgba(180,190,200,0.18), inset -2px -2px 4px rgba(0,0,0,0.45);
+  z-index: 1;
+  pointer-events: none;
+}
+/* Facet 4 — gallery liner at the inner lip: pale steel fillet, dark
+   graphite line, cool blue pinstripe against the content. */
+.ws-picture-frame:has(.ws-group-admin) .ws-page {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    inset 0 5px 16px rgba(20,24,30,0.4),
+    inset 0 0 0 4px #dde3ea,
+    inset 0 0 0 5px #6b7280,
+    inset 0 0 0 6px #3b82f6;
+}
+
+/* Gear / Tech — "Blueprint / Schematic". This group's 4 pages
+   (Inventory, Maintenance, Stage Plot, Tech Issues) are the
+   ministry's technical-drawing desk, so the frame becomes a
+   drafting-table cyanotype: fine graph-paper ruling over a print-
+   blue base, an engineering title-block stamp in the bottom-right
+   corner (where real drawings carry theirs, unlike Team's curled
+   top-left routing tag), and four corner registration/crop marks
+   standing in for Team's rivets. Stays dark like Team/Production —
+   classic blueprint ink is white-on-blue, so no --ws-ink flip is
+   needed, only the standard bg/text/border token re-feed. Primary
+   accent is a bright print-line blue; secondary is a safety-amber
+   "redline" tone, echoing how engineers mark revisions over the
+   original blue linework. */
+.ws-picture-frame:has(.ws-group-gear) {
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 20px),
+    linear-gradient(155deg, #1d4a73 0%, #163a5f 45%, #0f2842 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,0.45),
+    inset 0 0 14px 4px rgba(0,0,0,0.35),
+    inset 0 0 30px 10px rgba(0,0,0,0.25),
+    inset 0 0 0 2px rgba(165,216,255,0.4),
+    inset 0 0 36px 3px rgba(116,192,252,0.16),
+    0 16px 44px rgba(0,0,0,0.6);
+}
+/* Engineering title-block stamp — bottom-right, unrotated (drawings
+   are ruled precisely, no curled-tape tilt like Team's placard). */
+.ws-picture-frame:has(.ws-group-gear)::before {
+  content: 'GEAR / TECH';
+  position: absolute;
+  bottom: 20px;
+  right: 54px;
+  padding: 7px 16px;
+  font-family: 'Courier New', monospace;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  color: #0f2842;
+  background: linear-gradient(180deg, #eaf4fc 0%, #cfe6f7 100%);
+  border: 1px solid #0f2842;
+  box-shadow: inset 0 0 0 3px rgba(15,40,66,0.15), 0 3px 6px rgba(0,0,0,0.4);
+  pointer-events: none;
+  z-index: 2;
+}
+/* Four corner registration/crop marks, drafting-plan style. */
+.ws-picture-frame:has(.ws-group-gear)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(165,216,255,0.55), rgba(165,216,255,0.55)) 20px 12px/1px 16px no-repeat,
+    linear-gradient(90deg, rgba(165,216,255,0.55), rgba(165,216,255,0.55)) 12px 20px/16px 1px no-repeat,
+    linear-gradient(rgba(165,216,255,0.55), rgba(165,216,255,0.55)) calc(100% - 21px) 12px/1px 16px no-repeat,
+    linear-gradient(90deg, rgba(165,216,255,0.55), rgba(165,216,255,0.55)) calc(100% - 28px) 20px/16px 1px no-repeat,
+    linear-gradient(rgba(165,216,255,0.55), rgba(165,216,255,0.55)) 20px calc(100% - 28px)/1px 16px no-repeat,
+    linear-gradient(90deg, rgba(165,216,255,0.55), rgba(165,216,255,0.55)) 12px calc(100% - 21px)/16px 1px no-repeat,
+    linear-gradient(rgba(165,216,255,0.55), rgba(165,216,255,0.55)) calc(100% - 21px) calc(100% - 28px)/1px 16px no-repeat,
+    linear-gradient(90deg, rgba(165,216,255,0.55), rgba(165,216,255,0.55)) calc(100% - 28px) calc(100% - 21px)/16px 1px no-repeat;
+  pointer-events: none;
+  z-index: 2;
+}
+.ws-picture-frame:has(.ws-group-gear) .ws-page {
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.35),
+    inset 0 0 0 1px rgba(0,0,0,0.25);
+}
+
+.ws-page.ws-group-gear {
+  background:
+    repeating-linear-gradient(0deg, rgba(165,216,255,0.05) 0px, rgba(165,216,255,0.05) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(90deg, rgba(165,216,255,0.05) 0px, rgba(165,216,255,0.05) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(0deg, rgba(165,216,255,0.1) 0px, rgba(165,216,255,0.1) 1px, transparent 1px, transparent 100px),
+    repeating-linear-gradient(90deg, rgba(165,216,255,0.1) 0px, rgba(165,216,255,0.1) 1px, transparent 1px, transparent 100px),
+    linear-gradient(165deg, #1d4a73 0%, #163a5f 45%, #0f2842 100%);
+  --ws-rose: #a5d8ff; --ws-rose-deep: #74c0fc; --ws-rose-deepest: #1c7ed6;
+  --ws-violet: #f5a623;
+  --ws-border: rgba(165,216,255,0.16); --ws-border-hi: rgba(165,216,255,0.3);
+  --ws-glow: rgba(28,126,214,0.4); --ws-glow-hi: rgba(28,126,214,0.52);
+  --ws-bloom-a: #1c7ed6; --ws-bloom-b: #f5a623;
+
+  --bg-deep: #163a5f;
+  --bg-deeper: #0f2842;
+  --bg-panel: #1d4a73;
+  --bg-glass: rgba(165,216,255,0.05);
+  --bg-glass-md: rgba(165,216,255,0.09);
+  --bg-glass-hi: rgba(165,216,255,0.14);
+  --bg-input: #1d4a73;
+  --bg-hover: rgba(165,216,255,0.07);
+  --border: rgba(165,216,255,0.16);
+  --border-hi: rgba(165,216,255,0.3);
+  --border-sel: #74c0fc;
+  --text-primary: #eaf4fc;
+  --text-secondary: rgba(234,244,252,0.7);
+  --text-muted: rgba(234,244,252,0.48);
+  --text-faint: rgba(234,244,252,0.3);
+}
+.ws-page.ws-group-gear .ws-content ::-webkit-scrollbar-thumb,
+.ws-page.ws-group-gear .ws-nav-scroll ::-webkit-scrollbar-thumb { background: rgba(165,216,255,0.25); }
+.ws-page.ws-group-gear .ws-content ::-webkit-scrollbar-thumb:hover,
+.ws-page.ws-group-gear .ws-nav-scroll ::-webkit-scrollbar-thumb:hover { background: rgba(165,216,255,0.4); }
+
+.ws-page.ws-group-gear .ws-header {
+  background: rgba(15,40,66,0.55);
+  border-bottom-color: rgba(165,216,255,0.4);
+  box-shadow: 0 1px 0 rgba(165,216,255,0.3), 0 10px 22px -10px rgba(116,192,252,0.4);
+}
+.ws-page.ws-group-gear .ws-nav-dropdown {
+  background: rgba(13,34,56,0.97);
+  border-color: var(--ws-border-hi);
+  box-shadow: 0 22px 54px rgba(0,0,0,0.5), 0 0 0 1px rgba(165,216,255,0.14), 0 0 24px 2px rgba(245,166,35,0.16);
+}
+.ws-page.ws-group-gear .ws-nav-link:hover { background: rgba(165,216,255,0.1); }
+.ws-page.ws-group-gear .ws-exit:hover { background: rgba(165,216,255,0.1); }
+
+/* Band / Team — "Roadcase / Flightcase". A rugged aluminum-diamond-
+   plate flight case standing in for this group's own console module:
+   dark brushed-steel tread texture, four rivets at the corners, and a
+   stenciled orange routing placard curling off the top-left edge like
+   it's gaffer-taped to the case lid. The page stays dark (this group
+   doesn't flip light like Team's old corkboard or Songs/Live) — a
+   foam-lined case-interior charcoal with safety-orange routing-label
+   as the primary accent and a cool aluminum-blue as the secondary. */
+.ws-picture-frame:has(.ws-group-team) {
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0.22) 0px, rgba(0,0,0,0.22) 2px, transparent 2px, transparent 10px),
+    linear-gradient(155deg, #34383d 0%, #24272b 45%, #17191b 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,0.5),
+    inset 0 0 14px 4px rgba(0,0,0,0.4),
+    inset 0 0 30px 10px rgba(0,0,0,0.3),
+    inset 0 0 0 2px rgba(232,135,30,0.35),
+    inset 0 0 36px 3px rgba(232,135,30,0.12),
+    0 16px 44px rgba(0,0,0,0.6);
+}
+/* Stenciled routing placard — a small painted-metal label plate,
+   like the routing/case-number tags stenciled onto real flight
+   cases, sitting at a slight tilt as if bolted on off-square. */
+.ws-picture-frame:has(.ws-group-team)::before {
+  content: 'BAND / TEAM';
+  position: absolute;
+  top: 20px;
+  left: 54px;
+  padding: 6px 14px;
+  font-family: 'Courier New', monospace;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #23180a;
+  background: linear-gradient(180deg, #f0a020 0%, #d97e10 100%);
+  border-radius: 2px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.28);
+  transform: rotate(-1.2deg);
+  pointer-events: none;
+  z-index: 2;
+}
+/* Four rivets, one at each inner corner of the case — brushed-steel
+   caps, each a small bright highlight over a flat grey head, same
+   layered-radial-gradient trick as the old pushpins. */
+.ws-picture-frame:has(.ws-group-team)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 3.5px 3.5px, rgba(255,255,255,0.55) 0%, transparent 34%) 17px 17px/9px 9px no-repeat,
+    radial-gradient(circle at center, #cbd5e1 0%, #64748b 60%, transparent 66%) 17px 17px/9px 9px no-repeat,
+    radial-gradient(circle at 3.5px 3.5px, rgba(255,255,255,0.55) 0%, transparent 34%) calc(100% - 26px) 17px/9px 9px no-repeat,
+    radial-gradient(circle at center, #cbd5e1 0%, #64748b 60%, transparent 66%) calc(100% - 26px) 17px/9px 9px no-repeat,
+    radial-gradient(circle at 3.5px 3.5px, rgba(255,255,255,0.55) 0%, transparent 34%) 17px calc(100% - 26px)/9px 9px no-repeat,
+    radial-gradient(circle at center, #cbd5e1 0%, #64748b 60%, transparent 66%) 17px calc(100% - 26px)/9px 9px no-repeat,
+    radial-gradient(circle at 3.5px 3.5px, rgba(255,255,255,0.55) 0%, transparent 34%) calc(100% - 26px) calc(100% - 26px)/9px 9px no-repeat,
+    radial-gradient(circle at center, #cbd5e1 0%, #64748b 60%, transparent 66%) calc(100% - 26px) calc(100% - 26px)/9px 9px no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  pointer-events: none;
+  z-index: 2;
+}
+.ws-picture-frame:has(.ws-group-team) .ws-page {
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.4),
+    inset 0 0 0 1px rgba(0,0,0,0.3);
+}
+
+.ws-page.ws-group-team {
+  background:
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.035) 0%, transparent 60%) 0 0/20px 20px,
+    radial-gradient(circle at 75% 75%, rgba(0,0,0,0.28) 0%, transparent 60%) 0 0/20px 20px,
+    linear-gradient(165deg, #26292d 0%, #1c1e21 45%, #131416 100%);
+  --ws-rose: #e8871e; --ws-rose-deep: #b6650f; --ws-rose-deepest: #7a4308;
+  --ws-violet: #7ea0b8;
+  --ws-border: rgba(232,135,30,0.18); --ws-border-hi: rgba(232,135,30,0.34);
+  --ws-glow: rgba(182,101,15,0.4); --ws-glow-hi: rgba(182,101,15,0.52);
+  --ws-bloom-a: #7a4308; --ws-bloom-b: #7ea0b8;
+
+  /* Roster/Scheduling/Subs/Onboarding are plain generic pages built
+     entirely from the shared app-wide tokens — re-feed dark-charcoal/
+     routing-orange versions so every card reads as part of the case
+     interior instead of the mismatched default navy. */
+  --bg-deep: #1c1e21;
+  --bg-deeper: #131416;
+  --bg-panel: #24262a;
+  --bg-glass: rgba(232,135,30,0.05);
+  --bg-glass-md: rgba(232,135,30,0.09);
+  --bg-glass-hi: rgba(232,135,30,0.14);
+  --bg-input: #24262a;
+  --bg-hover: rgba(232,135,30,0.07);
+  --border: rgba(232,135,30,0.16);
+  --border-hi: rgba(232,135,30,0.3);
+  --border-sel: #e8871e;
+  --text-primary: #f3ede4;
+  --text-secondary: rgba(243,237,228,0.7);
+  --text-muted: rgba(243,237,228,0.48);
+  --text-faint: rgba(243,237,228,0.3);
+}
+.ws-page.ws-group-team .ws-content ::-webkit-scrollbar-thumb,
+.ws-page.ws-group-team .ws-nav-scroll ::-webkit-scrollbar-thumb { background: rgba(232,135,30,0.25); }
+.ws-page.ws-group-team .ws-content ::-webkit-scrollbar-thumb:hover,
+.ws-page.ws-group-team .ws-nav-scroll ::-webkit-scrollbar-thumb:hover { background: rgba(232,135,30,0.4); }
+
+.ws-page.ws-group-team .ws-header {
+  background: rgba(28,30,33,0.55);
+  border-bottom-color: rgba(232,135,30,0.4);
+  box-shadow: 0 1px 0 rgba(232,135,30,0.3), 0 10px 22px -10px rgba(232,135,30,0.4);
+}
+.ws-page.ws-group-team .ws-nav-dropdown {
+  background: rgba(24,26,29,0.97);
+  border-color: var(--ws-border-hi);
+  box-shadow: 0 22px 54px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,135,30,0.14), 0 0 24px 2px rgba(126,160,184,0.16);
+}
+.ws-page.ws-group-team .ws-nav-link:hover { background: rgba(232,135,30,0.1); }
+.ws-page.ws-group-team .ws-exit:hover { background: rgba(232,135,30,0.1); }
+
+.ws-bloom {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.28;
+  animation: wsBloomDrift 22s ease-in-out infinite;
+}
+.ws-bloom.bloom-a { width: 440px; height: 440px; top: -140px; left: -100px; background: var(--ws-bloom-a); }
+.ws-bloom.bloom-b { width: 400px; height: 400px; bottom: -120px; right: -80px; background: var(--ws-bloom-b); animation-delay: -11s; animation-direction: reverse; }
+
+@keyframes wsBloomDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, 24px) scale(1.08); }
+}
+
+.ws-page ::-webkit-scrollbar-thumb { background: rgba(217,164,65,0.22); }
+.ws-page ::-webkit-scrollbar-thumb:hover { background: rgba(217,164,65,0.38); }
+
+/* ── Nav (music-note dropdown trigger, left of the title) ────── */
+.ws-nav-wrap {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.ws-nav-trigger {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  font-family: inherit;
+  background: radial-gradient(circle at 32% 28%, var(--ws-rose), var(--ws-rose-deep) 55%, var(--ws-rose-deepest) 100%);
+  border-radius: 50%;
+  box-shadow: 0 6px 18px var(--ws-glow), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, background .3s ease;
+}
+.ws-nav-trigger:hover {
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 8px 22px var(--ws-glow-hi), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.ws-nav-trigger.is-open {
+  transform: scale(0.94);
+}
+
+.ws-nav-dropdown {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  z-index: 9997;
+  width: 260px;
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(24,19,15,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--ws-border);
+  border-radius: 16px;
+  box-shadow: 0 22px 54px rgba(0,0,0,0.5);
+  padding: 14px 12px 16px;
+  animation: wsDropdownIn .2s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes wsDropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.ws-exit {
+  align-self: flex-start;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--ws-ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 8px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ws-exit:hover { background: rgba(217,164,65,0.1); color: var(--ws-rose); }
+
+.ws-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--ws-border);
+}
+.ws-brand-mark { font-size: 19px; }
+.ws-brand-name {
+  font-family: 'Caveat', 'Dancing Script', cursive;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: var(--ws-spotlight);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: wsShine 5s linear infinite;
+}
+
+.ws-nav-scroll {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 2px;
+}
+.ws-nav-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 2px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform .32s cubic-bezier(.34,1.56,.64,1), height .32s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+}
+.ws-nav-group { display: flex; flex-direction: column; gap: 2px; }
+.ws-nav-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ws-rose);
+  opacity: 0.78;
+  padding: 6px 8px 4px;
+}
+.ws-nav-link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ws-ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.ws-nav-link:hover { background: rgba(217,164,65,0.09); color: var(--ws-ink); }
+.ws-nav-link.is-active {
+  color: var(--ws-link-accent, var(--ws-rose));
+  font-weight: 700;
+}
+.ws-nav-link-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.ws-nav-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ws-nav-link.draggable { cursor: grab; }
+.ws-nav-link.draggable:active { cursor: grabbing; }
+
+.ws-drag-hint {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--ws-rose-deep), var(--ws-violet));
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px; font-weight: 700; line-height: 1;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* ── Header + content ───────────────────────────────────────── */
+.ws-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.ws-header {
+  flex-shrink: 0;
+  padding: 14px 32px 12px;
+  border-bottom: 1px solid var(--ws-border);
+  background: rgba(24,19,15,0.4);
+}
+.ws-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ws-header-text {
+  flex: 1;
+  min-width: 0;
+}
+.ws-crumbs {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ws-rose);
+  opacity: 0.75;
+  margin-bottom: 3px;
+}
+.ws-title-row { display: flex; align-items: center; gap: 10px; }
+.ws-title-icon { font-size: 21px; line-height: 1; }
+.ws-title {
+  font-family: var(--ws-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: var(--ws-spotlight);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: wsShine 5s linear infinite;
+}
+@keyframes wsShine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: -220% 50%; }
+}
+.ws-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ws-subtitle {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--ws-ink-soft);
+  max-width: 640px;
+  line-height: 1.45;
+}
+
+.ws-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--ws-border-hi);
+  background: rgba(255,255,255,0.04);
+  color: var(--ws-rose);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ws-btn:hover { background: rgba(217,164,65,0.1); }
+.ws-btn.primary {
+  background: linear-gradient(135deg, var(--ws-rose-deep), var(--ws-violet));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px var(--ws-glow);
+}
+.ws-btn.primary:hover { filter: brightness(1.1); }
+
+.ws-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ws-rose-deep), var(--ws-violet));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ws-content {
+  flex: 1;
+  overflow: hidden auto;
+  padding: 24px 32px 40px;
+  animation: wsContentIn .32s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes wsContentIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Legacy full-viewport pages, nested ──────────────────────────
+   The 28 pages moved here from standalone top-level routes still
+   size their own root div with `width:100vw; height:100vh` — sized
+   for owning the whole browser window, not for living inside this
+   frame's padded content area. Left alone, that overflows past
+   .ws-content's real bounds (horizontal scrollbar) and their nested
+   `.app-bg` layer (`position:fixed; inset:0`) paints the *actual*
+   viewport, showing the plain app background through/around the
+   picture frame. Most of these pages also paint their own root with
+   `var(--bg-deep)` — the main app's dark indigo/navy backdrop — which
+   shows through as a purple-ish patch anywhere the page's own content
+   doesn't fully cover it (empty states, thin sidebars). Force them to
+   fill the content area, sit transparent, and drop their now-redundant
+   .app-bg (this shell has its own .ws-bloom backdrop). `.yov-root`
+   (Overview.jsx) is excluded — it already has its own auto-sized
+   override above. */
+.ws-content > [class*="-root"]:not(.yov-root) {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+.ws-content [class*="-root"] > .app-bg {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .ws-nav-dropdown { width: 220px; }
+  .ws-header { padding: 18px 20px 14px; }
+  .ws-content { padding: 18px 20px 32px; }
+  .ws-title { font-size: 26px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Light-theme "card" overrides for the reused .yov-* dashboard
+   classes (Overview.jsx map/grid bits) — scoped to .ws-page only,
+   so other ministries' own usage is untouched. Kept dark to match
+   the stage theme rather than light like Hospitality's.
+   ───────────────────────────────────────────────────────────── */
+
+.ws-page .yov-root { width: auto; height: auto; overflow: visible; color: var(--ws-ink); }
+.ws-page .yov-main { overflow: visible; }
+.ws-page .yov-shell { max-width: none; margin: 0; padding: 0; }
+.ws-page .yov-title,
+.ws-page .yov-next-name { color: var(--ws-ink); font-family: var(--ws-display); }
+.ws-page .yov-subtitle,
+.ws-page .yov-empty-text { color: var(--ws-ink-soft); }
+.ws-page .yov-section-label { color: var(--ws-ink-faint); }
+
+.ws-page .yov-next {
+  background: radial-gradient(140% 100% at 0% 0%, rgba(168,114,42,0.14), transparent 60%), rgba(255,255,255,0.03);
+  border: 1px solid var(--ws-border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.ws-page .yov-next-label { color: var(--ws-rose); }
+.ws-page .yov-next-date { color: var(--ws-ink-soft); }
+
+.ws-page .yov-attention {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ws-border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.ws-page .yov-attention-row { background: rgba(217,164,65,0.06); color: var(--ws-ink); }
+.ws-page .yov-attention-row:hover { background: rgba(217,164,65,0.12); }
+.ws-page .yov-attention-arrow { color: var(--ws-ink-faint); }
+
+.ws-page .yov-stat {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ws-border);
+  border-top: 3px solid var(--ws-rose);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.ws-page .yov-stat:hover { background: rgba(255,255,255,0.05); border-color: var(--ws-border-hi); }
+.ws-page .yov-stat-n { color: var(--ws-rose); font-family: var(--ws-display); }
+.ws-page .yov-stat-l { color: var(--ws-ink-faint); }
+
+.ws-page .yov-group {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ws-border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.ws-page .yov-group-hd { color: var(--ws-ink); font-family: var(--ws-display); }
+.ws-page .yov-group-item {
+  background: rgba(217,164,65,0.06);
+  border: 1px solid var(--ws-border);
+  color: var(--ws-ink);
+}
+.ws-page .yov-group-item:hover { background: rgba(217,164,65,0.12); border-color: var(--ws-border-hi); }
+.ws-page .yov-group-arrow { color: var(--ws-ink-faint); }
+
+.ws-page .app-pill.active {
+  background: rgba(217,164,65,0.16);
+  color: var(--ws-rose);
+  border: 1px solid var(--ws-border-hi);
+}
+.ws-page .app-btn.primary { background: linear-gradient(135deg, var(--ws-rose-deep), var(--ws-violet)); border-color: transparent; color: #fff; }
+.ws-page .app-btn.ghost { background: transparent; border: 1px solid var(--ws-border-hi); color: var(--ws-ink-soft); }
+.ws-page .app-btn.ghost:hover { background: rgba(217,164,65,0.08); color: var(--ws-ink); }

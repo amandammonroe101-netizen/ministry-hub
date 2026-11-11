@@ -1,0 +1,315 @@
+/* Youth → Games & Icebreakers — .yg-* */
+
+.yg-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+}
+.yg-search { max-width: 100%; }
+.yg-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.yg-filter-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-right: 6px;
+  min-width: 56px;
+}
+
+.yg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 720px) { .yg-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1080px){ .yg-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.yg-card {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.yg-card:hover {
+  background: var(--bg-glass-md);
+  border-color: color-mix(in srgb, var(--yps-accent) 30%, var(--border));
+}
+.yg-card-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.yg-card-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yg-card-meta {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+.yg-card-supplies {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  border-top: 0.5px solid var(--border);
+  padding-top: 8px;
+}
+.yg-card-supplies b { color: var(--text-secondary); }
+
+.yg-energy.yg-energy-low    { background: rgba(125, 211, 252, 0.22); color: #0369a1; }
+.yg-energy.yg-energy-medium { background: rgba(251, 191, 36, 0.22);  color: #a16207; }
+.yg-energy.yg-energy-high   { background: rgba(251, 113, 133, 0.22); color: #9f1239; }
+
+/* Modal */
+.yg-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(43,32,19,0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.yg-modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(253,246,230,0.97);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+.yg-modal-hd {
+  position: sticky; top: 0;
+  background: rgba(253,246,230,0.97);
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--border);
+}
+.yg-modal-hd h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yg-modal-grid {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.yg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.yg-field.full { grid-column: 1 / -1; }
+.yg-field-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.yg-modal-ft {
+  position: sticky; bottom: 0;
+  background: rgba(253,246,230,0.97);
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ── Catalog / Ideas tab toggle ───────────────────────────── */
+.yg-view-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+/* ── Generated Ideas ──────────────────────────────────────── */
+.yg-ideas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.yg-ideas-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background:
+    radial-gradient(140% 100% at 0% 0%, color-mix(in srgb, var(--yps-accent) 14%, transparent), transparent 60%),
+    rgba(43,32,19,0.03);
+  border: 0.5px solid color-mix(in srgb, var(--yps-accent) 25%, var(--border));
+  border-radius: var(--radius-md);
+}
+.yg-ideas-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yg-ideas-sub {
+  margin: 4px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  max-width: 640px;
+  line-height: 1.55;
+}
+
+.yg-ideas-grid {
+  display: grid;
+  /* Auto-fill flows the 5 cards across whatever width is available:
+     1 column narrow, 2-3 mid, up to 5 on wide screens. */
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+}
+
+.yg-idea-card {
+  --slot-color: var(--yps-accent);
+  background:
+    radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, var(--slot-color) 16%, transparent), transparent 60%),
+    var(--bg-glass);
+  border: 0.5px solid color-mix(in srgb, var(--slot-color) 30%, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Per-type slot colors — kept in sync with TYPE_SLOTS in Games.jsx */
+.yg-idea-icebreaker   { --slot-color: #92400e; } /* amber  */
+.yg-idea-largeGroup   { --slot-color: #9f1239; } /* rose   */
+.yg-idea-smallGroup   { --slot-color: #0f766e; } /* teal   */
+.yg-idea-getToKnow    { --slot-color: #6d28d9; } /* violet */
+.yg-idea-energyBurner { --slot-color: #16a34a; } /* green  */
+
+.yg-idea-slot {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--slot-color);
+  font-weight: 700;
+}
+.yg-idea-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.yg-idea-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.yg-idea-supplies {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.yg-idea-supplies b { color: var(--text-primary); }
+.yg-idea-instructions {
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+.yg-idea-notes {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  background: rgba(43,32,19,0.03);
+  border-left: 2px solid color-mix(in srgb, var(--slot-color) 50%, transparent);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+}
+.yg-idea-actions {
+  margin-top: auto;
+  padding-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+}
+.yg-idea-saved {
+  background: color-mix(in srgb, #16a34a 22%, transparent);
+  color: #15803d;
+  cursor: default;
+  filter: none;
+}
+
+/* Save confirmation overlay — shows on the card for ~700ms before
+   the swap, so the user can clearly see that Save (not Generate)
+   ran. Anchored at the top so it doesn't push other content. */
+.yg-idea-card { position: relative; overflow: hidden; }
+.yg-idea-saved-banner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 2;
+  padding: 8px 12px;
+  background: color-mix(in srgb, #16a34a 28%, rgba(236, 253, 245, 0.92));
+  border: 0.5px solid color-mix(in srgb, #16a34a 60%, transparent);
+  color: #15803d;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: yg-saved-pop 0.7s ease forwards;
+}
+@keyframes yg-saved-pop {
+  0%   { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  18%  { opacity: 1; transform: translateY(0)    scale(1); }
+  80%  { opacity: 1; transform: translateY(0)    scale(1); }
+  100% { opacity: 0; transform: translateY(-2px) scale(1); }
+}
+.yg-idea-card.yg-idea-saving { pointer-events: none; }
+.yg-idea-card.yg-idea-saving .yg-idea-actions { opacity: 0.6; }
+
+/* Two buttons on each idea card — Generate new + Save */
+.yg-idea-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ── Catalog cards reuse .yg-idea-card; this is the click +
+   instructions-clamp behavior that's specific to the catalog. */
+.yg-catalog-card {
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+.yg-catalog-card:hover {
+  border-color: color-mix(in srgb, var(--slot-color) 55%, var(--border));
+  transform: translateY(-1px);
+}
+/* Truncate long instructions to ~4 lines on catalog cards so heights
+   stay roughly consistent. Full text is available in the editor. */
+.yg-catalog-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -2,25 +2,36 @@
   "name": "elite-journal-hub",
   "version": "1.0.0",
   "description": "A local-first personal-growth desktop app for journaling, prayer tracking, relationship-keeping, and habit-building, with a unified calendar that pulls from every tab.",
-  "keywords": ["journal", "prayer", "habits", "calendar", "electron", "react", "sqlite", "personal-growth"],
+  "keywords": [
+    "journal",
+    "prayer",
+    "habits",
+    "calendar",
+    "electron",
+    "react",
+    "firebase",
+    "personal-growth"
+  ],
   "main": "electron/main.js",
   "author": "Elite Journal Hub",
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently --kill-others \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:electron\"",
-    "dev:server": "cd server && node index.js",
+    "dev": "concurrently --kill-others \"npm run dev:client\" \"npm run dev:electron\"",
     "dev:client": "cd client && npm run dev",
-    "dev:electron": "wait-on http://localhost:5173 http://localhost:5000/api/health && cross-env NODE_ENV=development electron .",
+    "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
     "build:client": "cd client && npm run build",
     "build": "npm run build:client && electron-builder",
     "dist:mac": "npm run build:client && electron-builder --mac",
     "dist:win": "npm run build:client && electron-builder --win",
-    "dist:linux": "npm run build:client && electron-builder --linux"
+    "dist:linux": "npm run build:client && electron-builder --linux",
+    "release:mac": "npm run build:client && electron-builder --mac --publish always",
+    "release:win": "npm run build:client && electron-builder --win --publish always",
+    "release:linux": "npm run build:client && electron-builder --linux --publish always"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
-    "electron": "^42.0.1",
+    "electron": "^43.2.0",
     "electron-builder": "^26.8.1",
     "wait-on": "^9.0.10"
   },
@@ -32,19 +43,16 @@
     },
     "files": [
       "electron/**/*",
-      "server/**/*",
       "client/dist/**/*",
       "!**/node_modules/.cache",
       "!**/*.map"
     ],
-    "extraResources": [
+    "publish": [
       {
-        "from": "server",
-        "to": "server",
-        "filter": [
-          "**/*",
-          "!node_modules/.cache"
-        ]
+        "provider": "github",
+        "owner": "REPLACE_WITH_YOUR_GITHUB_USERNAME",
+        "repo": "REPLACE_WITH_YOUR_REPO_NAME",
+        "releaseType": "release"
       }
     ],
     "mac": {
@@ -53,7 +61,13 @@
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "extendInfo": {
+        "NSCameraUseContinuityCameraDeviceType": true,
+        "NSCameraUsageDescription": "Ministry Hub uses the camera to record podcast videos through the in-app Recording Studio.",
+        "NSMicrophoneUsageDescription": "Ministry Hub uses the microphone to record podcast audio and instrument takes through the in-app Recording Studio.",
+        "NSAppleMusicUsageDescription": "Ministry Hub uses audio devices to capture podcast and music recordings."
+      }
     },
     "win": {
       "icon": "assets/icon.ico",
@@ -74,5 +88,10 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
+  },
+  "dependencies": {
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.3",
+    "firebase": "^12.13.0"
   }
 }

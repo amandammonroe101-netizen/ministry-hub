@@ -1,0 +1,61 @@
+/* Day Planner Page Settings — bespoke rules only. Shared
+   `pm-ps-*` / `pm-body` classes come from ProfileModal.css. */
+
+.dp-ps-root { display:flex; flex-direction:column; gap:14px; }
+
+/* ── How to Use guide (Page Settings → How to Use sub-tab) ──
+   A typed-out, in-app reference so users don't have to leave the
+   app to learn the page. Reuses .pm-ps-section-title from
+   ProfileModal.css for the top header. Mirrors PrayerPageSettings'
+   .pps-howto-* rules. */
+.dp-ps-howto-title-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+}
+.dp-ps-howto-download {
+  flex-shrink:0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, .85), rgba(217, 119, 6, .75));
+  border: .5px solid rgba(255, 255, 255, .2);
+  font-size: 12px; font-weight: 700; color: #1a1206;
+  text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .25);
+  cursor:pointer; transition: opacity .15s;
+}
+.dp-ps-howto-download:hover { opacity: .85; }
+.dp-ps-howto-intro {
+  font-size:11.5px; color:rgba(255,255,255,.6); line-height:1.6;
+  background:rgba(245,158,11,.06);
+  border:.5px solid rgba(245,158,11,.16);
+  border-radius:8px; padding:10px 12px;
+}
+
+/* Feedback callout — pinned to the top of the guide so it's the
+   first thing a user sees. */
+.dp-ps-howto-feedback {
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:11.5px; color:rgba(255,255,255,.72); line-height:1.6;
+  background:rgba(245,158,11,.08);
+  border:.5px solid rgba(245,158,11,.25);
+  border-radius:8px; padding:10px 12px;
+}
+.dp-ps-howto-feedback b { color:#fbbf24; }
+.dp-ps-howto-feedback-ic { font-size:14px; flex-shrink:0; line-height:1.4; }
+
+.dp-ps-howto-block { display:flex; flex-direction:column; gap:5px; }
+.dp-ps-howto-block + .dp-ps-howto-block { margin-top:12px; }
+.dp-ps-howto-h {
+  font-size:12px; font-weight:700; color:rgba(255,255,255,.9);
+  display:flex; align-items:center; gap:6px;
+}
+.dp-ps-howto-p {
+  font-size:11.5px; color:rgba(255,255,255,.62); line-height:1.6;
+}
+.dp-ps-howto-p b, .dp-ps-howto-list b { color:rgba(255,255,255,.88); }
+.dp-ps-howto-list {
+  margin:0; padding-left:16px;
+  display:flex; flex-direction:column; gap:4px;
+  font-size:11.5px; color:rgba(255,255,255,.62); line-height:1.55;
+}
+.dp-ps-howto-list li::marker { color:#f59e0b; }

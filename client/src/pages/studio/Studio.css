@@ -16,7 +16,10 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: var(--rail-w) 1fr;
+  /* NavRail is a fixed-positioned slide-out drawer, so the
+     leading var(--rail-w) column was removed — the content area
+     gets the full body width. */
+  grid-template-columns: 1fr;
   flex: 1;
   overflow: hidden;
 }
@@ -32,7 +35,7 @@
   font-size: var(--fs-sm);
   color: #fca5a5;
   padding: 4px 12px;
-  background: rgba(239,68,68,0.12);
+  background: #2d130d;
   border: 0.5px solid rgba(239,68,68,0.35);
   border-radius: var(--radius-full);
 }
@@ -63,7 +66,7 @@
   transform: translateX(-50%);
   z-index: 50;
   padding: 10px 18px;
-  background: rgba(34,211,238,0.16);
+  background: #152c2b;
   border: 0.5px solid rgba(34,211,238,0.45);
   border-radius: var(--radius-full);
   color: #67e8f9;
@@ -116,7 +119,7 @@
 }
 .st-voice-pill:hover { background: var(--bg-glass-md); color: var(--text-primary); }
 .st-voice-pill.on {
-  background: rgba(34,211,238,0.16);
+  background: #152c2b;
   border-color: rgba(34,211,238,0.55);
   color: #67e8f9;
 }
@@ -159,7 +162,7 @@
 }
 .st-toggle:hover { background: var(--bg-glass-md); color: var(--text-primary); }
 .st-toggle.on {
-  background: rgba(34,211,238,0.16);
+  background: #152c2b;
   border-color: rgba(34,211,238,0.55);
   color: #67e8f9;
 }
@@ -214,7 +217,10 @@
 }
 
 .st-key-white {
-  background: linear-gradient(180deg, #f4f1ea 0%, #e6e1d4 100%);
+  /* Warm ivory-beige instead of the old cool off-white — reads as
+     actual piano ivory, matching the Instruments group's Gatsby
+     gold/lacquer palette rather than a generic keyboard white. */
+  background: linear-gradient(180deg, #f2e6c9 0%, #ddc79a 100%);
   border-radius: 0 0 6px 6px;
   border-right: 1px solid rgba(0,0,0,0.18);
   display: flex;
@@ -225,19 +231,19 @@
   gap: 3px;
 }
 .st-key-white:last-of-type { border-right: none; }
-.st-key-white:hover { background: linear-gradient(180deg, #fffdf7 0%, #ece7da 100%); }
+.st-key-white:hover { background: linear-gradient(180deg, #f8eeda 0%, #e6d2a5 100%); }
 .st-key-white.active {
   background: linear-gradient(180deg, #67e8f9 0%, #22d3ee 100%);
   transform: translateY(2px);
 }
 .st-key-white.in-scale {
-  background: linear-gradient(180deg, #f4f1ea 0%, #d8eef0 100%);
+  background: linear-gradient(180deg, #f5e9c8 0%, #e9d29c 100%);
 }
 .st-key-white.in-scale.active {
   background: linear-gradient(180deg, #67e8f9 0%, #22d3ee 100%);
 }
 .st-key-white.dim {
-  background: linear-gradient(180deg, #cfcabd 0%, #b8b3a6 100%);
+  background: linear-gradient(180deg, #c9c2ac 0%, #b0a892 100%);
   opacity: 0.55;
 }
 
@@ -245,22 +251,29 @@
   position: absolute;
   top: 8px;
   height: 62%;
-  background: linear-gradient(180deg, #2b2838 0%, #14121d 100%);
+  /* Gold instead of the old flat charcoal — a warm gold body via a
+     plain vertical gradient. (Previously layered a diagonal glossy
+     highlight streak on top too, but that read as an "extra shine"
+     glare rather than a piano key, so it's gone — the vertical
+     gradient alone still reads as gold/lacquer without the glare.) */
+  background: linear-gradient(180deg, #f2d488 0%, #cda44d 24%, #8a6423 58%, #b98f3d 82%, #edc978 100%);
   border-radius: 0 0 5px 5px;
-  border: 1px solid #000;
+  border: 1px solid #3a2c10;
   z-index: 2;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 6px;
 }
-.st-key-black:hover { background: linear-gradient(180deg, #3a3650 0%, #1c1929 100%); }
+.st-key-black:hover {
+  background: linear-gradient(180deg, #f8e0a2 0%, #dab35c 24%, #a2793a 58%, #cda44d 82%, #f5d68e 100%);
+}
 .st-key-black.active {
   background: linear-gradient(180deg, #22d3ee 0%, #0e7490 100%);
   transform: translateY(2px);
 }
 .st-key-black.in-scale {
-  background: linear-gradient(180deg, #1f3a44 0%, #14121d 100%);
+  background: linear-gradient(180deg, #f5d99a 0%, #dab35c 24%, #9c7434 58%, #cda44d 82%, #f2d488 100%);
 }
 .st-key-black.in-scale.active {
   background: linear-gradient(180deg, #22d3ee 0%, #0e7490 100%);
@@ -277,7 +290,7 @@
   font-size: 10px;
   font-weight: 700;
   color: #c2326e;
-  background: rgba(255,255,255,0.6);
+  background: #f0ead9;
   border: 0.5px solid rgba(0,0,0,0.12);
   border-radius: 4px;
   width: 16px;
@@ -289,7 +302,10 @@
 .st-key-comp-black {
   font-size: 9px;
   font-weight: 700;
-  color: #67e8f9;
+  /* Was cyan, tuned for the old dark-charcoal key. Against the new
+     gold key body that reads as low-contrast/clashing, so it's now
+     a deep bronze ink instead — legible on gold without fighting it. */
+  color: rgba(45,28,4,0.85);
 }
 
 .st-keyboard-legend {
@@ -301,7 +317,7 @@
   display: inline-block;
   padding: 1px 5px;
   margin: 0 1px;
-  background: rgba(255,255,255,0.08);
+  background: #251f1a;
   border: 0.5px solid var(--border-hi);
   border-bottom-width: 1.5px;
   border-radius: 3px;
@@ -398,11 +414,11 @@
   transition: all 0.08s;
 }
 .st-chord-pad:hover {
-  background: rgba(34,211,238,0.12);
+  background: #142422;
   border-color: rgba(34,211,238,0.4);
 }
 .st-chord-pad:active {
-  background: rgba(34,211,238,0.28);
+  background: #164447;
   transform: translateY(2px);
 }
 .st-pad-roman {
@@ -486,10 +502,35 @@
   transition: all var(--transition);
 }
 .st-save-song:hover {
-  background: rgba(34,211,238,0.12);
+  background: #142422;
   border-color: rgba(34,211,238,0.4);
   color: #67e8f9;
 }
+.st-rec-stems-btn {
+  align-self: stretch;
+  text-align: left;
+  padding: 8px 12px;
+  background: #291618;
+  border: 0.5px solid rgba(244, 114, 182, 0.45);
+  border-radius: var(--radius-md);
+  color: var(--accent-pink, #f472b6);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all var(--transition);
+}
+.st-rec-stems-btn:hover {
+  background: #3f2029;
+  border-color: rgba(244, 114, 182, 0.70);
+  color: #f9a8d4;
+}
+.st-rec-stems-btn.is-saved {
+  background: #1c321c;
+  border-color: rgba(74, 222, 128, 0.55);
+  color: var(--accent-green, #4ade80);
+}
+
 .st-discard {
   align-self: flex-start;
   background: transparent;
@@ -531,7 +572,7 @@
   cursor: pointer;
   transition: all var(--transition);
 }
-.st-voice-custom-del:hover { color: #fca5a5; background: rgba(239,68,68,0.12); }
+.st-voice-custom-del:hover { color: #fca5a5; background: #2d130d; }
 
 /* ─────────────────────────────────────────────────────────────
    Effects + Voice Editor panels
@@ -632,3 +673,558 @@
   transition: all var(--transition);
 }
 .st-ve-reset:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+
+/* ─────────────────────────────────────────────────────────────
+   Saved-chord memory (custom chords grouped by song)
+   ───────────────────────────────────────────────────────────── */
+.st-saved-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.st-saved-add {
+  height: 30px;
+  padding: 0 12px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--tab-studio);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.st-saved-add:hover {
+  background: #142422;
+  border-color: rgba(34,211,238,0.4);
+}
+
+.st-saved-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.st-saved-filter-lbl {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.st-saved-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-glass-md);
+  border: 0.5px solid rgba(34,211,238,0.35);
+  border-radius: var(--radius-md);
+}
+.st-saved-dialog-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.st-saved-input { width: 100%; }
+.st-saved-dialog-preview {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-family: ui-monospace, monospace;
+  padding: 6px 8px;
+  background: var(--bg-glass);
+  border-radius: var(--radius-sm);
+}
+.st-saved-dialog-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.st-saved-dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.st-saved-cancel {
+  height: 32px;
+  padding: 0 14px;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.st-saved-cancel:hover { background: var(--bg-glass); color: var(--text-primary); }
+.st-saved-confirm {
+  height: 32px;
+  padding: 0 16px;
+  background: var(--tab-studio);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #06262b;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--transition);
+}
+.st-saved-confirm:hover { filter: brightness(1.1); }
+
+.st-saved-empty {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+.st-saved-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+/* ── New: saved chords as press-and-hold pads, grouped by entry ── */
+.st-saved-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.st-saved-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  background: #16100a;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.st-saved-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 0.5px dashed var(--border);
+}
+
+.st-saved-group-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.st-saved-pads {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+/* Pad variant — inherits .st-chord-pad styling; we just add the key badge and
+   the active state for keyboard-triggered presses. */
+.st-saved-pad {
+  position: relative;
+  padding: 12px 4px 10px;
+  min-height: 64px;
+}
+.st-saved-pad.is-active {
+  background: #174c50;
+  border-color: rgba(34,211,238,0.65);
+  transform: translateY(2px);
+  box-shadow: 0 0 18px rgba(34,211,238,0.25);
+}
+/* Entry-level key badge — one shortcut per saved entry; press it to play
+   every chord in the entry stacked together. */
+.st-saved-group-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: #153030;
+  color: var(--tab-studio);
+  border: 0.5px solid rgba(34,211,238,0.45);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: all 80ms;
+}
+
+.st-saved-group.is-held {
+  background: #131814;
+  border-color: rgba(34,211,238,0.45);
+  box-shadow: 0 0 18px rgba(34,211,238,0.18);
+}
+.st-saved-group.is-held .st-saved-group-key {
+  background: var(--tab-studio);
+  color: #07101a;
+  border-color: var(--tab-studio);
+  transform: scale(1.06);
+}
+.st-saved-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.08s;
+}
+.st-saved-card:hover {
+  border-color: rgba(34,211,238,0.4);
+}
+.st-saved-card.multi {
+  grid-column: span 2;
+}
+
+/* Header row of a saved-chord card: name on the left, play-all + delete on the right */
+.st-saved-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.st-saved-card-head-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* "Play all" button on multi-chord cards */
+.st-saved-play-all {
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tab-studio);
+  background: #14201d;
+  border: 0.5px solid rgba(34,211,238,0.30);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.st-saved-play-all:hover { background: #163839; }
+.st-saved-play-all.on {
+  background: var(--tab-studio);
+  color: #07101a;
+  animation: st-play-all-pulse 0.9s ease-in-out infinite alternate;
+}
+.st-saved-play-all:disabled { cursor: default; }
+@keyframes st-play-all-pulse {
+  from { box-shadow: 0 0 0 0 rgba(34,211,238,0.50); }
+  to   { box-shadow: 0 0 12px 2px rgba(34,211,238,0.20); }
+}
+
+/* Chord chips — one per chord in a saved entry */
+.st-saved-chord-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.st-saved-chord-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  background: #131814;
+  border: 0.5px solid rgba(34,211,238,0.18);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+  cursor: pointer;
+  transition: all 80ms;
+  min-width: 0;
+}
+.st-saved-chord-chip:hover {
+  background: #152c2b;
+  border-color: rgba(34,211,238,0.4);
+}
+.st-saved-chord-chip:active {
+  background: #17484c;
+}
+.st-saved-chip-idx {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  background: #153434;
+  color: var(--tab-studio);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+}
+.st-saved-chip-lbl {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--tab-studio);
+  font-size: 11px;
+}
+.st-saved-chip-notes {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Dialog hint text under the title */
+.st-saved-dialog-hint {
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+
+/* Captured-chord list inside the save dialog */
+.st-saved-dialog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: #17110b;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.st-saved-dialog-list-head {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 2px 2px;
+}
+.st-saved-dialog-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.st-saved-dialog-row-idx {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #153434;
+  color: var(--tab-studio);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.st-saved-dialog-row-play {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  text-align: left;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 80ms;
+}
+.st-saved-dialog-row-play:hover { background: #14201d; }
+.st-saved-dialog-row-play:active { background: #163e40; }
+.st-saved-dialog-row-label {
+  width: 86px;
+  padding: 4px 6px;
+  background: #1b1610;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-display);
+  text-align: center;
+  flex-shrink: 0;
+}
+.st-saved-dialog-row-label:focus {
+  outline: none;
+  border-color: rgba(34,211,238,0.5);
+}
+.st-saved-dialog-row-del {
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.st-saved-dialog-row-del:hover {
+  color: #fca5a5;
+  background: #2d130d;
+  border-color: rgba(239,68,68,0.4);
+}
+
+/* "+ Add chord" button styled distinctly from save/cancel */
+.st-saved-add-chord {
+  padding: 6px 12px;
+  background: #14201d;
+  border: 0.5px dashed rgba(34,211,238,0.45);
+  border-radius: var(--radius-sm);
+  color: var(--tab-studio);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.st-saved-add-chord:hover {
+  background: #163839;
+  border-style: solid;
+}
+
+.st-saved-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* ── Arming-mode panel inside the save dialog ── */
+.st-saved-dialog-arming {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: #131c19;
+  border: 0.5px solid rgba(34,211,238,0.45);
+  border-radius: var(--radius-sm);
+  animation: st-arm-pulse 1.4s ease-in-out infinite alternate;
+}
+@keyframes st-arm-pulse {
+  from { box-shadow: 0 0 0 0 rgba(34,211,238,0.18); }
+  to   { box-shadow: 0 0 18px 2px rgba(34,211,238,0.22); }
+}
+.st-saved-dialog-arming-head {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--tab-studio);
+}
+.st-saved-dialog-arming-notes {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  min-height: 18px;
+}
+.st-saved-dialog-arming-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.st-saved-dialog-arming-hint b { color: var(--tab-studio); font-weight: 700; }
+
+/* "✓ Capture chord" commit button (used while armed) */
+.st-saved-capture {
+  padding: 6px 14px;
+  background: var(--tab-studio);
+  border: 0.5px solid var(--tab-studio);
+  border-radius: var(--radius-sm);
+  color: #07101a;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter var(--transition);
+}
+.st-saved-capture:hover { filter: brightness(1.12); }
+.st-saved-capture:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+}
+.st-saved-play {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+}
+.st-saved-play:hover { background: #14201d; }
+.st-saved-play:active { background: #163839; }
+.st-saved-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+.st-saved-notes {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: ui-monospace, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+.st-saved-cat {
+  font-size: 10px;
+  color: var(--tab-studio);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.st-saved-edit,
+.st-saved-del {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.st-saved-edit:hover {
+  color: var(--tab-studio);
+  background: #142422;
+  border-color: rgba(34,211,238,0.4);
+}
+.st-saved-del:hover { color: #fca5a5; background: #2d130d; border-color: rgba(239,68,68,0.4); }
+.st-saved-del.armed {
+  background: #431814;
+  color: #fecaca;
+  border-color: rgba(239,68,68,0.6);
+}

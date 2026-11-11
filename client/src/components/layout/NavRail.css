@@ -1,94 +1,634 @@
-/* ──────────────────────────────────────────────
-   NavRail — vertical tab navigation
-   Tokens from index.css. Pages set width via
-   the --rail-w var (default 48px).
-   ────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   NavRail — slide-out drawer.
+
+   The rail used to be a fixed-width column in every page layout.
+   Now it's a full-height drawer that slides in from the left when
+   the user clicks the floating ☰ trigger. Wide enough (260px) to
+   show every nav item with both icon + label visible.
+   ───────────────────────────────────────────────────────────── */
 
 .nav-rail {
-  background: rgba(255,255,255,0.025);
-  border-right: 0.5px solid var(--border);
+  /* Fixed, full-height drawer. Translated off-screen by default;
+     slides in when `.is-open` is added. */
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 260px;
+  background: rgba(14, 10, 30, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 0.5px solid var(--border, rgba(255, 255, 255, 0.1));
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 12px 0;
-  gap: 4px;
-  position: relative;
-  z-index: 2;
+  padding: 0;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1100;
+  scrollbar-width: none;
+  transform: translateX(-100%);
+  transition: transform .28s cubic-bezier(.2, .7, .3, 1);
+  will-change: transform;
+}
+.nav-rail.is-open { transform: translateX(0); }
+.nav-rail::-webkit-scrollbar { display: none; }
+
+/* Dim backdrop behind the drawer when open. Click anywhere to
+   close — same UX pattern as a sheet/drawer in iOS. */
+.nr-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(8, 6, 18, .55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1099;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease;
+}
+.nr-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+/* Floating ☰ trigger — always visible at the top-left so every
+   page can open the rail. Sits above everything at z-index 9999. */
+.nr-trigger {
+  position: fixed;
+  top: 9px; left: 12px;
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  /* Solid gradient + clear border so it reads at a glance on every
+     background — the old translucent style was too subtle on dark
+     pages and effectively invisible on some lighter ones. */
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.9), rgba(199, 121, 234, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 9px;
+  color: #ffffff;
+  font-size: 18px; line-height: 1;
+  cursor: pointer; font-family: inherit;
+  box-shadow:
+    0 4px 14px rgba(140, 100, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  z-index: 9999;
+  transition: transform .15s, box-shadow .15s, opacity .2s;
+}
+.nr-trigger:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 6px 18px rgba(140, 100, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+/* Hide the trigger while the drawer is open — the close X handles
+   the reverse action. */
+.nr-trigger.is-hidden {
+  opacity: 0; pointer-events: none;
+  transform: scale(.8);
 }
 
-.nr-btn {
-  position: relative;
-  width: 36px;
-  height: 36px;
+/* Hide the floating ☰ trigger entirely while a Writing Mode document is
+   open, for a distraction-free writing surface. The body class is set by
+   the FocusWriter editor; exit the document to bring the trigger back. */
+body.wm-in-document .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Women's Ministry page is active —
+   that section has its own rose-shaped nav trigger in the top-right,
+   and the purple hamburger clashes with its warm rose/gold theme. */
+body.wms-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Hospitality Ministry page is
+   active — that section has its own coffee-cup nav trigger in the
+   top-right, and the purple hamburger clashes with its warm
+   terracotta/cream theme. */
+body.hms-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Children's Ministry page is
+   active — that section has its own ◆ gem nav trigger + category
+   dropdown, and the purple hamburger clashes with its theme. */
+body.cms-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Website Ministry page is
+   active — that section has its own 🌐 nav trigger in the
+   top-right. */
+body.wbs-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Tech / Production Ministry
+   page is active — that section has its own 🎛 control-knob nav
+   trigger in the top-right, and the purple hamburger clashes with
+   its dark green/charcoal control-room theme. */
+body.tps-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Men's Ministry page is active —
+   that section has its own 🧭 compass nav trigger in the top-right,
+   and the purple hamburger clashes with its rugged navy/rust theme. */
+body.mns-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Blog Ministry page is active —
+   that section has its own ✒ quill nav trigger in the top-right, and
+   the purple hamburger clashes with its warm ink/parchment theme. */
+body.blg-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Youth Ministry page is active —
+   that section has its own ⚡ nav trigger in the top-right, and the
+   purple hamburger clashes with its electric purple/amber theme. */
+body.yms-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while an Outreach Ministry page is
+   active — that section has its own 🤲 nav trigger in the top-right,
+   and the purple hamburger clashes with its teal/sunrise theme. */
+body.osh-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Discipleship Ministry page is
+   active — that section has its own 🌿 leaf nav trigger in the
+   top-right, and the purple hamburger clashes with its cool
+   teal/gold "River of Life" theme. */
+body.dps-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while an Administration page is
+   active — that section has its own 🏛 nav trigger in the
+   top-right, and the purple hamburger clashes with its dark
+   slate/institutional theme. */
+body.ash-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Hide the floating ☰ trigger while a Business page is active —
+   that section has its own 💼 nav trigger in the top-right, and the
+   purple hamburger clashes with its emerald/gold boardroom theme. */
+body.bzs-shell-active .nr-trigger {
+  display: none;
+}
+
+/* Draggable nav items show a grab cursor so the tear-off gesture is
+   discoverable. Active drag uses the browser's native drag image. */
+.nr-item.draggable { cursor: grab; }
+.nr-item.draggable:active { cursor: grabbing; }
+
+/* Floating hint shown while a nav item is being dragged. */
+.nr-drag-hint {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.95), rgba(125, 211, 252, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 10px;
+  color: #ffffff;
+  font-size: 13px; font-weight: 600; line-height: 1;
+  box-shadow: 0 6px 20px rgba(80, 140, 255, 0.5);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* Merge drop zone — left strip of the main window, lit while a
+   detached window is dragged back toward the menu. Matches the 360px
+   hit-test region used by the main process. */
+.nr-merge-zone {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 360px;
+  max-width: 50vw;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(90deg,
+    rgba(167, 139, 250, 0.30),
+    rgba(167, 139, 250, 0.12) 70%,
+    transparent);
+  border-right: 2px dashed rgba(199, 121, 234, 0.7);
+  z-index: 9998;
+  pointer-events: none;
+  animation: nr-merge-pulse 1.2s ease-in-out infinite;
+}
+.nr-merge-zone-label {
+  padding: 10px 16px;
+  background: rgba(40, 30, 70, 0.85);
+  border: 1px solid rgba(199, 121, 234, 0.6);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 13px; font-weight: 600;
+  box-shadow: 0 6px 20px rgba(140, 100, 255, 0.45);
+}
+@keyframes nr-merge-pulse {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
+}
+
+/* "Put back" control shown only inside a detached pop-out window —
+   top-right so it clears the macOS traffic-light buttons. */
+.nr-putback {
+  position: fixed;
+  top: 9px; right: 12px;
+  height: 36px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 14px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.9), rgba(199, 121, 234, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 9px;
+  color: #ffffff;
+  font-size: 13px; font-weight: 600; line-height: 1;
+  cursor: pointer; font-family: inherit;
+  box-shadow:
+    0 4px 14px rgba(140, 100, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  z-index: 9999;
+  transition: transform .15s, box-shadow .15s;
+}
+.nr-putback:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 6px 18px rgba(140, 100, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+/* Close ✕ inside the drawer header — top-right of the wordmark. */
+.nr-close {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px; line-height: 1;
+  cursor: pointer; font-family: inherit;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.nr-close:hover {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.32);
+}
+
+/* ── App wordmark ─────────────────────────────────────────── */
+.nr-wordmark {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-muted);
-  border: 0.5px solid transparent;
+  gap: 10px;
+  padding: 16px 14px 14px;
+  flex-shrink: 0;
+}
+
+.nr-wordmark-cross {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--accent-purple, #a78bfa);
+  text-shadow: 0 0 16px rgba(167, 139, 250, 0.5);
+  flex-shrink: 0;
+}
+
+.nr-wordmark-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.1;
+  overflow: hidden;
+}
+
+.nr-wordmark-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-primary, #f0f0f5);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.nr-wordmark-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted, #5a5a6a);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+.nr-divider {
+  height: 1px;
+  background: var(--border, rgba(255,255,255,0.07));
+  margin: 4px 0;
+  flex-shrink: 0;
+}
+
+/* ── Section wrapper ──────────────────────────────────────── */
+.nr-section {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  gap: 1px;
+}
+
+/* ── Nav item (leaf page link) ────────────────────────────── */
+.nr-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 34px;
+  padding-right: 12px;
   background: transparent;
-  transition: all var(--transition);
+  border: none;
+  border-radius: 0;
+  color: var(--text-muted, #5a5a6a);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease, color 120ms ease;
+  white-space: nowrap;
+  overflow: hidden;
   --tab-color: var(--accent-purple);
 }
 
-.nr-icon {
-  font-size: 16px;
-  line-height: 1;
-  transition: transform var(--transition);
+.nr-item:hover {
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-primary, #f0f0f5);
 }
 
-.nr-btn:hover { background: var(--bg-glass); color: var(--text-primary); }
-.nr-btn:hover .nr-icon { transform: scale(1.08); }
-
-.nr-btn.on {
-  background: var(--bg-glass-md);
-  border-color: var(--border-hi);
-  color: var(--text-primary);
-  box-shadow: 0 0 0 1px var(--tab-color) inset, 0 0 16px -4px var(--tab-color);
+.nr-item.on {
+  background: rgba(255, 255, 255, 0.065);
+  color: var(--text-primary, #f0f0f5);
+  font-weight: 600;
 }
 
-.nr-btn.disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-.nr-btn.disabled:hover { background: transparent; }
-.nr-btn.disabled:hover .nr-icon { transform: none; }
-
-/* Floating label on hover (revealed to the right of the rail) */
-.nr-label {
+/* Colored left-edge bar for active item */
+.nr-item-bar {
   position: absolute;
-  left: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%) translateX(-4px);
-  padding: 4px 9px;
-  border-radius: 6px;
-  background: rgba(13,11,30,0.92);
-  border: 0.5px solid var(--border);
-  color: var(--text-primary);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--transition), transform var(--transition);
-  box-shadow: var(--shadow-md);
-  z-index: 100;
-}
-.nr-btn:hover .nr-label {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-/* Active tab indicator — a small colored bar on the left edge */
-.nr-indicator {
-  position: absolute;
-  left: -7px;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
-  height: 18px;
+  height: 20px;
   border-radius: 0 3px 3px 0;
   background: var(--tab-color);
   box-shadow: 0 0 8px var(--tab-color);
+  flex-shrink: 0;
+}
+
+.nr-item-icon {
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.nr-item-label {
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Unread-count badge — currently used for the Chat tab. Sits on the
+   right edge of the nav item so it's visible without distorting the
+   label. Pulses gently to draw the eye when there are unread items. */
+.nr-item-badge {
+  flex-shrink: 0;
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: 0 2px 6px rgba(96, 165, 250, 0.55);
+  animation: nr-badge-pulse 1.8s ease-in-out infinite;
+}
+@keyframes nr-badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+
+/* ── "Coming soon" disabled items ─────────────────────────── */
+.nr-item-soon {
+  cursor: default;
+  opacity: 0.45;
+}
+.nr-item-soon:hover {
+  background: transparent;
+  color: var(--text-muted, #5a5a6a);
+}
+
+.nr-soon-badge {
+  margin-left: auto;
+  padding: 1px 5px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.07);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, #5a5a6a);
+  flex-shrink: 0;
+}
+
+/* ── Top-level group header ───────────────────────────────── */
+.nr-group {
+  /* relative so the always-on color bar (.nr-item-bar) anchors
+     to this row instead of escaping up the DOM. */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 32px;
+  padding-right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease, color 120ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--text-secondary, #9a9aaa);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+/* Tinted ministry styling is applied via inline JSX styles in
+   NavRail.jsx GroupHeader — this CSS block was removed to avoid
+   any specificity conflicts. */
+
+.nr-group:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary, #f0f0f5);
+}
+
+.nr-group.active {
+  color: var(--text-primary, #f0f0f5);
+}
+
+/* ── Sub-group header — tinted with --group-color ─────────── */
+.nr-subgroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 30px;
+  padding-right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease, color 120ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 1px;
+
+  /* Default: muted; overridden to group color when open/active */
+  color: var(--text-muted, #5a5a6a);
+  --group-color: var(--accent-purple, #a78bfa);
+}
+
+.nr-subgroup:hover {
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--group-color);
+}
+
+.nr-subgroup.open,
+.nr-subgroup.active {
+  color: var(--group-color);
+}
+
+/* Shared icon / label / chevron pieces */
+.nr-group-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.nr-group-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nr-group-chevron {
+  font-size: 10px;
+  color: var(--text-muted, #5a5a6a);
+  flex-shrink: 0;
+  transition: color 120ms;
+}
+
+.nr-group:hover .nr-group-chevron {
+  color: var(--text-secondary, #9a9aaa);
+}
+
+.nr-subgroup:hover .nr-group-chevron,
+.nr-subgroup.open .nr-group-chevron,
+.nr-subgroup.active .nr-group-chevron {
+  color: var(--group-color);
+}
+
+/* ── Group body / sub-group body ──────────────────────────── */
+.nr-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.nr-subgroup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* ── Signed-in user footer (sticks to the bottom of the rail) ── */
+.nr-user {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(15, 14, 12, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.nr-user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.10);
+}
+.nr-user-avatar.has-img { overflow: hidden; box-shadow: none; }
+.nr-user-avatar.has-img .cav { border-radius: 50%; }
+.nr-user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.nr-user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary, #f5f5f4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nr-user-email {
+  font-size: 10.5px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nr-user-logout {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.nr-user-logout:hover {
+  background: rgba(239, 68, 68, 0.10);
+  border-color: rgba(239, 68, 68, 0.40);
+  color: #fca5a5;
 }

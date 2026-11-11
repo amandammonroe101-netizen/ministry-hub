@@ -1,0 +1,635 @@
+/* ─────────────────────────────────────────────────────────────
+   Administration Ministry — bespoke shell theme (prototype)
+
+   A cool, institutional "dashboard" look — dark slate surfaces
+   with a steel-blue accent — meant to feel like its own space
+   rather than a tab inside the app's dark glass shell, while still
+   reading as more buttoned-up/corporate than the warmer ministry
+   shells. Scoped entirely under .ash-page so it can't leak onto any
+   other page; the existing dark .ac-* classes (ComingSoon) already
+   match this palette, so no light-theme override block is needed
+   here (compare OutreachShell.css, which retints those classes for
+   its light theme).
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Picture frame ──────────────────────────────────────────
+   Brushed-steel moulding — same carved-moulding construction used
+   by every other ministry shell (banded base gradient + stacked
+   inset shadows for a beveled groove), just in a cool slate/silver
+   tone instead of wood or floral pastel. */
+.ash-picture-frame {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.5in;
+  background:
+    linear-gradient(115deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.18) 38%,
+      rgba(255,255,255,0.32) 50%,
+      rgba(255,255,255,0.18) 62%,
+      rgba(255,255,255,0) 100%
+    ),
+    linear-gradient(90deg, #1e293b 0%, #475569 20%, #64748b 45%, #334155 70%, #1e293b 100%);
+  box-shadow:
+    inset 0 0 2px 2px  #0f172a,
+    inset 0 0 3px 4px  #94a3b8,
+    inset 0 0 4px 8px  #334155,
+    inset 0 0 6px 13px #1e293b,
+    inset 0 0 6px 18px #475569,
+    inset 0 0 8px 24px #0f172a,
+    inset 0 0 4px 29px #94a3b8,
+    inset 0 0 3px 32px #64748b,
+    0 16px 44px rgba(0,0,0,0.5);
+}
+
+.ash-picture-frame .ash-page {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 5px 16px rgba(0,0,0,0.30),
+    inset 0 0 0 1px rgba(0,0,0,0.20);
+}
+
+.ash-page {
+  --ash-ink:        #e2e8f0;
+  --ash-ink-soft:   rgba(226,232,240,0.74);
+  --ash-ink-faint:  rgba(226,232,240,0.52);
+  --ash-slate:      #64748b;
+  --ash-slate-deep: #94a3b8;
+  --ash-steel:      #38bdf8;
+  --ash-border:     rgba(148,163,184,0.16);
+  --ash-border-hi:  rgba(148,163,184,0.32);
+  --ash-institutional: linear-gradient(100deg, #64748b 0%, #94a3b8 30%, #38bdf8 55%, #94a3b8 78%, #64748b 100%);
+  --ac-accent:      #64748b; /* re-tint reused .ac-* accent for this theme */
+  --yps-accent:     var(--ash-slate); /* themes the shared Profile Circle modal (ProfileModal.css) to this category */
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  background: linear-gradient(165deg, #0f172a 0%, #1e293b 45%, #0f172a 100%);
+  color: var(--ash-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Time-of-day background variants — same dark slate family, just a
+   subtly different warmth so the space feels alive across the day. */
+.ash-page.ash-time-morning {
+  background: linear-gradient(165deg, #111827 0%, #1e293b 45%, #14212f 100%);
+}
+.ash-page.ash-time-afternoon {
+  background: linear-gradient(165deg, #0f172a 0%, #1e293b 45%, #0f172a 100%);
+}
+.ash-page.ash-time-evening {
+  background: linear-gradient(165deg, #12172a 0%, #1c2333 42%, #0f172a 100%);
+}
+.ash-page.ash-time-night {
+  background: linear-gradient(165deg, #0b1220 0%, #161f30 40%, #0b1220 100%);
+}
+.ash-page.ash-time-night .ash-glow.glow-a,
+.ash-page.ash-time-night .ash-glow.glow-b { opacity: 0.35; }
+
+.ash-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.22;
+  animation: ashGlowDrift 24s ease-in-out infinite;
+}
+.ash-glow.glow-a { width: 440px; height: 440px; top: -140px; left: -100px; background: #38bdf8; }
+.ash-glow.glow-b { width: 400px; height: 400px; bottom: -120px; right: -80px; background: #64748b; animation-delay: -12s; animation-direction: reverse; }
+.ash-glow.glow-c {
+  width: 340px; height: 340px;
+  top: 40%; left: 50%;
+  background: #94a3b8;
+  opacity: 0.12;
+  animation: ashGlowDrift 30s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+@keyframes ashGlowDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, 24px) scale(1.08); }
+}
+
+/* Animated blueprint grid — a faint moving lattice that reads as
+   "institutional systems" rather than decoration; masked to a soft
+   radial fade so it never competes with foreground content. A
+   pseudo-element (not a real .ash-glow layer) so it can't be
+   affected by the .ash-time-* background shorthand overrides on
+   .ash-page, which reset background-size/position if declared on
+   that same element. */
+.ash-page::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 30%, #000 40%, transparent 88%);
+  mask-image: radial-gradient(120% 90% at 50% 30%, #000 40%, transparent 88%);
+  animation: ashGridDrift 40s linear infinite;
+}
+
+@keyframes ashGridDrift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 84px 42px, 84px 42px; }
+}
+
+/* HUD-style scan sweep — a soft glowing band that drifts down the
+   page on a slow loop, using percentage `top` keyframes (not a
+   transform) so its travel distance tracks the container's actual
+   height rather than the pseudo-element's own near-zero height. */
+.ash-page::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 140px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(56,189,248,0.05) 40%,
+    rgba(56,189,248,0.09) 50%,
+    rgba(56,189,248,0.05) 60%,
+    transparent 100%);
+  animation: ashScanSweep 9s ease-in-out infinite;
+}
+
+@keyframes ashScanSweep {
+  0%   { top: -20%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 110%; opacity: 0; }
+}
+
+.ash-page.ash-time-night .ash-glow.glow-c { opacity: 0.08; }
+.ash-page.ash-time-night::before { opacity: 0.6; }
+.ash-page.ash-time-night::after { opacity: 0.7; }
+
+.ash-page ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.22); }
+.ash-page ::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.38); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-glow,
+  .ash-page::before,
+  .ash-page::after,
+  .ash-nav-trigger::before { animation: none; }
+  .ash-page::after,
+  .ash-nav-trigger::before { display: none; }
+}
+
+/* ── Nav (dropdown trigger, left of the title) ──────────────── */
+.ash-nav-wrap {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.ash-nav-trigger {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  font-family: inherit;
+  background: radial-gradient(circle at 32% 28%, #94a3b8, #64748b 55%, #334155 100%);
+  border-radius: 30% 30% 30% 30% / 20% 20% 20% 20%;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.5), inset 0 1px 0 rgba(255,255,255,0.16);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-radius .25s ease, box-shadow .2s ease;
+}
+.ash-nav-trigger::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  border: 1.5px solid rgba(56,189,248,0.55);
+  opacity: 0;
+  pointer-events: none;
+  animation: ashTriggerPulse 3.2s ease-out infinite;
+}
+@keyframes ashTriggerPulse {
+  0%   { opacity: 0.55; transform: scale(0.9); }
+  70%  { opacity: 0; transform: scale(1.28); }
+  100% { opacity: 0; transform: scale(1.28); }
+}
+.ash-nav-trigger:hover {
+  transform: scale(1.06);
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(15,23,42,0.6), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.ash-nav-trigger.is-open {
+  transform: scale(0.94);
+  border-radius: 12px;
+}
+
+.ash-nav-dropdown {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  z-index: 9997;
+  width: 260px;
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15,23,42,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--ash-border);
+  border-radius: 16px;
+  box-shadow: 0 22px 54px rgba(0,0,0,0.5);
+  padding: 14px 12px 16px;
+  animation: ashDropdownIn .2s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes ashDropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.ash-exit {
+  align-self: flex-start;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--ash-ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 8px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ash-exit:hover { background: rgba(148,163,184,0.1); color: var(--ash-slate-deep); }
+
+.ash-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--ash-border);
+}
+.ash-brand-mark { font-size: 19px; color: var(--ash-slate-deep); }
+.ash-brand-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  background: var(--ash-institutional);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: ashShine 5s linear infinite;
+}
+
+.ash-nav-scroll {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 2px;
+}
+.ash-nav-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 2px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform .32s cubic-bezier(.34,1.56,.64,1), height .32s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+}
+.ash-nav-group { display: flex; flex-direction: column; gap: 2px; }
+.ash-nav-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ash-slate-deep);
+  opacity: 0.85;
+  padding: 6px 8px 4px;
+}
+.ash-nav-link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ash-ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.ash-nav-link:hover { background: rgba(148,163,184,0.1); color: var(--ash-ink); }
+.ash-nav-link.is-active {
+  color: var(--ash-link-accent, var(--ash-slate-deep));
+  font-weight: 700;
+}
+.ash-nav-link-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.ash-nav-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Draggable nav links (Electron only) — grab cursor signals the
+   tear-off-into-its-own-window gesture, matching the main NavRail. */
+.ash-nav-link.draggable { cursor: grab; }
+.ash-nav-link.draggable:active { cursor: grabbing; }
+
+/* Floating hint shown while a nav link is being dragged. */
+.ash-drag-hint {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(51,65,85,0.95), rgba(100,116,139,0.92));
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px; font-weight: 700; line-height: 1;
+  box-shadow: 0 6px 20px rgba(15,23,42,0.5);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* ── Header + content ───────────────────────────────────────── */
+.ash-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.ash-header {
+  flex-shrink: 0;
+  padding: 14px 32px 12px;
+  border-bottom: 1px solid var(--ash-border);
+  background: rgba(15,23,42,0.4);
+}
+.ash-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ash-header-text {
+  flex: 1;
+  min-width: 0;
+}
+.ash-crumbs {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ash-slate-deep);
+  opacity: 0.78;
+  margin-bottom: 3px;
+}
+.ash-title-row { display: flex; align-items: center; gap: 10px; }
+.ash-title-icon { font-size: 21px; line-height: 1; }
+.ash-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+  background: var(--ash-institutional);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: ashShine 5s linear infinite;
+}
+@keyframes ashShine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: -220% 50%; }
+}
+.ash-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ash-subtitle {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--ash-ink-soft);
+  max-width: 640px;
+  line-height: 1.45;
+}
+
+.ash-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--ash-border-hi);
+  background: rgba(255,255,255,0.04);
+  color: var(--ash-slate-deep);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ash-btn:hover { background: rgba(148,163,184,0.1); }
+.ash-btn.primary {
+  background: linear-gradient(135deg, #334155, #64748b);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(15,23,42,0.4);
+}
+.ash-btn.primary:hover { filter: brightness(1.1); }
+
+.ash-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #334155, #38bdf8);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ash-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px 40px;
+  /* No `both`/`forwards` fill-mode: once this finishes, the element
+     must fall back to `transform: none`. A lingering non-none
+     transform (even translateY(0)) creates a new containing block,
+     which hijacks position:fixed descendants like ProfileModal —
+     the modal ends up centered/clipped against this scrollable div
+     instead of the real viewport. */
+  animation: ashContentIn .32s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes ashContentIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 860px) {
+  .ash-nav-dropdown { width: 220px; }
+  .ash-header { padding: 18px 20px 14px; }
+  .ash-content { padding: 18px 20px 32px; }
+  .ash-title { font-size: 22px; }
+}
+
+/* ── Page Lock screen — shown by AdministrationShell instead of
+   children when this section is code-gated from Settings → Page
+   Settings. Naming: .ash-lock-*. ─────────────────────────────── */
+.ash-lock-wrap {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 100%;
+}
+.ash-lock-card {
+  position: relative;
+  width: min(380px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 32px 30px;
+  border-radius: 20px;
+  border: 1px solid var(--ash-border);
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  overflow: hidden;
+  animation: ashLockIn 300ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.ash-lock-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--ash-institutional);
+}
+.ash-lock-icon {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.ash-lock-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ash-slate-deep);
+}
+.ash-lock-title {
+  margin: 8px 0 6px;
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 700;
+  color: var(--ash-ink);
+}
+.ash-lock-sub {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ash-ink-soft);
+}
+.ash-lock-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--ash-border);
+  background: rgba(255,255,255,0.04);
+  color: var(--ash-ink);
+  font-size: 15px;
+  font-family: inherit;
+  text-align: center;
+  letter-spacing: 0.12em;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.ash-lock-input:focus {
+  border-color: var(--ash-border-hi);
+  box-shadow: 0 0 0 3px rgba(148,163,184,0.15);
+}
+.ash-lock-err {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fb7185;
+}
+.ash-lock-btn {
+  margin-top: 18px;
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, #334155, #64748b);
+  box-shadow: 0 6px 16px rgba(15,23,42,0.4);
+  transition: filter 140ms ease, transform 140ms ease, opacity 140ms ease;
+}
+.ash-lock-btn:hover:not(:disabled) { filter: brightness(1.15); transform: translateY(-1px); }
+.ash-lock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ash-lock-settings-link {
+  margin-top: 16px;
+  border: none;
+  background: none;
+  padding: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--ash-ink-faint);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.ash-lock-settings-link:hover { color: var(--ash-slate-deep); }
+
+@keyframes ashLockIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ash-lock-card { animation: none; }
+  .ash-lock-btn:hover { transform: none; }
+}

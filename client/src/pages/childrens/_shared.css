@@ -1,0 +1,187 @@
+/* Children's-Ministry shared utility CSS — used across every
+   page so the look stays consistent without duplicating styles.
+   Namespace: .cm-*  (Children's Ministry).
+   Color cue: --yps-accent (set by the shell). */
+
+/* ── Empty state ────────────────────────────────────────────── */
+.cm-empty {
+  padding: 32px 18px;
+  text-align: center;
+  background: var(--bg-glass);
+  border: 0.5px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+}
+.cm-empty-icon { font-size: 38px; }
+.cm-empty-title {
+  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cm-empty-sub { font-size: var(--fs-sm); }
+
+/* ── Toolbar (search + add) ─────────────────────────────────── */
+.cm-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cm-toolbar .yps-input { flex: 1; min-width: 240px; }
+
+/* ── Filter chip row ────────────────────────────────────────── */
+.cm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.cm-chip-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+/* ── Card grid (responsive) ─────────────────────────────────── */
+.cm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.cm-card {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), transform var(--transition);
+}
+.cm-card:hover {
+  border-color: color-mix(in srgb, var(--yps-accent) 50%, var(--border));
+  background: var(--bg-glass-md);
+  transform: translateY(-1px);
+}
+.cm-card-hd {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cm-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cm-card-sub { font-size: var(--fs-sm); color: var(--text-secondary); }
+.cm-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* ── Modal (used by editors across pages) ───────────────────── */
+.cm-modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(8,7,22,0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.cm-modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(20,18,38,0.95);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+}
+.cm-modal-hd {
+  position: sticky; top: 0;
+  background: rgba(20,18,38,0.95);
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--border);
+}
+.cm-modal-hd h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+.cm-modal-body {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cm-modal-ft {
+  position: sticky; bottom: 0;
+  background: rgba(20,18,38,0.95);
+  padding: 12px 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cm-field { display: flex; flex-direction: column; gap: 4px; }
+.cm-field.full { grid-column: 1 / -1; }
+.cm-field-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ── Pill colors (semantic) ─────────────────────────────────── */
+.cm-good { background: rgba(16,185,129,0.16);  color: #047857; }
+.cm-warn { background: rgba(251,191,36,0.24);  color: #92400e; }
+.cm-bad  { background: rgba(239,68,68,0.16);   color: #b91c1c; }
+.cm-info { background: rgba(37,99,235,0.14);   color: #1d4ed8; }
+
+/* ── List rows (simple table-ish) ───────────────────────────── */
+.cm-rows {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.cm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 0.5px solid var(--border);
+  background: transparent;
+  border-bottom: 0;
+  border-left: 0; border-right: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  width: 100%;
+  transition: background var(--transition);
+}
+.cm-row:first-child { border-top: 0; }
+.cm-row:hover { background: var(--bg-glass-md); }
+.cm-row-name {
+  flex: 1;
+  font-weight: 600;
+}
+.cm-row-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}

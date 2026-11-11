@@ -1,0 +1,189 @@
+/* ─────────────────────────────────────────────────────────────
+   Women's → Support Groups
+   Rose-gold pass: this page shares LifeStages.css's .wls-* system
+   directly (sidebar, panels, stats, filter chips, roster rows,
+   buttons — same embossed rose-gold surfaces and tokens, scoped to
+   the .wls-root wrapper this page also renders inside of) and the
+   .ys-* form primitives from youth/AllStudents.css. Only the group
+   card + a few page-specific bits below are their own styling,
+   prefix .sg-
+   ───────────────────────────────────────────────────────────── */
+
+.sg-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  padding: 13px;
+  background: linear-gradient(150deg, #fff6ee, #f0c3b2 70%, #dba489);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--wls-3d-shadow-sm);
+  transition: all .15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.sg-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+.sg-card.on {
+  box-shadow: var(--wls-3d-shadow-sm), 0 0 0 3px rgba(196,19,60,0.35);
+}
+
+.sg-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.sg-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wms-ink, #3d1728);
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+
+.sg-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255,255,255,0.55);
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+.sg-badge.is-open   { background: rgba(74,222,128,.28); color: #14532d; }
+.sg-badge.is-closed { background: rgba(255,255,255,0.5); color: var(--wms-ink-faint, rgba(61,23,40,0.52)); }
+
+.sg-card-line {
+  font-size: 13px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+.sg-card-foot {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(196,19,60,0.14);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sg-card-roster {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+}
+
+/* ── Detail panel ──────────────────────────────────────────────
+   .ys-form already lays this out (flex column, gap); .wls-panel
+   (applied alongside it in JSX) gives it the same embossed surface
+   as every other widget on this page. */
+.sg-detail-panel {
+  box-shadow: var(--wls-3d-shadow), 0 0 0 2px rgba(232,116,154,0.35);
+}
+
+.sg-detail-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sg-title-inp {
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+}
+.sg-title-inp:focus {
+  background: rgba(255,255,255,0.4);
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+}
+
+.sg-roster-unlinked {
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--wms-ink-faint, rgba(61,23,40,0.52));
+}
+
+.sg-del-btn {
+  appearance: none;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  border: none;
+  box-shadow: var(--wls-3d-shadow-sm);
+  color: var(--wms-rose-deep, #c2426a);
+  cursor: pointer;
+  transition: all .15s;
+}
+.sg-del-btn:hover { background: linear-gradient(145deg, #ffd7d7, #fca5a5); }
+.sg-del-btn.armed { background: linear-gradient(145deg, #ff9b9b, #ef4444); color: #fff; }
+
+/* ── Search + status toolbar (Groups panel) ───────────────────── */
+.sg-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sg-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 220px;
+  min-width: 200px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #fff9f4, #ffffff);
+  border: 1px solid var(--wms-border, rgba(196,19,60,0.14));
+  box-shadow: var(--wls-3d-shadow-sm);
+}
+.sg-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--wms-ink, #3d1728);
+  font-family: var(--wls-sans);
+}
+.sg-search input:focus { outline: none; }
+.sg-search-clear {
+  appearance: none;
+  border: none;
+  background: none;
+  font-size: 12px;
+  color: var(--wms-ink-soft, rgba(61,23,40,0.74));
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Checkbox chips (Open to new / Sync to calendar) ──────────── */
+.sg-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #fff6ee, #f2c9b8);
+  box-shadow: var(--wls-3d-shadow-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}

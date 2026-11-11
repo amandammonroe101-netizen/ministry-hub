@@ -1,0 +1,469 @@
+/* ─────────────────────────────────────────────────────────────
+   Countdown — pre-service timer for projectors / confidence monitors
+   Naming: .cd-*
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Root layout ────────────────────────────────────────────── */
+.cd-root {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.cd-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Setup panel ────────────────────────────────────────────── */
+.cd-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 40px 48px;
+  max-width: 620px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.cd-page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #f0f0f5;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+/* ── Form fields ────────────────────────────────────────────── */
+.cd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cd-field--row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cd-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cd-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 245, 0.4);
+}
+
+.cd-time-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f0f0f5;
+  font-size: 28px;
+  font-family: ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  padding: 10px 14px;
+  width: 160px;
+  outline: none;
+  transition: border-color 0.15s;
+  color-scheme: dark;
+}
+
+.cd-time-input:focus {
+  border-color: #14b8a6;
+  background: rgba(20, 184, 166, 0.06);
+}
+
+.cd-textarea {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f0f0f5;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: 10px 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 56px;
+}
+
+.cd-textarea:focus {
+  border-color: #14b8a6;
+  background: rgba(20, 184, 166, 0.06);
+}
+
+.cd-textarea::placeholder {
+  color: rgba(240, 240, 245, 0.25);
+}
+
+/* ── Toggle switch ──────────────────────────────────────────── */
+.cd-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(240, 240, 245, 0.55);
+  cursor: pointer;
+  user-select: none;
+}
+
+.cd-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.cd-toggle--on {
+  background: #14b8a6;
+}
+
+.cd-toggle-thumb {
+  position: absolute;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.cd-toggle--on .cd-toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ── Theme picker ───────────────────────────────────────────── */
+.cd-theme-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cd-theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  width: 72px;
+  height: 56px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0 0 6px;
+  transition: border-color 0.15s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.cd-theme-btn:hover {
+  transform: translateY(-2px);
+}
+
+.cd-theme-btn--active {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.cd-theme-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cd-theme-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  line-height: 1;
+}
+
+/* ── Font style picker ──────────────────────────────────────── */
+.cd-font-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.cd-font-btn {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(240, 240, 245, 0.7);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  text-align: center;
+}
+
+.cd-font-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #f0f0f5;
+}
+
+.cd-font-btn--active {
+  background: rgba(20, 184, 166, 0.12);
+  border-color: #14b8a6;
+  color: #14b8a6;
+}
+
+/* ── Preview badge ──────────────────────────────────────────── */
+.cd-preview-badge {
+  font-size: 36px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-align: center;
+  padding: 20px 0 4px;
+  opacity: 0.8;
+  transition: color 0.2s, font-family 0.2s;
+}
+
+/* ── Go Live button ─────────────────────────────────────────── */
+.cd-go-btn {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  background: #14b8a6;
+  color: #03302c;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  margin-top: 4px;
+  box-shadow: 0 4px 24px rgba(20, 184, 166, 0.25);
+}
+
+.cd-go-btn:hover {
+  background: #0fd7c2;
+  box-shadow: 0 6px 32px rgba(20, 184, 166, 0.4);
+  transform: translateY(-1px);
+}
+
+.cd-go-btn:active {
+  transform: translateY(0);
+  background: #0e9b8b;
+}
+
+/* ── Live display ───────────────────────────────────────────── */
+.cd-live {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Full-area background (handles both solid and gradient via inline style) */
+.cd-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: background 0.4s ease, background-color 0.4s ease;
+}
+
+/* Content sits above background */
+.cd-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Pre-service message */
+.cd-pre-msg {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 32px;
+  max-width: 600px;
+  letter-spacing: 0.01em;
+  transition: opacity 0.3s;
+}
+
+/* Main countdown clock */
+.cd-clock {
+  font-size: clamp(64px, 14vw, 180px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: color 0.3s;
+  /* font-family and font-weight set inline */
+}
+
+/* Live Worship group — digital/7-segment LED look for the shell's
+   broadcast theme. font-family/color are set inline per the page's
+   own color-theme picker, so !important is needed to win here. */
+.ws-page.ws-group-live .cd-clock {
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, monospace !important;
+  font-weight: 700 !important;
+  color: var(--ws-rose) !important;
+  text-shadow: 0 0 8px var(--ws-glow), 0 0 22px var(--ws-glow);
+  letter-spacing: 0.04em;
+}
+.ws-page.ws-group-live .cd-current-time {
+  color: var(--ws-rose-deep) !important;
+  text-shadow: 0 0 4px var(--ws-glow);
+}
+
+/* "Until service begins" sub-label */
+.cd-sub-msg {
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 20px 0 0;
+  opacity: 0.5;
+}
+
+/* ── Service started state ──────────────────────────────────── */
+.cd-started {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cd-started-msg {
+  font-size: clamp(36px, 6vw, 80px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-align: center;
+  max-width: 800px;
+  animation: cd-pulse 2s ease-in-out infinite;
+}
+
+@keyframes cd-pulse {
+  0%   { opacity: 1;    transform: scale(1); }
+  50%  { opacity: 0.75; transform: scale(1.015); }
+  100% { opacity: 1;    transform: scale(1); }
+}
+
+/* ── Corner overlays ────────────────────────────────────────── */
+
+/* Current wall-clock time — bottom-right */
+.cd-current-time {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  font-size: 13px;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.04em;
+  z-index: 2;
+  user-select: none;
+}
+
+/* Tap-gesture hint — bottom-center, fades in/out via .cd-tap-hint--visible */
+.cd-tap-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  white-space: nowrap;
+}
+
+.cd-tap-hint--visible {
+  opacity: 0.4;
+}
+
+/* ── Scrollbar styling for setup panel ─────────────────────── */
+.cd-setup::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cd-setup::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cd-setup::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.cd-setup::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Worship Ministry — Live group light theme (setup-form chrome
+   only) — .cd-clock/.cd-current-time/.cd-pre-msg/.cd-started-msg/
+   .cd-sub-msg below already have their own independent projector
+   color-theme picker (plus the LED-look override above) and are
+   untouched here. ── */
+.ws-page.ws-group-live .cd-page-title { color: #181c22; }
+.ws-page.ws-group-live .cd-section-label { color: rgba(15,23,42,0.45); }
+.ws-page.ws-group-live .cd-time-input,
+.ws-page.ws-group-live .cd-textarea {
+  background: rgba(15,23,42,0.035);
+  border-color: rgba(15,23,42,0.12);
+  color: #181c22;
+}
+.ws-page.ws-group-live .cd-textarea::placeholder { color: rgba(15,23,42,0.3); }
+.ws-page.ws-group-live .cd-toggle-label { color: rgba(15,23,42,0.6); }
+.ws-page.ws-group-live .cd-toggle { background: rgba(15,23,42,0.14); }
+.ws-page.ws-group-live .cd-font-btn {
+  border-color: rgba(15,23,42,0.12);
+  background: rgba(15,23,42,0.03);
+  color: rgba(15,23,42,0.7);
+}
+.ws-page.ws-group-live .cd-font-btn:hover {
+  background: rgba(15,23,42,0.06);
+  color: #181c22;
+}

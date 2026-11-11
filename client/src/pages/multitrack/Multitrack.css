@@ -16,7 +16,9 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: var(--rail-w) 240px 1fr;
+  /* Dropped the leading var(--rail-w) — NavRail is fixed-positioned
+     and removed from grid auto-placement. */
+  grid-template-columns: 240px 1fr;
   flex: 1;
   overflow: hidden;
 }
@@ -56,9 +58,11 @@
   gap: 4px;
 }
 .mt-project {
+  position: relative;
   width: 100%;
   text-align: left;
   padding: 9px 11px;
+  padding-right: 34px;
   background: var(--bg-glass);
   border: 0.5px solid var(--border);
   border-radius: var(--radius-md);
@@ -74,9 +78,57 @@
 }
 .mt-project-name { font-size: var(--fs-md); font-weight: 500; }
 .mt-project-meta { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
+
+/* Per-card delete button — subtle by default, red when armed. */
+.mt-project-del {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--transition), background var(--transition), color var(--transition), border-color var(--transition);
+}
+.mt-project:hover .mt-project-del,
+.mt-project-del:focus-visible {
+  opacity: 0.7;
+}
+.mt-project-del:hover {
+  opacity: 1;
+  color: #fca5a5;
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.35);
+}
+.mt-project-del.armed {
+  opacity: 1;
+  color: #fff;
+  background: rgba(239,68,68,0.85);
+  border-color: rgba(239,68,68,1);
+  animation: mt-project-del-pulse 1s ease-in-out infinite;
+  padding: 0 8px;
+  font-weight: 600;
+}
+@keyframes mt-project-del-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.55); }
+  50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+}
+
 .mt-project-add {
   border-style: dashed;
   color: var(--text-muted);
+  padding-right: 11px;
 }
 .mt-project-add:hover { color: var(--tab-multitrack); border-color: rgba(52,211,153,0.4); }
 
@@ -352,6 +404,11 @@
   border-color: var(--tab-multitrack);
   color: var(--tab-multitrack);
 }
+.mt-tp-split { font-size: 15px; }
+.mt-tp-split:hover:not(:disabled) {
+  color: var(--tab-multitrack);
+  border-color: var(--tab-multitrack);
+}
 .mt-tp-input-meter {
   display: inline-flex;
   align-items: center;
@@ -363,6 +420,55 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--text-muted);
+}
+/* Live oscilloscope of the mic input — sits between the INPUT
+   label and the peak bar while recording so the user can see the
+   actual voice vibrations, not just the peak. */
+.mt-wave-meter {
+  display: block;
+  height: 36px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(239,68,68,0.07), rgba(239,68,68,0.02));
+  border: 0.5px solid rgba(239,68,68,0.28);
+  box-shadow: inset 0 0 12px rgba(239,68,68,0.08);
+}
+/* Live take — the chunky-peaks waveform that builds up below the
+   transport while recording. Same visual language as a finished
+   clip (ClipWaveform), so the user sees what's about to land in
+   the timeline as it's being captured. */
+.mt-live-take {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 6px 0 4px;
+  padding: 6px 10px 6px 80px;
+  background:
+    linear-gradient(180deg, rgba(239,68,68,0.10), rgba(239,68,68,0.02)),
+    var(--bg-elevated, #1a1726);
+  border: 0.5px solid rgba(239,68,68,0.35);
+  border-radius: 8px;
+  box-shadow: inset 0 0 20px rgba(239,68,68,0.08);
+}
+.mt-live-take-lbl {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fca5a5;
+  white-space: nowrap;
+  animation: mt-live-pulse 1.1s ease-in-out infinite;
+}
+@keyframes mt-live-pulse {
+  0%, 100% { opacity: 1;   }
+  50%      { opacity: 0.55;}
+}
+.mt-live-take-canvas {
+  display: block;
+  width: 100%;
 }
 .mt-rec-settings {
   position: absolute;
@@ -464,6 +570,43 @@
 .mt-heads-spacer {
   border-bottom: 0.5px solid var(--border);
 }
+/* TRACKS header — sits where the spacer used to be, aligned with
+   the ruler. Houses the ＋ button that creates an empty track. */
+.mt-heads-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 12px;
+  border-bottom: 0.5px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.mt-heads-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-secondary, rgba(255,255,255,0.62));
+}
+.mt-heads-add {
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(34,211,238,0.10);
+  border: 1px solid var(--tab-multitrack, #22d3ee);
+  color: var(--tab-multitrack, #22d3ee);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 100ms ease, transform 60ms ease;
+}
+.mt-heads-add:hover  { background: rgba(34,211,238,0.22); }
+.mt-heads-add:active { transform: translateY(1px); }
+
 .mt-track-head {
   padding: 8px 10px;
   padding-right: 16px;
@@ -472,6 +615,36 @@
   flex-direction: column;
   gap: 5px;
   position: relative;
+  cursor: pointer;
+  transition: background 100ms ease, box-shadow 100ms ease;
+}
+.mt-track-head:hover {
+  background: rgba(255,255,255,0.025);
+}
+/* Highlighted state: this track is the recording target. Glowing
+   red ring around the lane mirrors the ⏺ Record button color. */
+.mt-track-head.rec-target {
+  background: rgba(239,68,68,0.08);
+  box-shadow: inset 3px 0 0 #ef4444;
+}
+.mt-track-rec-flag {
+  position: absolute;
+  top: 4px;
+  right: 18px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ef4444;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.55);
+  border-radius: 6px;
+  padding: 1px 6px;
+  pointer-events: none;
+  animation: mt-rec-flag-pulse 1.1s ease-in-out infinite;
+}
+@keyframes mt-rec-flag-pulse {
+  0%, 100% { opacity: 1;   }
+  50%      { opacity: 0.55;}
 }
 .mt-track-head > .mt-meter.v {
   position: absolute;
@@ -528,23 +701,43 @@
   flex-shrink: 0;
 }
 .mt-track-del:hover { color: #fca5a5; border-color: rgba(239,68,68,0.4); }
-.mt-track-nudge {
+.mt-track-del.armed {
+  width: auto;
+  padding: 0 7px;
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+  font-weight: 700;
+  animation: mtArmPulse 1s ease-in-out infinite;
+}
+@keyframes mtArmPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.55); }
+  50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+}
+.mt-track-cliprow {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
+}
+.mt-add-clip {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border-hi);
+  border-radius: 5px;
+  color: var(--text-secondary);
   font-size: var(--fs-xs);
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.mt-add-clip:hover {
+  color: var(--tab-multitrack);
+  border-color: var(--tab-multitrack);
+  background: var(--bg-glass-md);
+}
+.mt-clipcount {
+  font-size: 10px;
   color: var(--text-muted);
 }
-.mt-track-nudge button {
-  width: 20px; height: 18px;
-  background: var(--bg-glass);
-  border: 0.5px solid var(--border);
-  border-radius: 4px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 11px;
-}
-.mt-track-nudge button:hover { color: var(--text-primary); background: var(--bg-glass-md); }
 .mt-no-tracks {
   padding: 24px 14px;
   font-size: var(--fs-sm);
@@ -586,6 +779,13 @@
   position: relative;
   border-bottom: 0.5px solid var(--border);
   cursor: pointer;
+  transition: background 80ms ease, box-shadow 80ms ease;
+}
+/* Lit up during a cross-track clip drag — tells the user which
+   lane the clip will land in when they release the mouse. */
+.mt-lane.drop-target {
+  background: rgba(34,211,238,0.10);
+  box-shadow: inset 0 0 0 2px rgba(34,211,238,0.55);
 }
 
 /* ── Tempo grid ─────────────────────────────────────────────── */
@@ -623,6 +823,39 @@
   padding: 1px 5px;
   border-radius: 3px;
   pointer-events: none;
+  max-width: calc(100% - 34px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mt-clip-del {
+  position: absolute;
+  top: 3px; right: 4px;
+  width: 16px; height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  border: 0.5px solid rgba(255,255,255,0.18);
+  border-radius: 3px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.mt-clip:hover .mt-clip-del { opacity: 1; }
+.mt-clip-del:hover { color: #fca5a5; border-color: rgba(239,68,68,0.5); }
+.mt-clip-del.armed {
+  opacity: 1;
+  width: auto;
+  padding: 0 4px;
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+  font-weight: 700;
+  font-size: 10px;
 }
 .mt-trim {
   position: absolute;
@@ -725,7 +958,9 @@
    ───────────────────────────────────────────────────────────── */
 .mt-mixer {
   flex-shrink: 0;
-  height: 270px;
+  display: flex;
+  flex-direction: column;
+  max-height: 62vh;
   border-top: 0.5px solid var(--border-hi);
   background: rgba(10,9,20,0.6);
   backdrop-filter: blur(12px);
@@ -735,7 +970,8 @@
   display: flex;
   gap: 8px;
   padding: 12px 16px;
-  height: 100%;
+  height: 270px;
+  flex-shrink: 0;
   overflow-x: auto;
 }
 .mt-mixer-empty {
@@ -744,6 +980,134 @@
   font-style: italic;
   padding: 20px;
 }
+
+/* ── Mixer Controls — stream-deck row + Count-in / Input
+   monitor / Open Autotune. Sits at the top of the Mixer drawer
+   above the channel strips. ────────────────────────────────── */
+.mt-mixctrl {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--border-hi, rgba(255,255,255,0.08));
+  background: rgba(255,255,255,0.02);
+}
+.mt-mixctrl-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.mt-mixctrl-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary, rgba(255,255,255,0.62));
+}
+.mt-mixctrl-note {
+  font-size: 11px;
+  color: var(--text-muted, rgba(255,255,255,0.36));
+  font-style: italic;
+}
+
+/* ── Stream-style hotkey row ── */
+.mt-mixctrl-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.mt-mixctrl-key {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid color-mix(in srgb, var(--key, #888) 32%, rgba(255,255,255,0.08));
+  color: var(--text, #e5e7eb);
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease, transform 60ms ease;
+}
+.mt-mixctrl-key:hover {
+  background: color-mix(in srgb, var(--key, #888) 16%, rgba(255,255,255,0.05));
+  border-color: color-mix(in srgb, var(--key, #888) 60%, transparent);
+}
+.mt-mixctrl-key:active { transform: translateY(1px); }
+.mt-mixctrl-key.on {
+  background: color-mix(in srgb, var(--key, #888) 26%, rgba(255,255,255,0.04));
+  border-color: var(--key, #888);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--key, #888) 50%, transparent),
+              inset 0 0 14px color-mix(in srgb, var(--key, #888) 18%, transparent);
+}
+.mt-mixctrl-key-icon {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--key, #e5e7eb);
+}
+.mt-mixctrl-key-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Vocal options row + Open Autotune ── */
+.mt-mixctrl-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.mt-mixctrl-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  font-size: 13px;
+}
+.mt-mixctrl-opt:hover {
+  background: rgba(255,255,255,0.06);
+}
+.mt-mixctrl-opt input[type="checkbox"] {
+  width: 16px; height: 16px; flex-shrink: 0;
+  accent-color: var(--tab-multitrack, #22d3ee);
+}
+.mt-mixctrl-opt span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.mt-mixctrl-opt small {
+  font-size: 11px;
+  color: var(--text-muted, rgba(255,255,255,0.36));
+}
+.mt-mixctrl-autotune {
+  appearance: none;
+  margin-left: auto;
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  border: 1px solid rgba(168,85,247,0.55);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(168,85,247,0.3);
+  transition: filter 120ms ease, transform 60ms ease;
+}
+.mt-mixctrl-autotune:hover  { filter: brightness(1.1); }
+.mt-mixctrl-autotune:active { transform: translateY(1px); }
 
 .mt-strip {
   flex-shrink: 0;
@@ -889,3 +1253,1769 @@
   letter-spacing: 0.5px;
   color: var(--text-muted);
 }
+
+/* ── Studio Console — matte-black hardware control surface ──── */
+.mt-console {
+  position: fixed;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  /* matte black body with a faint brushed-metal sheen */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0) 120px),
+    linear-gradient(160deg, #16161a, #0c0c0f 60%, #060608);
+  border: 1px solid #2a2a30;
+  border-radius: 16px;
+  box-shadow:
+    0 40px 90px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+  user-select: none;
+}
+.mt-console-float  { /* uses inline left/top/width/height */ }
+.mt-console-bottom {
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  top: auto !important; width: auto !important; height: 392px !important;
+  border-radius: 14px 14px 0 0;
+}
+.mt-console-right {
+  right: 0 !important; top: 0 !important; bottom: 0 !important;
+  left: auto !important; height: auto !important; width: 440px !important;
+  border-radius: 14px 0 0 14px;
+}
+.mt-console.is-min { height: auto !important; }
+
+.mt-console-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  /* brushed metal strip */
+  background: linear-gradient(180deg, #2c2c33, #18181c);
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+  cursor: move;
+  flex-shrink: 0;
+}
+.mt-console-bottom .mt-console-bar,
+.mt-console-right  .mt-console-bar { cursor: default; }
+.mt-console-grip { color: #555; font-size: 13px; letter-spacing: -2px; }
+.mt-console-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #cfcfd6;
+  letter-spacing: 2.5px;
+}
+.mt-console-winbtns { margin-left: auto; display: flex; gap: 4px; }
+.mt-cwin {
+  width: 22px; height: 22px;
+  background: #111114;
+  border: 1px solid #34343c;
+  border-radius: 5px;
+  color: #8a8a93;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-cwin:hover { color: #fff; border-color: #4a4a55; background: #1a1a1f; }
+.mt-cwin.on {
+  color: var(--tab-multitrack);
+  border-color: var(--tab-multitrack);
+  box-shadow: 0 0 8px rgba(52,211,153,0.35);
+}
+.mt-cwin-close:hover { color: #fff; background: #ef4444; border-color: #ef4444; }
+
+/* mode tabs */
+.mt-console-tabs {
+  display: flex;
+  gap: 3px;
+  padding: 7px 10px 0;
+  background: #0a0a0c;
+  border-bottom: 1px solid #000;
+  flex-shrink: 0;
+}
+.mt-ctab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 4px 8px;
+  background: #131316;
+  border: 1px solid #26262c;
+  border-bottom: none;
+  border-radius: 7px 7px 0 0;
+  color: #76767f;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-ctab:hover { color: #b8b8c0; background: #18181c; }
+.mt-ctab.on {
+  color: #fff;
+  background: linear-gradient(180deg, #20202a, #16161c);
+  border-color: var(--tab-multitrack);
+  box-shadow: inset 0 2px 0 var(--tab-multitrack), 0 -2px 10px rgba(52,211,153,0.25);
+}
+.mt-ctab-icon { font-size: 15px; }
+.mt-ctab-label { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* transport strip */
+.mt-console-transport {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  background: rgba(13,11,30,0.55);
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.mt-con-tp {
+  width: 36px; height: 36px;
+  background: var(--bg-glass-md);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-con-tp:hover:not(:disabled) { background: var(--bg-glass); border-color: var(--tab-multitrack); }
+.mt-con-tp:disabled { opacity: 0.35; cursor: not-allowed; }
+.mt-con-tp.on {
+  background: rgba(52,211,153,0.2);
+  border-color: var(--tab-multitrack);
+  color: var(--tab-multitrack);
+}
+.mt-con-rec { color: #fca5a5; }
+.mt-con-rec.on {
+  background: rgba(239,68,68,0.22);
+  border-color: #fca5a5;
+  color: #fff;
+  animation: mtRecPulse 1.2s ease-in-out infinite;
+}
+.mt-con-readout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+  margin-left: 4px;
+  min-width: 70px;
+}
+.mt-con-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mt-con-bars {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--tab-multitrack);
+}
+.mt-con-mastermeter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  min-width: 160px;
+}
+.mt-con-mastermeter .mt-meter.h { flex: 1; width: auto; height: 11px; }
+.mt-con-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+/* the board area */
+.mt-console-board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mt-console-strips {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  overflow: auto;
+}
+.mt-con-empty {
+  margin: auto;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* one channel strip */
+.mt-cs {
+  flex-shrink: 0;
+  width: 124px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-top: 2px solid var(--tab-multitrack);
+  border-radius: var(--radius-md);
+}
+.mt-cs-name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-bottom: 4px;
+  border-bottom: 0.5px solid var(--border);
+}
+.mt-cs-ms { display: flex; gap: 5px; }
+.mt-cs-msbtn {
+  flex: 1;
+  height: 22px;
+  background: var(--bg-glass-md);
+  border: 0.5px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mt-cs-msbtn.on-m { background: rgba(239,68,68,0.25); border-color: #fca5a5; color: #fff; }
+.mt-cs-msbtn.on-s { background: rgba(251,191,36,0.25); border-color: var(--accent-amber); color: #fff; }
+.mt-cs-fx-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  background: rgba(13,11,30,0.4);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+}
+.mt-cs-fx-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.mt-cs-fx-lbl:first-child { margin-top: 0; }
+.mt-cs-pan {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+.mt-cs-pan input { flex: 1; accent-color: var(--text-secondary); height: 12px; }
+.mt-cs-fader-zone {
+  flex: 1;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.mt-cs-fader-wrap {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  justify-content: center;
+}
+.mt-cs-fader {
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 26px;
+  accent-color: var(--tab-multitrack);
+  cursor: ns-resize;
+}
+.mt-cs-fader-master { accent-color: var(--accent-amber); }
+.mt-cs-fader-wrap .mt-meter.v { width: 9px; }
+.mt-cs-faderval {
+  font-size: 9px;
+  font-family: ui-monospace, monospace;
+  color: var(--text-secondary);
+}
+.mt-cs-master {
+  border-top-color: var(--accent-amber);
+  background: rgba(251,191,36,0.06);
+  margin-left: 4px;
+}
+.mt-cs-master .mt-cs-name { color: var(--accent-amber); }
+.mt-cs-master-note {
+  align-items: center;
+  text-align: center;
+  font-size: 10px;
+  color: var(--accent-amber);
+  line-height: 1.5;
+  justify-content: center;
+}
+.mt-cs-master-note span { font-size: 9px; color: var(--text-muted); }
+
+/* future-phase bays */
+.mt-console-bays {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 0.5px solid var(--border);
+  background: rgba(13,11,30,0.5);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.mt-console-bay {
+  flex: 1;
+  min-width: 130px;
+  padding: 10px;
+  background: var(--bg-glass);
+  border: 0.5px dashed var(--border-hi);
+  border-radius: var(--radius-md);
+  text-align: center;
+  opacity: 0.62;
+}
+.mt-console-bay.active {
+  opacity: 1;
+  border-style: solid;
+  border-color: var(--tab-multitrack);
+  background: rgba(52,211,153,0.07);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-console-bay.active:hover {
+  background: rgba(52,211,153,0.14);
+  transform: translateY(-1px);
+}
+.mt-bay-icon { font-size: 18px; }
+.mt-bay-name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 3px;
+}
+.mt-bay-sub { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
+.mt-bay-phase {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--tab-multitrack);
+  background: rgba(52,211,153,0.1);
+  border-radius: 10px;
+  padding: 2px 7px;
+}
+
+/* shortcut legend footer */
+.mt-console-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  padding: 8px 12px;
+  border-top: 0.5px solid var(--border);
+  background: rgba(13,11,30,0.55);
+  flex-shrink: 0;
+}
+.mt-key-row { display: inline-flex; align-items: center; gap: 6px; }
+.mt-key {
+  flex-shrink: 0;
+  min-width: 30px;
+  text-align: center;
+  padding: 3px 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0d0b1e;
+  border-radius: 5px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.35);
+}
+.mt-key.transport { background: #4ade80; }
+.mt-key.edit      { background: #fbbf24; }
+.mt-key.history   { background: #a78bfa; }
+.mt-key-desc { font-size: 10px; color: var(--text-secondary); white-space: nowrap; }
+
+/* resize handle */
+.mt-console-resize {
+  position: absolute;
+  right: 2px; bottom: 2px;
+  width: 18px; height: 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--text-faint);
+  font-size: 11px;
+  cursor: nwse-resize;
+}
+.mt-console-resize:hover { color: var(--tab-multitrack); }
+
+/* ── Autotune workbench (Console Phase 2) ───────────────────── */
+.mt-at {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.mt-at-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 0.5px solid var(--border);
+  background: rgba(13,11,30,0.5);
+  flex-shrink: 0;
+}
+.mt-at-back {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.mt-at-back:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.mt-at-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mt-at-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.mt-at-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mt-at-row { flex-direction: row; gap: 14px; }
+.mt-at-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mt-at-tracks { display: flex; flex-wrap: wrap; gap: 7px; }
+.mt-at-trackchip {
+  padding: 5px 12px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-hi);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-at-trackchip:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.mt-at-trackchip.on {
+  background: rgba(52,211,153,0.16);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.mt-at-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mt-at-field select {
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  padding: 6px 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+  min-width: 150px;
+}
+.mt-at-field select option { background: #1a1726; }
+.mt-at-knob {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mt-at-knob > span {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.mt-at-knob > span em {
+  font-style: normal;
+  color: var(--tab-multitrack);
+  font-weight: 600;
+}
+.mt-at-knob input[type="range"] {
+  width: 100%;
+  accent-color: var(--tab-multitrack);
+}
+.mt-at-knob small { font-size: 10px; color: var(--text-muted); }
+.mt-at-btn { align-self: flex-start; }
+.mt-at-readout {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mt-at-stat {
+  flex: 1;
+  min-width: 70px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  text-align: center;
+}
+.mt-at-stat b {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tab-multitrack);
+  font-family: ui-monospace, monospace;
+}
+.mt-at-stat span {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+.mt-at-readout-muted {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-style: italic;
+}
+.mt-at-note { font-size: 10px; color: var(--text-muted); }
+.mt-at-msg {
+  font-size: var(--fs-sm);
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+}
+.mt-at-msg.ok  { background: rgba(52,211,153,0.12); color: var(--tab-multitrack); border: 0.5px solid rgba(52,211,153,0.35); }
+.mt-at-msg.err { background: rgba(239,68,68,0.12); color: #fca5a5; border: 0.5px solid rgba(239,68,68,0.35); }
+
+/* ── Instruments workbench (Console Phase 3) ────────────────── */
+.mt-iw {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.mt-iw-rec {
+  margin-left: auto;
+  background: var(--bg-glass-md);
+  border: 0.5px solid #fca5a5;
+  border-radius: var(--radius-md);
+  color: #fca5a5;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-iw-rec:hover { background: rgba(239,68,68,0.16); }
+.mt-iw-rec.on {
+  background: rgba(239,68,68,0.25);
+  color: #fff;
+  animation: mtRecPulse 1.2s ease-in-out infinite;
+}
+.mt-iw-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.mt-iw-voices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mt-iw-voice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mt-iw-voice:hover { background: var(--bg-glass-md); color: var(--text-primary); }
+.mt-iw-voice.on {
+  background: rgba(52,211,153,0.16);
+  border-color: var(--tab-multitrack);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.mt-iw-voice-emoji { font-size: 13px; }
+.mt-iw-controls {
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-end;
+}
+.mt-iw-octave { display: flex; flex-direction: column; gap: 5px; }
+.mt-iw-octave-ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, monospace;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mt-iw-octave-ctl button {
+  width: 26px; height: 26px;
+  background: var(--bg-glass);
+  border: 0.5px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+.mt-iw-octave-ctl button:hover { background: var(--bg-glass-md); border-color: var(--tab-multitrack); }
+.mt-iw-vol { display: flex; flex-direction: column; gap: 5px; flex: 1; max-width: 220px; }
+.mt-iw-vol input { accent-color: var(--tab-multitrack); }
+
+/* the piano */
+.mt-piano {
+  position: relative;
+  height: 150px;
+  user-select: none;
+}
+.mt-piano-whites {
+  display: flex;
+  height: 100%;
+  gap: 2px;
+}
+.mt-pk { cursor: pointer; }
+.mt-pk-w {
+  flex: 1;
+  background: linear-gradient(180deg, #f3f0f7, #d8d2e2);
+  border: 1px solid #b9b2c8;
+  border-radius: 0 0 5px 5px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+}
+.mt-pk-w span { font-size: 9px; font-weight: 600; color: #6b6580; }
+.mt-pk-w:active, .mt-pk-w.on {
+  background: linear-gradient(180deg, #6ee7b7, #34d399);
+}
+.mt-pk-w.on span { color: #0d3b2e; }
+.mt-pk-b {
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 62%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #2a2738, #15131f);
+  border: 1px solid #000;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+.mt-pk-b:active, .mt-pk-b.on {
+  background: linear-gradient(180deg, #34d399, #1f9d76);
+}
+.mt-iw-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.mt-iw-hint kbd {
+  display: inline-block;
+  min-width: 16px;
+  text-align: center;
+  padding: 1px 4px;
+  margin: 0 1px;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  background: var(--bg-glass-md);
+  border: 0.5px solid var(--border-hi);
+  border-radius: 3px;
+  color: var(--text-secondary);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Studio Console — hardware aesthetic (Phase: full redesign)
+   ════════════════════════════════════════════════════════════ */
+
+/* darken the inherited console surfaces toward matte black */
+.mt-console .mt-console-transport {
+  background: #0c0c0f;
+  border-bottom: 1px solid #000;
+}
+.mt-console .mt-console-board,
+.mt-console .mt-iw,
+.mt-console .mt-at {
+  background: linear-gradient(180deg, #0e0e12, #08080a);
+}
+.mt-console .mt-con-tp {
+  background: linear-gradient(180deg, #1d1d22, #121216);
+  border: 1px solid #34343c;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.mt-console .mt-con-tp.on {
+  background: rgba(52,211,153,0.18);
+  border-color: var(--tab-multitrack);
+  box-shadow: 0 0 12px rgba(52,211,153,0.4), inset 0 0 8px rgba(52,211,153,0.2);
+}
+.mt-console .mt-con-rec.on {
+  background: rgba(239,68,68,0.28);
+  box-shadow: 0 0 14px rgba(239,68,68,0.5);
+}
+
+/* ── reactive waveform strip ─────────────────────────────────── */
+.mt-console-wave {
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+  background: #060607;
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 0 22px rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+.mt-console-wave-cv { display: block; width: 100%; height: 100%; }
+.mt-console-wave-led {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 120%, rgba(52,211,153,0.6), transparent 70%);
+  transition: opacity 80ms linear;
+}
+.mt-console-wave.live { box-shadow: inset 0 0 22px rgba(52,211,153,0.15); }
+
+/* ── drum pad grid ───────────────────────────────────────────── */
+.mt-drumgrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.mt-drumpad {
+  position: relative;
+  aspect-ratio: 1.45 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: linear-gradient(180deg, #1a1a1f, #0d0d10);
+  border: 1px solid #2c2c34;
+  border-radius: 10px;
+  color: #c8c8d0;
+  cursor: pointer;
+  /* faint RGB rim glow in the pad's colour */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 0 0 1px color-mix(in srgb, var(--pad) 22%, transparent),
+    0 0 14px color-mix(in srgb, var(--pad) 14%, transparent);
+  transition: transform 60ms ease, box-shadow 90ms ease, background 90ms ease;
+}
+.mt-drumpad:hover { border-color: color-mix(in srgb, var(--pad) 55%, #2c2c34); }
+.mt-drumpad.hit {
+  background: linear-gradient(180deg, var(--pad), color-mix(in srgb, var(--pad) 55%, #000));
+  color: #0a0a0a;
+  transform: translateY(2px) scale(0.97);
+  box-shadow:
+    0 0 26px var(--pad),
+    0 0 0 1px var(--pad),
+    inset 0 0 18px rgba(255,255,255,0.35);
+}
+.mt-drumpad-key {
+  position: absolute;
+  top: 5px; left: 7px;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--pad);
+  opacity: 0.8;
+}
+.mt-drumpad.hit .mt-drumpad-key { color: rgba(0,0,0,0.6); }
+.mt-drumpad-label {
+  /* small OLED-style label */
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* ── stream-control deck ─────────────────────────────────────── */
+.mt-deck {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 9px;
+}
+.mt-deckkey {
+  position: relative;
+  aspect-ratio: 1.25 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: linear-gradient(180deg, #1a1a1f, #0d0d10);
+  border: 1px solid color-mix(in srgb, var(--key) 32%, #2c2c34);
+  border-radius: 10px;
+  color: #d0d0d8;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 0 16px color-mix(in srgb, var(--key) 16%, transparent);
+  transition: transform 60ms ease, box-shadow 90ms ease, background 90ms ease;
+}
+.mt-deckkey:hover {
+  border-color: color-mix(in srgb, var(--key) 65%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--key) 32%, transparent);
+}
+.mt-deckkey:active { transform: translateY(2px) scale(0.97); }
+.mt-deckkey.on {
+  background: linear-gradient(180deg, var(--key), color-mix(in srgb, var(--key) 55%, #000));
+  color: #08080a;
+  border-color: var(--key);
+  box-shadow: 0 0 28px var(--key), inset 0 0 18px rgba(255,255,255,0.3);
+}
+.mt-deckkey.soon { opacity: 0.6; }
+.mt-deckkey-icon { font-size: 20px; }
+.mt-deckkey-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.mt-deckkey-soon {
+  position: absolute;
+  top: 5px; right: 6px;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--key);
+  opacity: 0.85;
+}
+.mt-deck-note {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--accent-amber);
+}
+
+/* ── vocal booth ─────────────────────────────────────────────── */
+.mt-vocal { align-items: stretch; }
+.mt-vocal-rec {
+  padding: 18px;
+  background: linear-gradient(180deg, #2a1416, #1a0d0e);
+  border: 1px solid #5c2a2e;
+  border-radius: 12px;
+  color: #fca5a5;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 0 20px rgba(239,68,68,0.12);
+  transition: all var(--transition);
+}
+.mt-vocal-rec:hover { background: linear-gradient(180deg, #341619, #200f11); }
+.mt-vocal-rec.on {
+  background: linear-gradient(180deg, #ef4444, #b91c1c);
+  color: #fff;
+  border-color: #ef4444;
+  box-shadow: 0 0 30px rgba(239,68,68,0.55);
+  animation: mtRecPulse 1.2s ease-in-out infinite;
+}
+.mt-vocal-opts { display: flex; flex-direction: column; gap: 8px; }
+.mt-vocal-opt {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 9px 11px;
+  background: #111115;
+  border: 1px solid #2a2a32;
+  border-radius: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.mt-vocal-opt input { accent-color: var(--tab-multitrack); margin-top: 2px; }
+.mt-vocal-opt small { display: block; font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.mt-vocal-at { align-self: flex-start; }
+
+/* ── RGB-backlit treatment for the existing piano keys ───────── */
+.mt-console .mt-pk-w.on {
+  background: linear-gradient(180deg, #6ee7b7, #34d399);
+  box-shadow: 0 0 18px rgba(52,211,153,0.7);
+}
+.mt-console .mt-pk-b.on {
+  background: linear-gradient(180deg, #34d399, #1f9d76);
+  box-shadow: 0 0 16px rgba(52,211,153,0.8);
+}
+.mt-console .mt-iw-voice.on,
+.mt-console .mt-at-trackchip.on {
+  box-shadow: 0 0 12px rgba(52,211,153,0.3);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Roli Seaboard — RGB square pad grid (MPE)
+   ════════════════════════════════════════════════════════════ */
+
+/* 2 rows × 12 columns chromatic grid */
+.mt-sbgrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 5px;
+  padding: 10px;
+  background: #060609;
+  border-radius: 12px;
+  border: 1px solid #1c1c24;
+  box-shadow: inset 0 2px 12px rgba(0,0,0,0.7);
+  user-select: none;
+}
+
+/* Each square pad */
+.mt-sbpad {
+  --pad: #14b8a6;
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 7px;
+  background: #111116;
+  border: 1.5px solid rgba(255,255,255,0.055);
+  cursor: crosshair;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  overflow: hidden;
+  transition: background 45ms, box-shadow 45ms, border-color 45ms;
+}
+
+/* Subtle tinted glow from the pad's colour — always on */
+.mt-sbpad::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pad);
+  opacity: 0.08;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 45ms;
+}
+
+/* Note label (e.g. "C", "F♯") */
+.mt-sbpad-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--pad);
+  opacity: 0.8;
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Octave number below the note */
+.mt-sbpad-oct {
+  font-size: 8px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.22);
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ── Pressed / held — full RGB blaze ─────────────────────── */
+.mt-sbpad.on {
+  background: var(--pad);
+  border-color: var(--pad);
+  box-shadow:
+    0 0 14px var(--pad),
+    0 0 28px var(--pad),
+    inset 0 0 14px rgba(255,255,255,0.18);
+}
+.mt-sbpad.on::before { opacity: 0; }
+.mt-sbpad.on .mt-sbpad-name {
+  color: #fff;
+  opacity: 1;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+}
+.mt-sbpad.on .mt-sbpad-oct {
+  color: rgba(255,255,255,0.65);
+}
+
+/* ── Live expression readout ──────────────────────────────── */
+.mt-sb-readout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mt-sb-note {
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  min-width: 30px;
+  text-align: center;
+}
+.mt-sb-axis {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.mt-sb-ax-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.mt-sb-ax-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  text-align: center;
+  transition: color 80ms;
+}
+.mt-sb-ax-val.active { color: #14b8a6; }
+
+/* ── Console: richer glow on press ───────────────────────── */
+.mt-console .mt-sbpad.on {
+  box-shadow:
+    0 0 18px var(--pad),
+    0 0 40px var(--pad),
+    inset 0 0 18px rgba(255,255,255,0.22);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Guitar workbench — fretboard + chord mode
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Fretboard container ─────────────────────────────────── */
+.mt-guitar-board {
+  background: linear-gradient(160deg, #2c1000 0%, #4a1d00 40%, #3a1500 75%, #2c1000 100%);
+  border-radius: 10px;
+  border: 1px solid #1a0800;
+  overflow: hidden;
+  padding: 6px 10px 4px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* ── One string row ──────────────────────────────────────── */
+.mt-guitar-row {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  position: relative;
+}
+
+/* The string itself — runs full width behind all cells */
+.mt-guitar-row::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 0;
+  top: 50%;
+  height: var(--str-h, 1.5px);
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, #c0c0ca 0%, #909098 50%, #c0c0ca 100%);
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+/* String name label */
+.mt-guitar-slbl {
+  width: 18px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  letter-spacing: -0.03em;
+}
+
+/* Open-string column (before the nut) */
+.mt-guitar-open-cell {
+  width: 30px;
+  height: 100%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+.mt-guitar-open-cell:hover { background: rgba(255,255,255,0.04); border-radius: 4px; }
+
+/* The ivory nut bar */
+.mt-guitar-nut {
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #f8f0de, #ddd4a8, #f8f0de);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  box-shadow: 1px 0 4px rgba(0,0,0,0.5), -1px 0 2px rgba(0,0,0,0.25);
+}
+
+/* Each fret compartment */
+.mt-guitar-fret-cell {
+  flex: 1;
+  height: 100%;
+  border-left: 2px solid rgba(168,160,128,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  transition: background 50ms;
+}
+.mt-guitar-fret-cell:hover { background: rgba(255,255,255,0.05); }
+.mt-guitar-fret-cell.sel   { background: rgba(52,211,153,0.11); }
+
+/* ── Note dot — appears when a string is played ──────────── */
+.mt-guitar-dot {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--sc, #34d399);
+  box-shadow: 0 0 8px var(--sc, #34d399), 0 0 20px var(--sc, #34d399);
+  position: relative;
+  z-index: 3;
+  animation: mt-guitar-pop 0.14s ease-out;
+  pointer-events: none;
+}
+/* Chord ghost dot — shows chord shape before strumming */
+.mt-guitar-dot.ghost {
+  opacity: 0.35;
+  box-shadow: none;
+  animation: none;
+  width: 13px;
+  height: 13px;
+}
+@keyframes mt-guitar-pop {
+  0%   { transform: scale(0.35); opacity: 0.6; }
+  65%  { transform: scale(1.25); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+/* Muted string indicator */
+.mt-guitar-muted {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(239,68,68,0.55);
+  position: relative;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ── Ruler row (fret numbers + inlay dots) ───────────────── */
+.mt-guitar-ruler {
+  display: flex;
+  align-items: flex-start;
+  height: 20px;
+  padding-top: 2px;
+}
+/* Spacer covers the label + open-cell + nut widths (18+30+5 = 53px) */
+.mt-guitar-ruler-spacer { width: 53px; flex-shrink: 0; }
+
+.mt-guitar-ruler-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.mt-guitar-ruler-num {
+  font-size: 8px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.18);
+  line-height: 1;
+}
+.mt-guitar-pos-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+}
+.mt-guitar-pos-double { display: flex; gap: 4px; }
+
+/* ── Controls below the board ────────────────────────────── */
+.mt-guitar-actionrow {
+  flex-wrap: wrap;
+  gap: 10px 18px !important;
+  align-items: flex-end !important;
+}
+.mt-guitar-fretbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mt-guitar-fretbtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--bg-glass-sm);
+  border: 1px solid var(--border-lo);
+  color: var(--text-secondary);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 60ms;
+}
+.mt-guitar-fretbtn:hover { background: var(--bg-glass-md); }
+
+.mt-guitar-fretnum {
+  min-width: 40px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #34d399;
+}
+.mt-guitar-strumbtn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(52,211,153,0.1);
+  border: 1px solid rgba(52,211,153,0.3);
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 60ms;
+}
+.mt-guitar-strumbtn:hover { background: rgba(52,211,153,0.2); }
+
+/* ── Chord cards ─────────────────────────────────────────── */
+.mt-guitar-chordbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.mt-guitar-chordrow {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.mt-guitar-chord {
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--bg-glass-sm);
+  border: 1px solid var(--border-lo);
+  border-radius: 7px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 70ms;
+}
+.mt-guitar-chord:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-secondary);
+}
+.mt-guitar-chord.on {
+  background: rgba(251,191,36,0.15);
+  border-color: rgba(251,191,36,0.5);
+  color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251,191,36,0.2);
+}
+
+/* ── Voice quick-pick buttons (reuse mt-iw-voice) ────────── */
+.mt-guitar-voicepick {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* ── Per-project Share button (📤) — small ghost button that sits
+   next to the delete button on each project tile in the left rail. */
+.mt-project-share {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  color: #cfcfd6;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.10s ease;
+}
+.mt-project-share:hover {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #93c5fd;
+}
+.mt-project-share:active { transform: scale(0.95); }
+
+/* ── Share-to-chat modal ───────────────────────────────────── */
+.mt-share-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.mt-share-modal {
+  width: 100%;
+  max-width: 460px;
+  background: #161413;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.mt-share-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.10);
+}
+.mt-share-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f5f5f4;
+  letter-spacing: 0.01em;
+}
+.mt-share-close {
+  background: transparent;
+  border: none;
+  color: #9a9aa6;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.mt-share-close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f4;
+}
+.mt-share-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.mt-share-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mt-share-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9a9aa6;
+}
+.mt-share-hint {
+  font-size: 12.5px;
+  color: #9a9aa6;
+  padding: 8px 0;
+  font-style: italic;
+}
+.mt-share-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.mt-share-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #f5f5f4;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.mt-share-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.mt-share-option.on {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.55);
+}
+.mt-share-option-icon {
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+.mt-share-option-name {
+  flex: 1;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mt-share-option-meta {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #9a9aa6;
+}
+.mt-share-note {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f5f5f4;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+}
+.mt-share-note:focus {
+  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+}
+.mt-share-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.22);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.10);
+}
+.mt-share-cancel,
+.mt-share-send {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+}
+.mt-share-cancel {
+  background: transparent;
+  color: #cfcfd6;
+}
+.mt-share-cancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+.mt-share-send {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #93c5fd;
+}
+.mt-share-send:hover:not(:disabled) {
+  background: rgba(96, 165, 250, 0.28);
+}
+.mt-share-send:disabled,
+.mt-share-cancel:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Floating success/error toast for share results */
+.mt-share-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2001;
+  padding: 12px 18px;
+  background: #161413;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  color: #f5f5f4;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  max-width: 420px;
+}
+
+/* ── Share dialog: mode radio cards ───────────────────────── */
+.mt-share-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mt-share-mode {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.mt-share-mode:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.mt-share-mode.on {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.55);
+}
+.mt-share-mode input[type="radio"] {
+  margin-top: 4px;
+  accent-color: #60a5fa;
+}
+.mt-share-mode-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mt-share-mode-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f5f5f4;
+}
+.mt-share-mode-desc {
+  font-size: 11.5px;
+  color: #9a9aa6;
+  line-height: 1.4;
+}
+
+/* ── Shared-with-you section header in project list ──────── */
+.mt-project-section-head {
+  margin: 14px 6px 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a9aa6;
+}
+.mt-project-shared {
+  /* Subtle accent so collaborators can see at a glance which
+     projects are shared vs personal. */
+  border: 0.5px solid rgba(96, 165, 250, 0.35);
+  background: linear-gradient(90deg,
+    rgba(96, 165, 250, 0.05) 0%,
+    rgba(167, 139, 250, 0.03) 100%);
+}
+.mt-project-shared.sel {
+  border-color: rgba(96, 165, 250, 0.75);
+  background: linear-gradient(90deg,
+    rgba(96, 165, 250, 0.16) 0%,
+    rgba(167, 139, 250, 0.10) 100%);
+}
+
+/* ── Collaborate section in the sidebar ───────────────────── */
+.mt-collab-header {
+  /* Visual separator from the Projects panel above. */
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Small chip with the live collaboration count next to the header. */
+.mt-collab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: 0 2px 6px rgba(96, 165, 250, 0.45);
+}
+.mt-collab-list {
+  /* Slightly tighter than the personal projects list. */
+  padding-top: 4px;
+}
+.mt-collab-empty {
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #9a9aa6;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  font-style: italic;
+}
+.mt-collab-empty b {
+  color: #cfcfd6;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ── Per-project Archive button (📦) ─────────────────────────
+   Sits between Share and Delete on each project tile. Same
+   shape as the other action buttons; turns amber when armed
+   in the archive-list (used for the Unarchive ↩ variant). */
+.mt-project-archive {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  color: #cfcfd6;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.10s ease;
+}
+.mt-project-archive:hover {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.55);
+  color: #fbbf24;
+}
+.mt-project-archive:active { transform: scale(0.95); }
+/* "on" variant — used for the unarchive button in the Archive
+   list, so it reads as a positive (restore) action rather than
+   archive again. */
+.mt-project-archive.on {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #93c5fd;
+}
+.mt-project-archive.on:hover {
+  background: rgba(96, 165, 250, 0.28);
+}
+
+/* ── Sidebar Archive section ─────────────────────────────────
+   Collapsible header below the Collaborate section. */
+.mt-archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 12px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.10);
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  color: #cfcfd6;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.mt-archive-toggle:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.mt-archive-toggle.open {
+  color: #f5f5f4;
+}
+.mt-archive-chevron {
+  width: 12px;
+  font-size: 11px;
+  color: #9a9aa6;
+}
+.mt-archive-label {
+  flex: 1;
+}
+.mt-archive-count {
+  flex-shrink: 0;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cfcfd6;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.mt-archive-list {
+  padding-top: 4px;
+}
+/* Archived project tiles — visually dimmer than active tiles so
+   they don't compete for attention. */
+.mt-project-archived {
+  opacity: 0.65;
+  filter: grayscale(0.2);
+  transition: opacity 0.12s ease;
+}
+.mt-project-archived:hover {
+  opacity: 0.92;
+  filter: none;
+}
+.mt-archive-tag {
+  color: #fbbf24;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+
+/* Leave-collaboration button (🚪) — appears on shared projects
+   the user does NOT own. Visually distinct from the owner-only
+   ✕ delete button so it reads as "I'm out" rather than "destroy
+   for everyone." Amber tint signals caution without being as
+   alarming as the destructive red. */
+.mt-project-leave {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  color: #cfcfd6;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease, transform 0.10s ease;
+}
+.mt-project-leave:hover {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.55);
+  color: #fbbf24;
+}
+.mt-project-leave:active { transform: scale(0.95); }

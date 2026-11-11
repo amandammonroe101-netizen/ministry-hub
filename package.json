@@ -26,13 +26,18 @@
     "dist:linux": "npm run build:client && electron-builder --linux",
     "release:mac": "npm run build:client && electron-builder --mac --publish always",
     "release:win": "npm run build:client && electron-builder --win --publish always",
-    "release:linux": "npm run build:client && electron-builder --linux --publish always"
+    "release:linux": "npm run build:client && electron-builder --linux --publish always",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-ministry-hub \"vitest run\"",
+    "test": "npm run test:rules"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "electron": "^43.2.0",
     "electron-builder": "^26.8.1",
+    "firebase-tools": "^15.0.0",
+    "vitest": "^3.0.0",
     "wait-on": "^9.0.10"
   },
   "build": {

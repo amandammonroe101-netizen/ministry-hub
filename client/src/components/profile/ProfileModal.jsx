@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../context/AuthContext';
-import { useUserProfile } from '../../lib/userProfile';
+import { useUserProfile, contactFields } from '../../lib/userProfile';
 import { fileToResizedDataUrl } from '../../lib/imageResize';
 import { CustomAvatar, AvatarBuilder, DEFAULT_AVATAR } from '../../pages/friends/Avatar';
 import './ProfileModal.css';
@@ -221,9 +221,7 @@ function ProfileTab({ profile, loading, user, onClose }) {
         avatar:       avatar || null,
         ministryTypes,
         bio:          bio.trim(),
-        emailVisible,
-        phone:        phone.trim(),
-        phoneVisible,
+        ...contactFields({ emailVisible, phone, phoneVisible }),
       });
       setToast('Profile saved.');
       setTimeout(() => { setToast(''); onClose?.(); }, 800);

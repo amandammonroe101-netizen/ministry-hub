@@ -20,9 +20,9 @@
 
 import { useEffect, useState } from 'react';
 import {
-  doc, getDoc, setDoc, onSnapshot, serverTimestamp,
+  doc, getDoc, setDoc, onSnapshot, serverTimestamp, deleteField,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { useAuth } from '../context/AuthContext';
 
 /* 31-char alphabet that excludes ambiguous characters (I, L, O, 0, 1)
@@ -51,6 +51,62 @@ async function claimIdentifyingKey(uid) {
   throw new Error('Could not generate a unique identifying key.');
 }
 
+/* ─── Contact-detail visibility ────────────────────────────────
+   /users/{uid} is readable by every signed-in member (that's what
+   makes Contacts search and chat author labels work), so hiding your
+   email or phone cannot mean "fetch it and don't render it" — anyone
+   can read the document directly and ignore the UI.
+
+   So a hidden field is simply NOT STORED. `email`/`phone` are deleted
+   from the profile the moment their visibility toggle goes off, and
+   re-written when it goes back on. docs/firestore.rules enforces the
+   same invariant server-side, so a modified client can't park a
+   hidden-but-present value there either.
+
+   Every reader in the app already guards with
+   `profile?.emailVisible !== false && profile?.email`, which handles
+   an absent field unchanged. */
+
+/** Build the email/phone half of a profile write. Spread into the
+ *  patch wherever the visibility toggles are saved. */
+export function contactFields({ emailVisible, phone, phoneVisible }) {
+  const authEmail = auth?.currentUser?.email || '';
+  return {
+    emailVisible,
+    email: emailVisible === false ? deleteField() : authEmail,
+    phoneVisible,
+    phone: phoneVisible === false ? deleteField() : String(phone || '').trim(),
+  };
+}
+
+/** Bring an existing profile in line with its own visibility flags —
+ *  strips a hidden value left behind by an older build, and restores
+ *  the email from the auth record when it's been un-hidden.
+ *
+ *  Returns `{ patch, view }`: `patch` goes to Firestore (and may hold
+ *  deleteField() sentinels), `view` is the same change applied to a
+ *  plain object so callers can return an accurate profile without a
+ *  second read. Both are empty / unchanged when nothing needs fixing. */
+function healContactFields(data, authUser) {
+  const patch = {};
+  const view = { ...data };
+
+  if (data.emailVisible === false && 'email' in data) {
+    patch.email = deleteField();
+    delete view.email;
+  } else if (data.emailVisible !== false && !data.email && authUser?.email) {
+    patch.email = authUser.email;
+    view.email = authUser.email;
+  }
+
+  if (data.phoneVisible === false && 'phone' in data) {
+    patch.phone = deleteField();
+    delete view.phone;
+  }
+
+  return { patch, view };
+}
+
 /** Create the user's profile doc if it doesn't already exist. Returns it.
  *  Also stamps lastActiveAt on every call (every sign-in / app reload)
  *  so the Founder Dashboard can show when each user was last active. */
@@ -60,15 +116,22 @@ export async function ensureUserProfile(authUser) {
   const snap = await getDoc(profileRef);
   if (snap.exists()) {
     // Profile exists. If somehow it's missing an identifying key
-    // (e.g. partial old data), heal it here.
+    // (e.g. partial old data), heal it here. Contact fields are
+    // reconciled against their visibility flags on every sign-in, so
+    // profiles written by an older build get cleaned up in place.
     const data = snap.data();
+    const { patch, view } = healContactFields(data, authUser);
     if (!data.identifyingKey) {
       const identifyingKey = await claimIdentifyingKey(authUser.uid);
-      await setDoc(profileRef, { identifyingKey, lastActiveAt: serverTimestamp() }, { merge: true });
-      return { ...data, identifyingKey };
+      await setDoc(
+        profileRef,
+        { ...patch, identifyingKey, lastActiveAt: serverTimestamp() },
+        { merge: true },
+      );
+      return { ...view, identifyingKey };
     }
-    await setDoc(profileRef, { lastActiveAt: serverTimestamp() }, { merge: true });
-    return data;
+    await setDoc(profileRef, { ...patch, lastActiveAt: serverTimestamp() }, { merge: true });
+    return view;
   }
   // First sign-in: claim a key and create the profile
   const identifyingKey = await claimIdentifyingKey(authUser.uid);

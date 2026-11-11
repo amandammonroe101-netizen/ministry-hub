@@ -48,11 +48,30 @@ service cloud.firestore {
     /* ── User profile (the parent /users/{uid} doc) ──────────
        Anyone signed in can READ profiles. This is what powers the
        identifying-key lookup feature and chat author labels.
-       Only the owner can write. */
+       Only the owner can write.
+
+       Because the whole document is member-readable, "hide my email
+       from the directory" cannot be a rendering decision — a hidden
+       value sitting in a readable doc is not hidden. So the rule
+       enforces the invariant instead: if emailVisible is false, the
+       `email` field must not be present at all. Same for phone. The
+       client deletes the field when the toggle goes off (see
+       contactFields() in client/src/lib/userProfile.js); this is what
+       stops a modified client from skipping that step.
+
+       `.get(field, default)` treats a profile that predates these
+       flags as visible, matching the `!== false` checks in the UI. */
+    function contactsMatchVisibility() {
+      let d = request.resource.data;
+      return (d.get('emailVisible', true) || !('email' in d))
+          && (d.get('phoneVisible', true) || !('phone' in d));
+    }
+
     match /users/{uid} {
       allow read: if request.auth != null;
       allow create, update: if request.auth != null
-                            && request.auth.uid == uid;
+                            && request.auth.uid == uid
+                            && contactsMatchVisibility();
     }
 
     /* ── Private per-user key/value store ────────────────────

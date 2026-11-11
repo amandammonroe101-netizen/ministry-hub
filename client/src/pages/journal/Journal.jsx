@@ -8,7 +8,7 @@ import NavRail from '../../components/layout/NavRail';
 import JournalDashboard from './JournalDashboard';
 import { useUserStoreKey } from '../../lib/userStore';
 import { useAuth } from '../../context/AuthContext';
-import { useUserProfile } from '../../lib/userProfile';
+import { useUserProfile, contactFields } from '../../lib/userProfile';
 import { useJournalNotifications } from '../../lib/journalNotifications';
 import {
   useJournalPrivacy, useJournalPromptSettings,
@@ -2617,9 +2617,7 @@ function ProfileTab({ profile, loading, user, onClose }) {
         logo:          logo || '',
         ministryTypes,
         bio:           bio.trim(),
-        emailVisible,
-        phone:         phone.trim(),
-        phoneVisible,
+        ...contactFields({ emailVisible, phone, phoneVisible }),
       });
       setToast('Profile saved.');
       setTimeout(() => { setToast(''); onClose?.(); }, 800);

@@ -67,11 +67,6 @@ sits:
   surface and they have not yet been unified behind a shared layout and component set
 - Some personal-user features are broken and under repair
 - No automated test suite yet
-- **Known gap:** hiding your email or phone from the directory is currently enforced client-side
-  (`redactForOtherMembers` in `lib/contactRequests.js`) while the `/users/{uid}` rule still allows
-  any signed-in member to read the raw profile. The redaction needs to move into the data model —
-  contact details belong in the private `kv` store, surfaced only through the info-share consent
-  flow — so the rules enforce it the way everything else here is enforced.
 
 The 78 modules are at uneven depth by design — breadth came first to find out which parts a
 ministry team actually reaches for, and the surfaces that got used are the ones that got finished.
@@ -130,6 +125,13 @@ neither depends on the UI hiding a button.
 the id is deterministic from the pair, there is no way to end up with duplicate requests between two
 people, and "decline," "cancel," and "remove connection" all collapse into deleting one document
 instead of three separate code paths.
+
+**A hidden field is absent, not merely unrendered.** `/users/{uid}` is readable by every signed-in
+member — that is what makes Contacts search and chat author labels work — so "hide my email from the
+directory" cannot be a rendering decision. Filtering it out client-side after the fetch protects
+nothing, because anyone can read the document directly. So the value is never stored: toggling
+visibility off deletes the field, and the security rules reject any write where `emailVisible` is
+false while `email` is still present. Profiles written before this are reconciled on next sign-in.
 
 **Sharing contact details is a request, not a setting.** Members can hide their email or phone from
 the directory. When another member needs one — the Business Ministry order form, say — they file a

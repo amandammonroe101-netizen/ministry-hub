@@ -48,7 +48,15 @@ async function loadAllProfiles() {
 /** Strips fields a profile owner has hidden from other members (email,
  *  phone) before that profile leaves this module — so every caller gets
  *  privacy-safe data by construction instead of having to remember to
- *  check `emailVisible` / `phoneVisible` itself. */
+ *  check `emailVisible` / `phoneVisible` itself.
+ *
+ *  This is defence in depth, not the actual protection. A hidden field
+ *  is never written to /users/{uid} in the first place (see
+ *  contactFields() in userProfile.js, and the matching invariant in
+ *  docs/firestore.rules) — because this function runs client-side,
+ *  after the fetch, and anyone can read the raw document directly. It
+ *  stays as a guard for profiles written by an older build that hasn't
+ *  been healed on sign-in yet. */
 function redactForOtherMembers(p) {
   const out = { ...p };
   if (out.emailVisible === false) delete out.email;
@@ -58,9 +66,14 @@ function redactForOtherMembers(p) {
 
 /** Search public profiles by name, email, or identifying key.
  *  Case-insensitive substring match; excludes the current user.
- *  Matching against email is still allowed even when the email is
- *  hidden from display — this only finds a person by an email you
- *  already know, it doesn't reveal it in the results. */
+ *
+ *  Email matching only reaches members who have left their email
+ *  visible. Searching by a *hidden* email cannot work and shouldn't:
+ *  the field isn't in the document, and any scheme that let a client
+ *  test it from a readable profile would also let a client enumerate
+ *  it. The identifying key is the deliberate way to find someone whose
+ *  details are private — it's shareable precisely because it reveals
+ *  nothing else about them. */
 export async function searchUsers(term, excludeUid) {
   if (!db) return [];
   const needle = String(term || '').trim().toLowerCase();

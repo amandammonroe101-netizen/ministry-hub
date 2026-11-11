@@ -5,7 +5,7 @@ import MinistryBrand from '../../components/layout/MinistryBrand';
 import { ProfileModal, useProfileTopbar } from '../../components/profile/ProfileModal';
 import PageTourHost from '../../components/tour/PageTourHost';
 import { useAuth } from '../../context/AuthContext';
-import { useUserProfile, getProfileByKey, getProfileByUid } from '../../lib/userProfile';
+import { useUserProfile, getProfileByKey, getProfileByUid, contactFields } from '../../lib/userProfile';
 import { useUserStoreKey } from '../../lib/userStore';
 import { studioShareService } from '../../services/studioShareService';
 import { sharedStudioProjectService } from '../../services/sharedStudioProjectService';
@@ -4059,9 +4059,7 @@ function MyProfileDialog({ profile, onCancel, onToast }) {
         logo:          logo || '',
         ministryTypes: ministryTypes,
         bio:           bio.trim(),
-        emailVisible:  emailVisible,
-        phone:         phone.trim(),
-        phoneVisible:  phoneVisible,
+        ...contactFields({ emailVisible, phone, phoneVisible }),
       });
       onToast?.('Profile saved.');
       onCancel();

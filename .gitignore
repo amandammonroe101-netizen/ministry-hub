@@ -90,3 +90,8 @@ Video Scripts/
 *.docx
 *.xlsx
 Sabbath_Rest_Study_Notes.md
+
+# The per-module how-to guides are shipped assets, imported by the
+# pages that offer them as a download — the blanket *.docx rule above
+# was excluding them, so a fresh clone could not build at all.
+!client/src/assets/*.docx

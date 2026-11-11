@@ -31,13 +31,13 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: package-lock.json
-      # The Firestore emulator is a Java process. Runner images ship a
-      # JDK, but pinning one keeps the job from breaking the day the
-      # default image changes.
+      # The Firestore emulator is a Java process, and firebase-tools 15
+      # requires a JDK of at least 21. Pinned so the job doesn't change
+      # behaviour the day the runner image's default does.
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       # Electron ships a ~100MB binary its postinstall downloads, and
       # none of it is reachable from a rule test. Skipping the download
       # (rather than --ignore-scripts) leaves esbuild's own install

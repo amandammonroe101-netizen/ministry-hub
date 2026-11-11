@@ -64,6 +64,13 @@ logs/
 # ─────────────────────────────────────────────────────────
 vcph-*
 VCPH*
+# Ministry Hub contains no Apps Script. Every .gs file that lands here
+# is work material, so ignore the extension outright rather than adding
+# names one at a time — handover-emails.gs sat untracked and uncovered
+# until it was caught by hand.
+*.gs
+[Hh]andover*
+[Hh]andoff*
 *-SOP.md
 *_SOP.md
 docs/data-hub-sop/

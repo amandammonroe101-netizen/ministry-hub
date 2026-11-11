@@ -1,5 +1,7 @@
 # Ministry Hub
 
+[![CI](https://github.com/amandammonroe101-netizen/ministry-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/amandammonroe101-netizen/ministry-hub/actions/workflows/ci.yml)
+
 A cross-platform desktop application for church and ministry teams — combining day-to-day ministry
 operations (people, prayer, discipleship, scheduling, communications) with a full creative production
 suite (multitrack audio recording, podcast studio, setlists, stage plots) and a website/blog
@@ -66,7 +68,8 @@ sits:
 - Page design is inconsistent across the ministry modules — each one was built as its own
   surface and they have not yet been unified behind a shared layout and component set
 - Some personal-user features are broken and under repair
-- No automated test suite yet
+- Test coverage starts at the security rules and stops there — the rules are tested against the
+  emulator in CI, the application code is not tested yet
 
 The 78 modules are at uneven depth by design — breadth came first to find out which parts a
 ministry team actually reaches for, and the surfaces that got used are the ones that got finished.
@@ -203,6 +206,18 @@ npm run dist:linux    # AppImage + .deb
 ```
 
 Output lands in `dist-electron/`.
+
+### Tests
+
+The security rules are tested against the Firestore emulator, so the rules file itself is what runs
+— not a reimplementation of it. Requires a JDK 21+ on the path for the emulator.
+
+```bash
+npm install
+npm run test:rules
+```
+
+CI runs this plus the renderer build on every push.
 
 ---
 

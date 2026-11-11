@@ -9,6 +9,16 @@ Built with **Electron + React (Vite)** on a **Firebase** backend — Authenticat
 Cloud Storage, and Cloud Functions — with offline persistence and real-time sync across windows and
 devices.
 
+![Piano — nine synthesized voices, scale highlighting, live voice editor, and computer-keyboard mapping](docs/screenshots/piano.webp)
+
+*Worship Ministry → Piano. Nine Web Audio voices, octave shifting, scale highlighting, reverb, and an
+envelope editor that applies live while you play.*
+
+![Journal — reflection prompt, goal tracking, writing rhythm heatmap, theme extraction, and scripture coverage](docs/screenshots/journal.webp)
+
+*Journal. Daily reflection prompt, goal tracking, a 30-day writing-rhythm heatmap, theme extraction
+across all entries, and scripture coverage by book.*
+
 ---
 
 ## Scope
@@ -23,7 +33,8 @@ devices.
 Roughly grouped:
 
 - **Chat & collaboration** — real-time public and private channels, 1:1 direct messages, invite/accept flows, file attachments, and unread badges — reachable from inside the ministry directories, so a worship or hospitality team coordinates on a project without leaving the page they're working on
-- **People & care** — contacts, friends, pastoral care, visitors, outreach, missions, hospitality, discipleship
+- **People & care** — contacts (member search and connection requests), friends, pastoral care, visitors, outreach, missions, hospitality, discipleship
+- **Support** — members file bug reports, feature requests, and add-on ideas from Settings; the owner triages them and can open a reply thread
 - **Prayer & journaling** — prayer lists with status tracking, journal, testimony, daily verse and briefing
 - **Planning** — calendar, day planner, scheduling, rosters, subs, meetings, countdowns, budget
 - **Worship & production** — songs, setlists, CCLI tracking, multitrack recorder, stems library, mix notes, drums, stage plots, lyrics display, soundscapes
@@ -43,6 +54,8 @@ sits:
 
 - Worship & production — the Web Audio multitrack recorder, instruments, and the piano
 - Chat — channels, direct messages, invites, attachments, unread badges
+- Contacts — member search, connection requests, consent-gated info sharing
+- Support requests from Settings, with owner triage and reply threads
 - Journal, prayer, testimony, daily verse and briefing
 - Writing — long-form documents, series, and folders
 - Auth, role-gated routing, Firestore sync, offline persistence, multi-window sync
@@ -54,6 +67,11 @@ sits:
   surface and they have not yet been unified behind a shared layout and component set
 - Some personal-user features are broken and under repair
 - No automated test suite yet
+- **Known gap:** hiding your email or phone from the directory is currently enforced client-side
+  (`redactForOtherMembers` in `lib/contactRequests.js`) while the `/users/{uid}` rule still allows
+  any signed-in member to read the raw profile. The redaction needs to move into the data model —
+  contact details belong in the private `kv` store, surfaced only through the info-share consent
+  flow — so the rules enforce it the way everything else here is enforced.
 
 The 78 modules are at uneven depth by design — breadth came first to find out which parts a
 ministry team actually reaches for, and the surfaces that got used are the ones that got finished.
@@ -106,6 +124,25 @@ Contacts — there is nobody left to ask. `lib/directChat.js` creates those chan
 `memberUids` from the start, which is legal under the security rules because channel `create` only
 requires the creator to be *a* member, not the *only* member. Both paths are enforced server-side;
 neither depends on the UI hiding a button.
+
+**One document is both the request and the relationship.** A Contacts connection lives at
+`/contactRequests/{senderUid}__{recipientUid}` with a `status` of `pending` or `accepted`. Because
+the id is deterministic from the pair, there is no way to end up with duplicate requests between two
+people, and "decline," "cancel," and "remove connection" all collapse into deleting one document
+instead of three separate code paths.
+
+**Sharing contact details is a request, not a setting.** Members can hide their email or phone from
+the directory. When another member needs one — the Business Ministry order form, say — they file a
+purpose-scoped `infoShareRequest` naming which fields they want and why, and the recipient accepts or
+declines that specific ask. It is deliberately not a persistent relationship like a Contacts
+connection: consent is granted per request, and nothing is shared without it.
+
+**Support requests escalate asymmetrically.** Anyone can file a request from Settings, and the owner
+can always reply on its thread. The *sender* cannot post back until they ask for two-way access and
+the owner accepts — `twoWayStatus` moves `requested` → `accepted`, and the security rules, not the
+UI, are what stop the sender's messages before that. So the owner opens a direct line only on the
+requests where it is actually warranted, and a support inbox can't be turned into an unsolicited
+channel to the owner.
 
 **Unread counts span two different collections.** Chat lives in `channels/{id}/messages`, but
 founder-request threads live in `founderRequests/{id}/messages`. The nav badge has to total both, so

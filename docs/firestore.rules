@@ -63,8 +63,8 @@ service cloud.firestore {
        flags as visible, matching the `!== false` checks in the UI. */
     function contactsMatchVisibility() {
       let d = request.resource.data;
-      return (d.get('emailVisible', true) || !('email' in d))
-          && (d.get('phoneVisible', true) || !('phone' in d));
+      return (d.get('emailVisible', true) != false || !('email' in d))
+          && (d.get('phoneVisible', true) != false || !('phone' in d));
     }
 
     match /users/{uid} {

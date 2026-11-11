@@ -22,6 +22,7 @@ devices.
 
 Roughly grouped:
 
+- **Chat & collaboration** — real-time public and private channels, 1:1 direct messages, invite/accept flows, file attachments, and unread badges — reachable from inside the ministry directories, so a worship or hospitality team coordinates on a project without leaving the page they're working on
 - **People & care** — contacts, friends, pastoral care, visitors, outreach, missions, hospitality, discipleship
 - **Prayer & journaling** — prayer lists with status tracking, journal, testimony, daily verse and briefing
 - **Planning** — calendar, day planner, scheduling, rosters, subs, meetings, countdowns, budget
@@ -41,6 +42,7 @@ sits:
 **Working**
 
 - Worship & production — the Web Audio multitrack recorder, instruments, and the piano
+- Chat — channels, direct messages, invites, attachments, unread badges
 - Journal, prayer, testimony, daily verse and briefing
 - Writing — long-form documents, series, and folders
 - Auth, role-gated routing, Firestore sync, offline persistence, multi-window sync
@@ -96,6 +98,21 @@ document size ceilings, and prevents concurrent edits in two windows from clobbe
 `FounderRoute`) is a UX affordance; actual enforcement is in
 [`docs/firestore.rules`](docs/firestore.rules), so a modified client cannot read or write data it
 shouldn't.
+
+**Two consent models for chat membership.** A private channel normally requires an invite the other
+person accepts, so a channel can never gain a member without that member's consent. But a "Chat"
+button inside a ministry directory acts on someone you are *already* mutually connected to in
+Contacts — there is nobody left to ask. `lib/directChat.js` creates those channels with both uids in
+`memberUids` from the start, which is legal under the security rules because channel `create` only
+requires the creator to be *a* member, not the *only* member. Both paths are enforced server-side;
+neither depends on the UI hiding a button.
+
+**Unread counts span two different collections.** Chat lives in `channels/{id}/messages`, but
+founder-request threads live in `founderRequests/{id}/messages`. The nav badge has to total both, so
+`lib/chatUnread.js` runs separate subscriptions, starts no listeners until a user is signed in, and
+tears them all down on sign-out or when the channel set changes. Read state is a per-channel
+last-read timestamp in one shared `kv` key, so opening a thread clears its contribution to the badge
+without any explicit bookkeeping.
 
 **Multi-window state sync.** `WindowSync` keeps detached windows consistent with the main window, so
 a setlist open on a second display reflects edits made in the primary one.
